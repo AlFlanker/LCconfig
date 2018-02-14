@@ -1,5 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        Intent loginIntent = new Intent(this, LoginActivity.class );
+        startActivity(loginIntent);
+
     }
 
     @Override
