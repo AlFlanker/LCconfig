@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.views.Activities.EditAndViewActivity;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -149,7 +151,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (mAuthTask != null) {
             return;
         }
-
+        Intent act = new Intent(this, EditAndViewActivity.class);
+        startActivity(act);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
