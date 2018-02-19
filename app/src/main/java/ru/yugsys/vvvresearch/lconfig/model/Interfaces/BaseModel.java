@@ -7,7 +7,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
 public interface BaseModel<T> {
     void setSession(DaoSession s);
 
-    Query<T> load();
+    void load();
 
     void save(T t);
 

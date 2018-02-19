@@ -13,10 +13,10 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.*;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
+import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.DataActivityPresenter;
 import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.ListPresenter;
 import ru.yugsys.vvvresearch.lconfig.views.Interfaces.IEditView;
-import ru.yugsys.vvvresearch.lconfig.views.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,16 +71,15 @@ public class EditAndViewActivity extends AppCompatActivity implements IEditView 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_and_view);
         setupViews();
-//        baseModel = new DataModel();
-//        baseModel.setSession(((App)getApplication()).getDaoSession());
+        DataModel dataModel = new DataModel(((App) getApplication()).getDaoSession());
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDataReceive, listPresenter);
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDevDataChecked, listPresenter);
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
         listPresenter.bindView(this);
-        listPresenter.setModel(new DataModel(((App) getApplication()).getDaoSession()));
+        listPresenter.setModel(dataModel);
         listPresenter.getSession(((App) getApplication()).getDaoSession());
         listPresenter.loadData();
-//        DaoSession daoSession = ((App)getApplication()).getDaoSession();
-//        mDevDao = daoSession.getDev_DataDao();
-//        devsQuery = mDevDao.queryBuilder().orderAsc(Dev_DataDao.Properties.Name).build();
-//        updateDevs();
+
 
     }
 

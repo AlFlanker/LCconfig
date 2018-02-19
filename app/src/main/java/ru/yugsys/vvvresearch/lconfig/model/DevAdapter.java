@@ -7,15 +7,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.BasePresent;
 import ru.yugsys.vvvresearch.lconfig.views.Activities.EditAndViewActivity;
 
 import java.util.List;
 
 public class DevAdapter extends RecyclerView.Adapter<DevAdapter.DevHolder> {
 
+
+    //  private BasePresent basePresent;
+
     private List<Dev_Data> devs;
     private LayoutInflater mInflater;
     private AppCompatActivity mAppCompatActivity;
+
+//    public BasePresent getBasePresent() {
+//        return basePresent;
+//    }
+//
+//    public void setBasePresent(BasePresent basePresent) {
+//        this.basePresent = basePresent;
+//    }
 
     public DevAdapter(List<Dev_Data> devs, LayoutInflater inflater, AppCompatActivity activity) {
         this.devs = devs;
@@ -68,8 +80,9 @@ public class DevAdapter extends RecyclerView.Adapter<DevAdapter.DevHolder> {
         public void onClick(View view) {
             Dev_Data dev_data = devs.get(getLayoutPosition());
             Long devid = dev_data.getId();
-            ((EditAndViewActivity)mAppCompatActivity).getDevDao().deleteByKey(devid);
-            ((EditAndViewActivity)mAppCompatActivity).updateDevs();
+            //    basePresent.RemoveDevFromBD(devid);
+            //  basePresent.updateView();
+
         }
     }
 }
