@@ -1,5 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
+import android.location.Location;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
@@ -16,12 +17,9 @@ import static android.content.ContentValues.TAG;
 
 public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
 
-
-    private Dev_DataDao mDevDao;
-    private Query<Dev_Data> devsQuery;
-    public DaoSession daoSession;
     private List<Dev_Data> devList;
     private boolean NFCenable;
+    private Location location;
 
     @Override
     public void loadData() {
@@ -30,6 +28,7 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
 
     }
 
+    @Override
     public void AddDev(String n, String g) {
         if (n.trim().equals("") || g.trim().equals("")) {
             getView().ShowError();
@@ -42,6 +41,10 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
         //updateView();
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
     @Override
     public void resetStat() {
 
@@ -52,11 +55,7 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
         getView().update(devList);
     }
 
-    @Override
-    public void getSession(DaoSession s) {
-        this.daoSession = s;
 
-    }
     // Implements method from Model Listener
 
     @Override
@@ -76,5 +75,11 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
     public void OnCheckedDevData(boolean check) {
         Log.d("MyTag", "OnCheckedDevData: " + " work!" + " " + Boolean.toString(check));
 
+    }
+
+    @Override
+    public void OnGPSdata(Location location) {
+        this.location = location;
+        Log.d("MyTag", "OnGPSdata: " + " " + location.toString());
     }
 }

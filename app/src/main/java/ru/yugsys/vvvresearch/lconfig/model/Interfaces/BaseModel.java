@@ -1,6 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
-import org.greenrobot.greendao.query.Query;
+
+import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
 
 
@@ -10,5 +11,7 @@ public interface BaseModel<T> {
     void load();
 
     void save(T t);
+
+    Location getLocation();
 
 }

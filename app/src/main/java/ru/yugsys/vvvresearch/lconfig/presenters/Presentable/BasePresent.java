@@ -22,5 +22,5 @@ public interface BasePresent extends ModelListener<Dev_Data> {
 
     void loadData();
 
-    void getSession(DaoSession s);
+    //void getSession(DaoSession s);
 }

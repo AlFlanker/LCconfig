@@ -1,5 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.model.Manager;
 
+import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.Dev_Data;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
@@ -7,7 +8,7 @@ import java.util.*;
 
 public class EventManager {
     public enum TypeEvent {
-        OnDataReceive, OnNFCconnected, OnDevDataChecked
+        OnDataReceive, OnNFCconnected, OnDevDataChecked, OnGPSdata
     }
 
     private EnumMap<TypeEvent, ArrayList<ModelListener<Dev_Data>>> listeners = new EnumMap<>(TypeEvent.class);
@@ -33,7 +34,7 @@ public class EventManager {
         return false;
     }
 
-    public void notify(TypeEvent evType, boolean flag, boolean check, List devList) {
+    public void notify(TypeEvent evType, boolean flag, boolean check, List devList, Location location) {
 
         switch (evType) {
             case OnDevDataChecked:
@@ -49,6 +50,11 @@ public class EventManager {
             case OnNFCconnected:
                 for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
                     listener.OnNFCconnected(flag);
+                }
+                break;
+            case OnGPSdata:
+                for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
+                    listener.OnGPSdata(location);
                 }
                 break;
         }

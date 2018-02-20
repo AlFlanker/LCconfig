@@ -1,16 +1,23 @@
 package ru.yugsys.vvvresearch.lconfig.views.Activities;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.ConnectivityReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.*;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
@@ -21,11 +28,45 @@ import ru.yugsys.vvvresearch.lconfig.views.Interfaces.IEditView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditAndViewActivity extends AppCompatActivity implements IEditView {
+public class EditAndViewActivity extends AppCompatActivity implements IEditView, ConnectivityReceiver.ConnectivityReceiverListener {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        App.getInstance().setConnectivityListener(this);
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        final Context context = getApplicationContext();
+        if (isConnected) {
+            Toast.makeText(getApplicationContext(),
+                    "Соединение есть", Toast.LENGTH_LONG).show();
+        } else {
+//            Toast.makeText(getApplicationContext(),
+//                    "Нет соединения с интернетом!",Toast.LENGTH_LONG).show();
+            AlertDialog.Builder aDialog = new AlertDialog.Builder(this);
+            aDialog.setTitle("Нет сети!");
+            aDialog.setMessage("Необходимо включить WiFi или GPRS");
+            aDialog.setPositiveButton("настройка", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    context.startActivity(new Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS));
+                }
+            });
+            aDialog.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            aDialog.show();
+        }
+    }
+
     @Override
     public void ShowError() {
         Toast.makeText(EditAndViewActivity.this, "Нет данных", Toast.LENGTH_SHORT).show();
-        return;
+        //return;
     }
 
     @Override
@@ -77,9 +118,9 @@ public class EditAndViewActivity extends AppCompatActivity implements IEditView 
         dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
         listPresenter.bindView(this);
         listPresenter.setModel(dataModel);
-        listPresenter.getSession(((App) getApplication()).getDaoSession());
         listPresenter.loadData();
-
+        App.getInstance().setConnectivityListener(this);
+        Log.d("MyTag", "App.getInstance(set(this))from Oncreate");
 
     }
 

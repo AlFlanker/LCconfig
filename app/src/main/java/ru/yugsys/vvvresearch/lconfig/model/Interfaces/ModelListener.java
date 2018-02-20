@@ -1,6 +1,8 @@
 package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
 
+import android.location.Location;
+
 import java.util.List;
 
 public interface ModelListener<T> {
@@ -9,6 +11,8 @@ public interface ModelListener<T> {
     void OnNFCconnected(boolean flag);
 
     void OnCheckedDevData(boolean check);
+
+    void OnGPSdata(Location location);
 
 
 }
