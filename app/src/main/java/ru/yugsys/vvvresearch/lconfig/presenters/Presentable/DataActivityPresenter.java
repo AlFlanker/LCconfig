@@ -2,29 +2,23 @@ package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
 import android.location.Location;
 import android.util.Log;
-import org.greenrobot.greendao.query.Query;
-import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
-import ru.yugsys.vvvresearch.lconfig.model.Dev_Data;
-import ru.yugsys.vvvresearch.lconfig.model.Dev_DataDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.views.Interfaces.IEditView;
 
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
-
 
 public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
 
-    private List<Dev_Data> devList;
+    private List<Device> devList;
     private boolean NFCenable;
     private Location location;
 
     @Override
     public void loadData() {
         model.load();
-        // devList = devsQuery.list();
+
 
     }
 
@@ -33,12 +27,11 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
         if (n.trim().equals("") || g.trim().equals("")) {
             getView().ShowError();
         }
-        Dev_Data dev = new Dev_Data();
-        dev.setName(n);
-        dev.setGeo(Float.parseFloat(g));
+        Device dev = new Device();
+        //тут данные заполнить
         this.model.save(dev);
         this.loadData();
-        //updateView();
+
     }
 
     public Location getLocation() {
@@ -59,7 +52,7 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
     // Implements method from Model Listener
 
     @Override
-    public void OnDataRecived(List<Dev_Data> devList) {
+    public void OnDataRecived(List<Device> devList) {
         Log.d("MyTag", "OnDataRecived: " + " work!");
         this.devList = devList;
         updateView();

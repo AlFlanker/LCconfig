@@ -1,8 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
 import android.support.annotation.NonNull;
-import android.view.View;
-import ru.yugsys.vvvresearch.lconfig.model.Dev_Data;
 
 import java.lang.ref.WeakReference;
 

@@ -1,14 +1,13 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
-import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
-import ru.yugsys.vvvresearch.lconfig.model.Dev_Data;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.List;
 
-public interface BasePresent extends ModelListener<Dev_Data> {
+public interface BasePresent extends ModelListener<Device> {
     @Override
-    void OnDataRecived(List<Dev_Data> devList);
+    void OnDataRecived(List<Device> devList);
 
     @Override
     void OnNFCconnected(boolean flag);

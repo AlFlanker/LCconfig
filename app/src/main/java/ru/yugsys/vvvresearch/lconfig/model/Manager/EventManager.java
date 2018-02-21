@@ -1,7 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.model.Manager;
 
 import android.location.Location;
-import ru.yugsys.vvvresearch.lconfig.model.Dev_Data;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.*;
@@ -11,11 +11,11 @@ public class EventManager {
         OnDataReceive, OnNFCconnected, OnDevDataChecked, OnGPSdata
     }
 
-    private EnumMap<TypeEvent, ArrayList<ModelListener<Dev_Data>>> listeners = new EnumMap<>(TypeEvent.class);
+    private EnumMap<TypeEvent, ArrayList<ModelListener<Device>>> listeners = new EnumMap<>(TypeEvent.class);
 
     public EventManager() {
         for (TypeEvent event : TypeEvent.values())
-            this.listeners.put(event, new ArrayList<ModelListener<Dev_Data>>());
+            this.listeners.put(event, new ArrayList<ModelListener<Device>>());
     }
 
     public boolean subscribe(TypeEvent event, ModelListener listener) {
@@ -38,22 +38,22 @@ public class EventManager {
 
         switch (evType) {
             case OnDevDataChecked:
-                for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
+                for (ModelListener<Device> listener : listeners.get(evType)) {
                     listener.OnCheckedDevData(check);
                 }
                 break;
             case OnDataReceive:
-                for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
+                for (ModelListener<Device> listener : listeners.get(evType)) {
                     listener.OnDataRecived(devList);
                 }
                 break;
             case OnNFCconnected:
-                for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
+                for (ModelListener<Device> listener : listeners.get(evType)) {
                     listener.OnNFCconnected(flag);
                 }
                 break;
             case OnGPSdata:
-                for (ModelListener<Dev_Data> listener : listeners.get(evType)) {
+                for (ModelListener<Device> listener : listeners.get(evType)) {
                     listener.OnGPSdata(location);
                 }
                 break;

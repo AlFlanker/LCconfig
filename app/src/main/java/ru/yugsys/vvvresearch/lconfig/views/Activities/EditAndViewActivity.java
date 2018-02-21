@@ -17,8 +17,9 @@ import android.widget.Toast;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.ConnectivityReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.*;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.DataActivityPresenter;
@@ -28,40 +29,30 @@ import ru.yugsys.vvvresearch.lconfig.views.Interfaces.IEditView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditAndViewActivity extends AppCompatActivity implements IEditView, ConnectivityReceiver.ConnectivityReceiverListener {
+public class EditAndViewActivity extends AppCompatActivity implements IEditView {
+    protected ListPresenter listPresenter = new DataActivityPresenter();
+    protected BaseModel baseModel;
+    private FloatingActionButton mFab;
+    private EditText devNameEditText;
+    private EditText devgeoEditText;
+    private RecyclerView mRecyclerView;
+    private DeviceDao mDevDao;
+    private Query<Device> devsQuery;
+    //private DevAdapter adapter;
+    private List<Device> devs;
+
+    public DeviceDao getDevDao() {
+        return mDevDao;
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        App.getInstance().setConnectivityListener(this);
+        // App.getInstance().setConnectivityListener(this);
     }
 
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-        final Context context = getApplicationContext();
-        if (isConnected) {
-            Toast.makeText(getApplicationContext(),
-                    "Соединение есть", Toast.LENGTH_LONG).show();
-        } else {
-//            Toast.makeText(getApplicationContext(),
-//                    "Нет соединения с интернетом!",Toast.LENGTH_LONG).show();
-            AlertDialog.Builder aDialog = new AlertDialog.Builder(this);
-            aDialog.setTitle("Нет сети!");
-            aDialog.setMessage("Необходимо включить WiFi или GPRS");
-            aDialog.setPositiveButton("настройка", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    context.startActivity(new Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS));
-                }
-            });
-            aDialog.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            aDialog.show();
-        }
-    }
+
 
     @Override
     public void ShowError() {
@@ -85,26 +76,12 @@ public class EditAndViewActivity extends AppCompatActivity implements IEditView,
     }
 
     @Override
-    public void update(List<Dev_Data> list) {
+    public void update(List<Device> list) {
         this.devs = list;
-        adapter.setDevs(devs);
+
     }
 
-    protected ListPresenter listPresenter = new DataActivityPresenter();
-    protected BaseModel baseModel;
-    private FloatingActionButton mFab;
-    private EditText devNameEditText;
-    private EditText devgeoEditText;
-    private RecyclerView mRecyclerView;
-    private DevAdapter adapter;
-    private List<Dev_Data> devs;
 
-    public Dev_DataDao getDevDao() {
-        return mDevDao;
-    }
-
-    private Dev_DataDao mDevDao;
-    private Query<Dev_Data> devsQuery;
 
 
     @Override
@@ -119,14 +96,14 @@ public class EditAndViewActivity extends AppCompatActivity implements IEditView,
         listPresenter.bindView(this);
         listPresenter.setModel(dataModel);
         listPresenter.loadData();
-        App.getInstance().setConnectivityListener(this);
+
         Log.d("MyTag", "App.getInstance(set(this))from Oncreate");
 
     }
 
     public void updateDevs() {
         devs = devsQuery.list();
-        adapter.setDevs(devs);
+        //adapter.setDevs(devs);
     }
 
     private void setupViews() {
@@ -136,9 +113,9 @@ public class EditAndViewActivity extends AppCompatActivity implements IEditView,
         devgeoEditText = (EditText) findViewById(R.id.dev_geo);
 
         devs = new ArrayList<>();
-        adapter = new DevAdapter(devs, getLayoutInflater(), this);
+        //adapter = new DevAdapter(devs, getLayoutInflater(), this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(adapter);
+        //  mRecyclerView.setAdapter(adapter);
 
 
         mFab.setOnClickListener(new View.OnClickListener() {

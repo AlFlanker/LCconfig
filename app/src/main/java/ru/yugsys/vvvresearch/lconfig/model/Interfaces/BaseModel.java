@@ -2,7 +2,7 @@ package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
 
 import android.location.Location;
-import ru.yugsys.vvvresearch.lconfig.model.DaoSession;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 
 
 public interface BaseModel<T> {
@@ -12,6 +12,7 @@ public interface BaseModel<T> {
 
     void save(T t);
 
-    Location getLocation();
+    void Location();
+
 
 }

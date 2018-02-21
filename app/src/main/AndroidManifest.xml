@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!-- GPS data -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
 
     <!-- android:name=".App"
@@ -39,13 +41,7 @@
         </activity>
         <activity android:name=".views.Activities.EditAndViewActivity">
         </activity>
-        <receiver
-                android:name=".Services.ConnectivityReceiver"
-                android:enabled="true">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-            </intent-filter>
-        </receiver>
+        <service android:name=".Services.GPSTracker" android:process=":gpsservice"/>
     </application>
 
 </manifest>

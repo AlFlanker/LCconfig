@@ -22,8 +22,10 @@ android {
 }
 
 greendao {
-    schemaVersion 2
+    schemaVersion 20
     targetGenDir 'src/main/java'
+    daoPackage   'ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses'
+
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -31,6 +33,8 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     // add library
+
+    compile 'com.google.android.gms:play-services:11.0.0' // для геолокации
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'com.android.support:appcompat-v7:27.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
