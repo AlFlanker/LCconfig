@@ -1,113 +1,87 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
-import android.app.Service;
+import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import com.google.android.gms.location.*;
 
-public class GPSTracker extends Service {
-
-    private static final String TAG = "GPS Service:";
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0;
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 1 * 1; // 1 sec
-    protected LocationManager mLocationManager;
-
-    private class LocationListener implements android.location.LocationListener {
-        Location mLastLocation;
-
-        public LocationListener(String provider) {
-            Log.e(TAG, "LocationListener " + provider);
-            mLastLocation = new Location(provider);
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.e(TAG, "onLocationChanged: " + location);
-            mLastLocation.set(location);
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Log.e(TAG, "onProviderDisabled: " + provider);
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            Log.e(TAG, "onProviderEnabled: " + provider);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.e(TAG, "onStatusChanged: " + provider);
-        }
+public class GPSTracker {
+    public void setContext(Context context) {
+        this.mContext = context;
     }
 
-    LocationListener mLocationListeners = new LocationListener(LocationManager.GPS_PROVIDER);
+    private  Context mContext;
+    private static final GPSTracker instance = new GPSTracker();
+    private static final String TAG = "GPS";
 
-    @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
-    }
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+    private LocationSettingsRequest locationSettingsRequest;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand");
-        super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
-    }
+    private GPScallback<Location> GPScb;
 
-    @Override
-    public void onCreate() {
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
-        Log.e(TAG, "onCreate");
-
-        initializeLocationManager();
-
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    MIN_TIME_BW_UPDATES,
-                    MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                    mLocationListeners
-            );
-        } catch (java.lang.SecurityException ex) {
-            Log.i(TAG, "fail to request location update, ignore", ex);
-        } catch (IllegalArgumentException ex) {
-            Log.d(TAG, "network provider does not exist, " + ex.getMessage());
-        }
-
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.e(TAG, "onDestroy");
-        super.onDestroy();
-        if (mLocationManager != null) {
-
-            try {
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                mLocationManager.removeUpdates(mLocationListeners);
-            } catch (Exception ex) {
-                Log.i(TAG, "fail to remove location listener, ignore", ex);
+    private GPSTracker() {
+        Log.d(TAG, "GPSt constructor");
+        this.locationRequest = new LocationRequest();
+        this.locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+     //   this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        Log.d(TAG, "GPSt request compl");
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(this.locationRequest);
+        this.locationSettingsRequest = builder.build();
+        Log.d(TAG, "GPSt callBack");
+        this.locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                Location currentLocation = locationResult.getLastLocation();
+                Log.d(TAG, "Location Callback results: " + currentLocation.toString());
+                if (GPScb!=null)
+                    GPScb.callback(currentLocation);//в мой класс обратка
             }
+        };
+        Log.d(TAG, "client");
 
+    }
+    public void OnStartGPS(){
+
+        // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!
+        this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return ;
         }
+        Log.d(TAG, "permission compl");
+        this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
     }
 
-    private void initializeLocationManager() {
-        Log.e(TAG, "initializeLocationManager - LOCATION_INTERVAL: " + MIN_TIME_BW_UPDATES + " LOCATION_DISTANCE: " + MIN_DISTANCE_CHANGE_FOR_UPDATES);
-        if (mLocationManager == null) {
-            mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        }
+    public static GPSTracker instance() {
+
+        return instance;
+    }
+
+    public void onChange(GPScallback<Location> cb) {
+        this.GPScb = cb;
+    }
+
+    public LocationSettingsRequest getLocationSettingsRequest() {
+        return this.locationSettingsRequest;
+    }
+
+    public void stop() {
+        Log.d(TAG, "stop() Stopping location tracking");
+        this.mFusedLocationClient.removeLocationUpdates(this.locationCallback);
     }
 
 }
+

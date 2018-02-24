@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <!-- GPS data -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <!-- android:name=".App"
     android:allowBackup="true"
@@ -41,7 +41,7 @@
         </activity>
         <activity android:name=".views.Activities.EditAndViewActivity">
         </activity>
-        <service android:name=".Services.GPSTracker" android:process=":gpsservice"/>
-    </application>
+          <service android:name=".model.DataModel" android:process=":gpsservice"/> -->
+     </application>
 
-</manifest>
+ </manifest>

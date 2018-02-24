@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         Intent loginIntent = new Intent(this, LoginActivity.class );
         startActivity(loginIntent);
 
+
     }
 
     @Override
