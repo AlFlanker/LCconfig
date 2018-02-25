@@ -23,12 +23,57 @@ import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
 public class Device {
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Device other = (Device) obj;
+        if (!(type.equals(other.type)))
+            return false;
+        if (!(eui.equals(other.eui)))
+            return false;
+        if (!(appeui.equals(other.appeui)))
+            return false;
+        if (!(appkey.equals(other.appkey)))
+            return false;
+        if (!(nwkid.equals(other.nwkid)))
+            return false;
+        if (!(devadr.equals(other.devadr)))
+            return false;
+        if (!(nwkskey.equals(other.nwkskey)))
+            return false;
+        if (!(appskey.equals(other.appskey)))
+            return false;
+        if (!(outType.equals(other.outType)))
+            return false;
+        if (!(kV.equals(other.kV)))
+            return false;
+        if (!(kI.equals(other.kI)))
+            return false;
+        return true;
+
+        /*lat and lon don't use*/
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+         final int tmp = 37;
+         int result = 1;
+         result = result*tmp + this.type.hashCode();
+         result = result*tmp + this.eui.hashCode();
+         result = result*tmp + this.appeui.hashCode();
+         result = result*tmp + this.appkey.hashCode();
+         result = result*tmp + this.nwkid.hashCode();
+         result = result*tmp + this.devadr.hashCode();
+         result = result*tmp + this.nwkskey.hashCode();
+         result = result*tmp + this.appskey.hashCode();
+         result = result*tmp + this.outType.hashCode();
+         result = result*tmp + + this.kV.hashCode();
+         result = result*tmp + this.kI.hashCode();
+            return result;
     }
 
     /**

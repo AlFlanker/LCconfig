@@ -35,11 +35,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.Manifest;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
+import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
+import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.DataActivityPresenter;
+import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.ListPresenter;
 import ru.yugsys.vvvresearch.lconfig.views.Activities.EditAndViewActivity;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -48,8 +55,10 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,GPScallback<Location> {
+
+
     @Override
-    public void callback(Location gps) {
+    public void OnGPSdata(Location gps) {
         Log.d("GPS",gps.toString());
     }
 
@@ -58,6 +67,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     private static final int REQUEST_PERMISSIONS = 100;
+    protected ListPresenter listPresenter = new DataActivityPresenter();
     boolean boolean_permission;
     double latitude;
     double longitude;
@@ -86,18 +96,48 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
       //  Intent intent = new Intent(this, GPSTracker.class);
 //        startService(intent);
-        Log.d("GPS","main");
         GPSTracker gps = GPSTracker.instance();
         gps.setContext(this);
         gps.OnStartGPS();
-        Log.d("GPS","start");
-
         gps.onChange(this);
+        DataModel dataModel = new DataModel(((App)getApplication()).getDaoSession());
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDataReceive, listPresenter);
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDevDataChecked, listPresenter);
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
+        listPresenter.bindView(this);
+        listPresenter.setModel(dataModel);
+      //  listPresenter.loadData();
+        Log.d("BD","init model");
+        Device dev = new Device();
+        /*
+         public Device(Long id, @NotNull String type, @NotNull String eui,
+                  @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
+                  @NotNull String devadr, @NotNull String nwkskey,
+                  @NotNull String appskey, double Latitude, double Longitude,
+                  @NotNull String outType, @NotNull String kV, @NotNull String kI) {
+         */
+        dev.type = "something 1";
+        dev.eui = "something 2";
+        dev.appeui = "something 3";
+        dev.appkey = "something 4";
+        dev.nwkid = "something 5";
+        dev.devadr = "something 6";
+        dev.nwkskey = "something 7";
+        dev.appskey = "something 8";
+        dev.outType = "something 9";
+        dev.kV = "something 10";
+        dev.kI = "something 11";
+        dev.setLatitude(34.13123);
+        dev.setLongitude(37.13123);
+        Log.d("BD","init dev - "+dev.type);
+        dataModel.save(dev);
+        Log.d("BD","load");
+        listPresenter.loadData();
+        List<Device> l = listPresenter.getList();
+        final String s = l.get(0).type;
+        Log.d("BD","message: "+ s);
 
-       Log.d("GPS","start gps");
-        // Set up the login form.
-       // dataModel = new DataModel();
-
+       // dataModel.save(new Device());
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -171,6 +211,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     });
         } else {
             requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+
         }
         return false;
     }

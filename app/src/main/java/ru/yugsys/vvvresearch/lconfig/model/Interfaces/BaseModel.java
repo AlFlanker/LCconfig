@@ -12,7 +12,7 @@ public interface BaseModel<T> {
 
     void save(T t);
 
-    void Location();
+    //void stopGPS();
 
 
 }

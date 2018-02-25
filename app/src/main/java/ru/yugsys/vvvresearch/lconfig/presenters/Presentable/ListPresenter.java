@@ -1,15 +1,17 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
 import android.support.annotation.NonNull;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 public abstract class ListPresenter<M, V> implements BasePresent {
 
 
     protected M model;
     private WeakReference<V> view;
-
+    public abstract List<Device> getList();
     public void setModel(M model) {
         resetStat();
         this.model = model;

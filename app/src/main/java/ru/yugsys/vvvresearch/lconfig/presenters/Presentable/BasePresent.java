@@ -1,11 +1,15 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
+import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.List;
 
 public interface BasePresent extends ModelListener<Device> {
+    @Override
+    void OnGPSdata(Location location);
+
     @Override
     void OnDataRecived(List<Device> devList);
 

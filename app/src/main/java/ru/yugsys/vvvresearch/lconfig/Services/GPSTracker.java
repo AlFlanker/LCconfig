@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -30,17 +29,17 @@ public class GPSTracker {
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
     private GPSTracker() {
-        Log.d(TAG, "GPSt constructor");
+        //Log.d(TAG, "GPSt constructor");
         this.locationRequest = new LocationRequest();
         this.locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
      //   this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        Log.d(TAG, "GPSt request compl");
+      //  Log.d(TAG, "GPSt request compl");
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(this.locationRequest);
         this.locationSettingsRequest = builder.build();
-        Log.d(TAG, "GPSt callBack");
+        //Log.d(TAG, "GPSt callBack");
         this.locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -48,7 +47,7 @@ public class GPSTracker {
                 Location currentLocation = locationResult.getLastLocation();
                 Log.d(TAG, "Location Callback results: " + currentLocation.toString());
                 if (GPScb!=null)
-                    GPScb.callback(currentLocation);//в мой класс обратка
+                    GPScb.OnGPSdata(currentLocation);//в мой класс обратка
             }
         };
         Log.d(TAG, "client");
@@ -61,7 +60,7 @@ public class GPSTracker {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return ;
         }
-        Log.d(TAG, "permission compl");
+       // Log.d(TAG, "permission compl");
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
     }
 

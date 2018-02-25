@@ -10,8 +10,12 @@ import java.util.List;
 
 
 public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
+    @Override
+    public List<Device> getList() {
+        return devList;
+    }
 
-    private List<Device> devList;
+    public List<Device> devList;
     private boolean NFCenable;
     private Location location;
 
@@ -55,7 +59,7 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
     public void OnDataRecived(List<Device> devList) {
         Log.d("MyTag", "OnDataRecived: " + " work!");
         this.devList = devList;
-        updateView();
+        //updateView();
     }
 
     @Override
