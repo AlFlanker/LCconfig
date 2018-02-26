@@ -17,6 +17,7 @@ public class App extends Application {
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
 
+
     }
 
     public DaoSession getDaoSession() {

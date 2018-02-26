@@ -27,6 +27,7 @@ public class GPSTracker {
 
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    public boolean mRequestingLocationUpdates = false;
 
     private GPSTracker() {
         //Log.d(TAG, "GPSt constructor");
@@ -35,6 +36,7 @@ public class GPSTracker {
         this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
      //   this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        // точность +-100 метров
       //  Log.d(TAG, "GPSt request compl");
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(this.locationRequest);
@@ -55,11 +57,12 @@ public class GPSTracker {
     }
     public void OnStartGPS(){
 
-        // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!
+        // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!для андройд выше 6.0
         this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return ;
         }
+        mRequestingLocationUpdates = true;
        // Log.d(TAG, "permission compl");
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
     }
@@ -79,7 +82,18 @@ public class GPSTracker {
 
     public void stop() {
         Log.d(TAG, "stop() Stopping location tracking");
+        mRequestingLocationUpdates = false;
         this.mFusedLocationClient.removeLocationUpdates(this.locationCallback);
+    }
+
+    public void OnResumeGPS() {
+        this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
+        mRequestingLocationUpdates = true;
+        Log.d("GPS", "OnResume");
     }
 
 }

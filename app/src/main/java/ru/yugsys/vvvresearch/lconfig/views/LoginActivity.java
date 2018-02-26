@@ -6,6 +6,10 @@ import android.annotation.TargetApi;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -26,11 +30,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,39 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,GPScallback<Location> {
+    @Override
+    protected void onNewIntent(Intent intent) {
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Log.d("NFC", "Action DISCOVERED");
+            process(intent);
+        }
+    }
 
+    private void process(Intent intent) {
+        Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        if (parcelables != null) {
+            Toast.makeText(this.getApplicationContext(), "Succses", Toast.LENGTH_LONG).show();
+            Log.d("NFC", "NFC NDEF message");
+            NdefMessage[] ndefMessage = new NdefMessage[parcelables.length];
+            int i = 0;
+            for (Parcelable p : parcelables) {
+                ndefMessage[i++] = (NdefMessage) p;
+            }
+
+
+            for (NdefRecord ndefRecord : ndefMessage[0].getRecords()) {
+                Log.d("NFC", ndefRecord.toString());
+            }
+            return;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // для сохранения инфы о активность - для gps итд
+    }
 
     @Override
     public void OnGPSdata(Location gps) {
@@ -71,6 +103,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     boolean boolean_permission;
     double latitude;
     double longitude;
+    private GPSTracker gps;
+    private NfcAdapter mNfcAdapter;
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -92,11 +126,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("OnCreate", "create activity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
       //  Intent intent = new Intent(this, GPSTracker.class);
 //        startService(intent);
-        GPSTracker gps = GPSTracker.instance();
+        Log.d("OnCreate", "t");
+
+        gps = GPSTracker.instance();
         gps.setContext(this);
         gps.OnStartGPS();
         gps.onChange(this);
@@ -129,8 +166,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         List<Device> l = listPresenter.getList();
         final String s = l.get(0).type;
         Log.d("BD","message: "+ s);
+        Log.d("BD", Integer.toString(l.size()));
 
-       // dataModel.save(new Device());
+
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -156,6 +194,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        //*************************************************
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.NFC) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("NFC", "discovered 1");
+            mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+            Intent intent = new Intent();
+            String action = intent.getAction();
+            if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+                Log.d("NFC", "discovered 2");
+                process(intent);
+            }
+        }
+
     }
 
     //*************************
@@ -248,6 +298,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onResume() {
         super.onResume();
+        gps.OnResumeGPS();
        // registerReceiver(broadcastReceiver, new IntentFilter(GPSTracker.str_receiver));
 
     }
@@ -255,6 +306,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onPause() {
         super.onPause();
+        gps.stop();
         unregisterReceiver(broadcastReceiver);
     }
 

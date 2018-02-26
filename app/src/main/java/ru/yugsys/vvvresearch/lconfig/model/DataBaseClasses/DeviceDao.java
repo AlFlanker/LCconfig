@@ -52,6 +52,36 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         this.daoSession = daoSession;
     }
 
+    /**
+     * Creates the underlying database table.
+     */
+    public static void createTable(Database db, boolean ifNotExists) {
+        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        db.execSQL("CREATE TABLE " + constraint + "\"DevicesTable\" (" + //
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"TYPE\" TEXT NOT NULL ," + // 1: type
+                "\"EUI\" TEXT NOT NULL ," + // 2: eui
+                "\"APPEUI\" TEXT NOT NULL ," + // 3: appeui
+                "\"APPKEY\" TEXT NOT NULL ," + // 4: appkey
+                "\"NWKID\" TEXT NOT NULL ," + // 5: nwkid
+                "\"DEVADR\" TEXT NOT NULL ," + // 6: devadr
+                "\"NWKSKEY\" TEXT NOT NULL ," + // 7: nwkskey
+                "\"APPSKEY\" TEXT NOT NULL ," + // 8: appskey
+                "\"LATITUDE\" REAL NOT NULL ," + // 9: Latitude
+                "\"LONGITUDE\" REAL NOT NULL ," + // 10: Longitude
+                "\"OUT_TYPE\" TEXT NOT NULL ," + // 11: outType
+                "\"K_V\" TEXT NOT NULL ," + // 12: kV
+                "\"K_I\" TEXT NOT NULL );"); // 13: kI
+    }
+
+    /**
+     * Drops the underlying database table.
+     */
+    public static void dropTable(Database db, boolean ifExists) {
+        String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"DevicesTable\"";
+        db.execSQL(sql);
+    }
+
     @Override
     protected final void bindValues(DatabaseStatement stmt, Device entity) {
         stmt.clearBindings();

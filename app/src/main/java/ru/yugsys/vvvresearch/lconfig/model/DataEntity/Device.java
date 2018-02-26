@@ -14,7 +14,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
 
         nameInDb = "DevicesTable",
 
-        createInDb = false,
+        createInDb = true,
 
         generateConstructors = true,
 
