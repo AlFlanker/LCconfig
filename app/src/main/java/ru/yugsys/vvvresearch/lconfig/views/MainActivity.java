@@ -1,15 +1,21 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.*;
+import android.widget.ImageView;
+import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,8 +34,13 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        RecyclerView recyclerView = findViewById(R.id.lc5_recycler_view);
+        ContentAdapter adapter = new ContentAdapter(recyclerView.getContext());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        Intent loginIntent = new Intent(this, LoginActivity.class );
+        Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
 
     }
@@ -55,4 +66,59 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView typeOfLC5;
+        public TextView isOTAA;
+        public TextView devEUI;
+        public TextView appEUI;
+        public TextView appKey;
+        public TextView nwkID;
+        public TextView devAdr;
+        public TextView nwkSKey;
+        public TextView appSKey;
+        public TextView gps;
+        public TextView outType;
+        ;
+
+        public ViewHolder(LayoutInflater inflater, ViewGroup parent) {
+            super(inflater.inflate(R.layout.lc5_item_list, parent, false));
+            typeOfLC5 = itemView.findViewById(R.id.lc5_type);
+            isOTAA = itemView.findViewById(R.id.lc5_isOTAA);
+            devEUI = itemView.findViewById(R.id.lc5_deveui);
+            appEUI = itemView.findViewById(R.id.lc5_appEUI);
+            appKey = itemView.findViewById(R.id.lc5_appKey);
+            nwkID = itemView.findViewById(R.id.lc5_nwkID);
+            devAdr = itemView.findViewById(R.id.lc5_devAdr);
+            nwkSKey = itemView.findViewById(R.id.lc5_nwkSKey);
+            appSKey = itemView.findViewById(R.id.lc5_appSKey);
+            gps = itemView.findViewById(R.id.lc5_gps);
+            outType = itemView.findViewById(R.id.lc5_out_type);
+        }
+    }
+
+    /**
+     * Adapter to display recycler view.
+     */
+    public static class ContentAdapter extends RecyclerView.Adapter<ViewHolder> {
+        public ContentAdapter(Context context) {
+
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new ViewHolder(LayoutInflater.from(parent.getContext()), parent);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return ;
+        }
+    }
+
 }
