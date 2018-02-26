@@ -16,7 +16,7 @@ import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import java.util.*;
 
 
-public class DataModel extends Service implements BaseModel<Device>,GPScallback<Location> {
+public class DataModel implements BaseModel<Device>, GPScallback<Location> {
     public DaoSession daoSession;
     public EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
@@ -57,12 +57,6 @@ public class DataModel extends Service implements BaseModel<Device>,GPScallback<
 
     }
 
-
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
 
     @Override
     public void OnGPSdata(Location location) {

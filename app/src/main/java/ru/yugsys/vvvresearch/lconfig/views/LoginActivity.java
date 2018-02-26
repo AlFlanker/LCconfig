@@ -109,13 +109,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
       //  listPresenter.loadData();
         Log.d("BD","init model");
         Device dev = new Device();
-        /*
-         public Device(Long id, @NotNull String type, @NotNull String eui,
-                  @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-                  @NotNull String devadr, @NotNull String nwkskey,
-                  @NotNull String appskey, double Latitude, double Longitude,
-                  @NotNull String outType, @NotNull String kV, @NotNull String kI) {
-         */
         dev.type = "something 1";
         dev.eui = "something 2";
         dev.appeui = "something 3";
