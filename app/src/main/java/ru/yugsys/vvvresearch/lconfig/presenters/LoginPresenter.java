@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
 import ru.yugsys.vvvresearch.lconfig.model.Model;
 import ru.yugsys.vvvresearch.lconfig.views.LoginViewable;
 
@@ -92,7 +91,7 @@ public class LoginPresenter implements LoginPresentable {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            model.setAuthenticationData(login, password, server);
+            model.writeAuthData(login, password, server);
             return true;
         }
 

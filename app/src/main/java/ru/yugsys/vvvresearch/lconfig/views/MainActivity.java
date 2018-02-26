@@ -17,9 +17,16 @@ import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.model.Device;
+import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
+import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
+public class MainActivity extends AppCompatActivity implements MainViewable{
+    private ContentAdapter adapter;
+    private RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,12 +41,13 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        RecyclerView recyclerView = findViewById(R.id.lc5_recycler_view);
-        ContentAdapter adapter = new ContentAdapter(recyclerView.getContext());
+        recyclerView = findViewById(R.id.lc5_recycler_view);
+        adapter = new ContentAdapter(recyclerView.getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        MainPresentable mainPresenter = new MainPresenter();
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
 
@@ -65,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setContentForView(List<Device> devices) {
+        adapter.setDevices(devices);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -101,8 +114,13 @@ public class MainActivity extends AppCompatActivity {
      * Adapter to display recycler view.
      */
     public static class ContentAdapter extends RecyclerView.Adapter<ViewHolder> {
+        List<Device> devices;
         public ContentAdapter(Context context) {
+            devices = new ArrayList<>();
+        }
 
+        public void setDevices(List<Device> devices) {
+            this.devices = devices;
         }
 
         @Override
@@ -112,12 +130,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-
+            holder.typeOfLC5.setText(devices.get(position).type);
+            //holder.isOTAA.setText(devices.get(position).);
+            //holder.devEUI.setText(devices.get(position).);
+            holder.appEUI.setText(devices.get(position).appeui);
+            holder.appKey.setText(devices.get(position).appkey);
+            holder.nwkID.setText(devices.get(position).nwkid);
+            holder.devAdr.setText(devices.get(position).devadr);
+            holder.nwkSKey.setText(devices.get(position).nwkskey);
+            holder.appSKey.setText(devices.get(position).appskey);
+            holder.gps.setText(devices.get(position).Latitude +", "+ devices.get(position).Longitude);
+            holder.outType.setText(devices.get(position).outType);
         }
 
         @Override
         public int getItemCount() {
-            return ;
+            return devices.size();
         }
     }
 
