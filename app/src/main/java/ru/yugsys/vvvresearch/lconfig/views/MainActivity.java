@@ -17,6 +17,7 @@ import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
 import ru.yugsys.vvvresearch.lconfig.model.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
@@ -46,11 +47,13 @@ public class MainActivity extends AppCompatActivity implements MainViewable{
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        MainPresentable mainPresenter = new MainPresenter();
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        startActivity(loginIntent);
-
+        MainPresentable mainPresenter = new MainPresenter(BusinessModel.getInstance());
+        mainPresenter.bind(this);
+        mainPresenter.fireUpdateDataForView();
+        //Intent loginIntent = new Intent(this, LoginActivity.class);
+       // startActivity(loginIntent);
+        Intent addEditIntent = new Intent(this, AddEditActivity.class);
+         startActivity(addEditIntent);
     }
 
     @Override
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable{
     @Override
     public void setContentForView(List<Device> devices) {
         adapter.setDevices(devices);
+        adapter.notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -110,17 +114,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable{
         }
     }
 
-    /**
-     * Adapter to display recycler view.
-     */
     public static class ContentAdapter extends RecyclerView.Adapter<ViewHolder> {
         List<Device> devices;
         public ContentAdapter(Context context) {
-            devices = new ArrayList<>();
+
         }
 
         public void setDevices(List<Device> devices) {
-            this.devices = devices;
+            this.devices= devices;
         }
 
         @Override
