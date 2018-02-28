@@ -52,11 +52,9 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         this.daoSession = daoSession;
     }
 
-    /**
-     * Creates the underlying database table.
-     */
+    /** Creates the underlying database table. */
     public static void createTable(Database db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"DevicesTable\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"TYPE\" TEXT NOT NULL ," + // 1: type
@@ -74,9 +72,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
                 "\"K_I\" TEXT NOT NULL );"); // 13: kI
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(Database db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"DevicesTable\"";
         db.execSQL(sql);

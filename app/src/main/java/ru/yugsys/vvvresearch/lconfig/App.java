@@ -10,6 +10,7 @@ public class App extends Application {
     private DaoSession daoSession;
 
 
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -3,12 +3,14 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -41,7 +43,10 @@ import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
+import ru.yugsys.vvvresearch.lconfig.Services.Helper;
+import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
@@ -55,33 +60,17 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,GPScallback<Location> {
-    @Override
-    protected void onNewIntent(Intent intent) {
-        String action = intent.getAction();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-            Log.d("NFC", "Action DISCOVERED");
-            process(intent);
-        }
-    }
-
-    private void process(Intent intent) {
-        Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-        if (parcelables != null) {
-            Toast.makeText(this.getApplicationContext(), "Succses", Toast.LENGTH_LONG).show();
-            Log.d("NFC", "NFC NDEF message");
-            NdefMessage[] ndefMessage = new NdefMessage[parcelables.length];
-            int i = 0;
-            for (Parcelable p : parcelables) {
-                ndefMessage[i++] = (NdefMessage) p;
-            }
-
-
-            for (NdefRecord ndefRecord : ndefMessage[0].getRecords()) {
-                Log.d("NFC", ndefRecord.toString());
-            }
-            return;
-        }
-    }
+    private static final int REQUEST_READ_CONTACTS = 0;
+    private static final int REQUEST_PERMISSIONS = 100;
+    protected ListPresenter listPresenter = new DataActivityPresenter();
+    boolean boolean_permission;
+    private GPSTracker gps;
+    private NfcAdapter mAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mFilters;
+    private String[][] mTechLists;
+    final static String TAG = "NFC";
+    public DataDevice dataDevice;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -94,17 +83,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Log.d("GPS",gps.toString());
     }
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-    private static final int REQUEST_PERMISSIONS = 100;
-    protected ListPresenter listPresenter = new DataActivityPresenter();
-    boolean boolean_permission;
-    double latitude;
-    double longitude;
-    private GPSTracker gps;
-    private NfcAdapter mNfcAdapter;
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -143,31 +121,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
         listPresenter.bindView(this);
         listPresenter.setModel(dataModel);
-      //  listPresenter.loadData();
-        Log.d("BD","init model");
-        Device dev = new Device();
-        dev.type = "something 1";
-        dev.eui = "something 2";
-        dev.appeui = "something 3";
-        dev.appkey = "something 4";
-        dev.nwkid = "something 5";
-        dev.devadr = "something 6";
-        dev.nwkskey = "something 7";
-        dev.appskey = "something 8";
-        dev.outType = "something 9";
-        dev.kV = "something 10";
-        dev.kI = "something 11";
-        dev.setLatitude(34.13123);
-        dev.setLongitude(37.13123);
-        Log.d("BD","init dev - "+dev.type);
-        dataModel.save(dev);
-        Log.d("BD","load");
-        listPresenter.loadData();
-        List<Device> l = listPresenter.getList();
-        final String s = l.get(0).type;
-        Log.d("BD","message: "+ s);
-        Log.d("BD", Integer.toString(l.size()));
-
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -195,38 +148,49 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         //*************************************************
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.NFC) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("NFC", "discovered 1");
-            mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-            Intent intent = new Intent();
-            String action = intent.getAction();
-            if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-                Log.d("NFC", "discovered 2");
-                process(intent);
-            }
-        }
-
-    }
-
-    //*************************
-    private void fn_permission() {
-        if ((ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-
-            if ((ActivityCompat.shouldShowRequestPermissionRationale(LoginActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION))) {
-
-
-            } else {
-                ActivityCompat.requestPermissions(LoginActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION
-
-                        },
-                        REQUEST_PERMISSIONS);
-
-            }
-        } else {
-            boolean_permission = true;
+        mAdapter = NfcAdapter.getDefaultAdapter(this);
+        if(mAdapter.isEnabled()){
+            mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+            mFilters = new IntentFilter[] {ndef,};
+            mTechLists = new String[][] { new String[] { android.nfc.tech.NfcV.class.getName() } };
         }
     }
-    //*************************
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        // TODO Auto-generated method stub
+        Log.d(TAG,"onNewIntent");
+        super.onNewIntent(intent);
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action))
+        {
+
+            Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+            dataDevice = new DataDevice();
+            Log.d(TAG,dataDevice.getManufacturer() +  " 1");
+            dataDevice.setCurrentTag(tagFromIntent);
+            Log.d(TAG,dataDevice.getManufacturer() +  " 2");
+
+            byte[] GetSystemInfoAnswer = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent,dataDevice);
+            Log.d(TAG,GetSystemInfoAnswer.toString());
+            Log.d(TAG,dataDevice.getManufacturer());
+            if(DecodeGetSystemInfoResponse(GetSystemInfoAnswer))
+            {
+                Log.d(TAG,"DecodeGetSystemInfoResponse");
+                Log.d(TAG,tagFromIntent.toString());
+                Log.d(TAG,dataDevice.getManufacturer());
+                Log.d(TAG,dataDevice.getUid());
+                //Intent intentScan = new Intent(this, Scan.class);
+                // startActivity(intentScan);
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -284,22 +248,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    //****************
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            latitude = Double.valueOf(intent.getStringExtra("latutide"));
-            longitude = Double.valueOf(intent.getStringExtra("longitude"));
-            Log.d("GPS","lat: "+Double.toString(latitude) + " ,lon: " + Double.toString(longitude));
-        }
-    };
+    //**************
 
     @Override
     protected void onResume() {
         super.onResume();
+
         gps.OnResumeGPS();
-       // registerReceiver(broadcastReceiver, new IntentFilter(GPSTracker.str_receiver));
+        Log.d(TAG,"OnResume");
+        //Used for DEBUG : Log.v("NFCappsActivity.java", "ON RESUME NFC APPS ACTIVITY");
+        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        Log.d(TAG,"OnResume end");
 
     }
 
@@ -307,7 +267,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onPause() {
         super.onPause();
         gps.stop();
-        unregisterReceiver(broadcastReceiver);
+        mAdapter.disableForegroundDispatch(this);
+
     }
 
 
@@ -522,6 +483,266 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    public boolean DecodeGetSystemInfoResponse (byte[] GetSystemInfoResponse)
+    {
+        DataDevice ma = dataDevice;
+        //if the tag has returned a good response
+        if(GetSystemInfoResponse[0] == (byte) 0x00 && GetSystemInfoResponse.length >= 12)
+        {
+            //DataDevice ma = (DataDevice)getApplication();
+            String uidToString = "";
+            byte[] uid = new byte[8];
+            // change uid format from byteArray to a String
+            for (int i = 1; i <= 8; i++)
+            {
+                uid[i - 1] = GetSystemInfoResponse[10 - i];
+                uidToString += Helper.ConvertHexByteToString(uid[i - 1]);
+            }
+
+            //***** TECHNO ******
+            ma.setUid(uidToString);
+            if(uid[0] == (byte) 0xE0)
+                ma.setTechno("ISO 15693");
+            else if (uid[0] == (byte) 0xD0)
+                ma.setTechno("ISO 14443");
+            else
+                ma.setTechno("Unknown techno");
+
+            //***** MANUFACTURER ****
+            if(uid[1]== (byte) 0x02)
+                ma.setManufacturer("STMicroelectronics");
+            else if(uid[1]== (byte) 0x04)
+                ma.setManufacturer("NXP");
+            else if(uid[1]== (byte) 0x07)
+                ma.setManufacturer("Texas Instruments");
+            else if (uid[1] == (byte) 0x01) //MOTOROLA (updated 20140228)
+                ma.setManufacturer("Motorola");
+            else if (uid[1] == (byte) 0x03) //HITASHI (updated 20140228)
+                ma.setManufacturer("Hitachi");
+            else if (uid[1] == (byte) 0x04) //NXP SEMICONDUCTORS
+                ma.setManufacturer("NXP");
+            else if (uid[1] == (byte) 0x05) //INFINEON TECHNOLOGIES (updated 20140228)
+                ma.setManufacturer("Infineon");
+            else if (uid[1] == (byte) 0x06) //CYLINC (updated 20140228)
+                ma.setManufacturer("Cylinc");
+            else if (uid[1] == (byte) 0x07) //TEXAS INSTRUMENTS TAG-IT
+                ma.setManufacturer("Texas Instruments");
+            else if (uid[1] == (byte) 0x08) //FUJITSU LIMITED (updated 20140228)
+                ma.setManufacturer("Fujitsu");
+            else if (uid[1] == (byte) 0x09) //MATSUSHITA ELECTRIC INDUSTRIAL (updated 20140228)
+                ma.setManufacturer("Matsushita");
+            else if (uid[1] == (byte) 0x0A) //NEC (updated 20140228)
+                ma.setManufacturer("NEC");
+            else if (uid[1] == (byte) 0x0B) //OKI ELECTRIC (updated 20140228)
+                ma.setManufacturer("Oki");
+            else if (uid[1] == (byte) 0x0C) //TOSHIBA (updated 20140228)
+                ma.setManufacturer("Toshiba");
+            else if (uid[1] == (byte) 0x0D) //MITSUBISHI ELECTRIC (updated 20140228)
+                ma.setManufacturer("Mitsubishi");
+            else if (uid[1] == (byte) 0x0E) //SAMSUNG ELECTRONICS (updated 20140228)
+                ma.setManufacturer("Samsung");
+            else if (uid[1] == (byte) 0x0F) //HUYNDAI ELECTRONICS (updated 20140228)
+                ma.setManufacturer("Hyundai");
+            else if (uid[1] == (byte) 0x10) //LG SEMICONDUCTORS (updated 20140228)
+                ma.setManufacturer("LG");
+            else
+                ma.setManufacturer("Unknown manufacturer");
+
+            if(uid[1]== (byte) 0x02)
+            {
+                //**** PRODUCT NAME *****
+                if(uid[2] >= (byte) 0x04 && uid[2] <= (byte) 0x07)
+                {
+                    ma.setProductName("LRI512");
+                    ma.setMultipleReadSupported(false);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x14 && uid[2] <= (byte) 0x17)
+                {
+                    ma.setProductName("LRI64");
+                    ma.setMultipleReadSupported(false);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x20 && uid[2] <= (byte) 0x23)
+                {
+                    ma.setProductName("LRI2K");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x28 && uid[2] <= (byte) 0x2B)
+                {
+                    ma.setProductName("LRIS2K");
+                    ma.setMultipleReadSupported(false);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x2C && uid[2] <= (byte) 0x2F)
+                {
+                    ma.setProductName("M24LR64");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                }
+                else if(uid[2] >= (byte) 0x40 && uid[2] <= (byte) 0x43)
+                {
+                    ma.setProductName("LRI1K");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x44 && uid[2] <= (byte) 0x47)
+                {
+                    ma.setProductName("LRIS64K");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                }
+                else if(uid[2] >= (byte) 0x48 && uid[2] <= (byte) 0x4B)
+                {
+                    ma.setProductName("M24LR01E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x4C && uid[2] <= (byte) 0x4F)
+                {
+                    ma.setProductName("M24LR16E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                    if(ma.isBasedOnTwoBytesAddress() == false)
+                        return false;
+                }
+                else if(uid[2] >= (byte) 0x50 && uid[2] <= (byte) 0x53)
+                {
+                    ma.setProductName("M24LR02E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+                else if(uid[2] >= (byte) 0x54 && uid[2] <= (byte) 0x57)
+                {
+                    ma.setProductName("M24LR32E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                    if(ma.isBasedOnTwoBytesAddress() == false)
+                        return false;
+                }
+                else if(uid[2] >= (byte) 0x58 && uid[2] <= (byte) 0x5B)
+                {
+                    ma.setProductName("M24LR04E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                }
+                else if(uid[2] >= (byte) 0x5C && uid[2] <= (byte) 0x5F)
+                {
+                    ma.setProductName("M24LR64E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                    if(ma.isBasedOnTwoBytesAddress() == false)
+                        return false;
+                }
+                else if(uid[2] >= (byte) 0x60 && uid[2] <= (byte) 0x63)
+                {
+                    ma.setProductName("M24LR08E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                }
+                else if(uid[2] >= (byte) 0x64 && uid[2] <= (byte) 0x67)
+                {
+                    ma.setProductName("M24LR128E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                    if(ma.isBasedOnTwoBytesAddress() == false)
+                        return false;
+                }
+                else if(uid[2] >= (byte) 0x6C && uid[2] <= (byte) 0x6F)
+                {
+                    ma.setProductName("M24LR256E");
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                    if(ma.isBasedOnTwoBytesAddress() == false)
+                        return false;
+                }
+                else if(uid[2] >= (byte) 0xF8 && uid[2] <= (byte) 0xFB)
+                {
+                    ma.setProductName("detected product");
+                    ma.setBasedOnTwoBytesAddress(true);
+                    ma.setMultipleReadSupported(true);
+                    ma.setMemoryExceed2048bytesSize(true);
+                }
+                else
+                {
+                    ma.setProductName("Unknown product");
+                    ma.setBasedOnTwoBytesAddress(false);
+                    ma.setMultipleReadSupported(false);
+                    ma.setMemoryExceed2048bytesSize(false);
+                }
+
+                //*** DSFID ***
+                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
+
+                //*** AFI ***
+                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+
+                //*** MEMORY SIZE ***
+                if(ma.isBasedOnTwoBytesAddress())
+                {
+                    String temp = new String();
+                    temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
+                    temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
+                    ma.setMemorySize(temp);
+                }
+                else
+                    ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+
+                //*** BLOCK SIZE ***
+                if(ma.isBasedOnTwoBytesAddress())
+                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+                else
+                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+
+                //*** IC REFERENCE ***
+                if(ma.isBasedOnTwoBytesAddress())
+                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
+                else
+                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+            }
+            else
+            {
+                ma.setProductName("Unknown product");
+                ma.setBasedOnTwoBytesAddress(false);
+                ma.setMultipleReadSupported(false);
+                ma.setMemoryExceed2048bytesSize(false);
+                //ma.setAfi("00 ");
+                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));				//changed 22-10-2014
+                //ma.setDsfid("00 ");
+                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));				//changed 22-10-2014
+                //ma.setMemorySize("FF ");
+                ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));		//changed 22-10-2014
+                //ma.setBlockSize("03 ");
+                ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));			//changed 22-10-2014
+                //ma.setIcReference("00 ");
+                ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));		//changed 22-10-2014
+            }
+
+            return true;
+        }
+
+        // in case of Inventory OK and Get System Info HS
+        else if (ma.getTechno() == "ISO 15693")
+        {
+            ma.setProductName("Unknown product");
+            ma.setBasedOnTwoBytesAddress(false);
+            ma.setMultipleReadSupported(false);
+            ma.setMemoryExceed2048bytesSize(false);
+            ma.setAfi("00 ");
+            ma.setDsfid("00 ");
+            ma.setMemorySize("3F ");				//changed 22-10-2014
+            ma.setBlockSize("03 ");
+            ma.setIcReference("00 ");
+            return true;
+        }
+
+        //if the tag has returned an error code
+        else
+            return false;
+
     }
 }
 
