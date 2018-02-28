@@ -1,5 +1,8 @@
 package ru.yugsys.vvvresearch.lconfig.model;
 
+import java.lang.reflect.Field;
+import java.util.Random;
+
 public class Device {
 
     public Long id;
@@ -127,5 +130,26 @@ public class Device {
 
     public void setkI(String kI) {
         this.kI = kI;
+    }
+
+    public static Device autoGenDevice() {
+        Device device = new Device();
+        Random random = new Random(1000);
+        for (Field field :
+                Device.class.getFields()) {
+            try {
+            if (field.getType() == String.class)
+            {
+
+                    field.set(device, Integer.toHexString(random.nextInt()));
+
+            } else if (field.getType() == double.class){
+                field.setDouble(device,random.nextDouble());
+            }
+            }
+            catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

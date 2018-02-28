@@ -2,10 +2,6 @@ package ru.yugsys.vvvresearch.lconfig.presenters;
 
 import ru.yugsys.vvvresearch.lconfig.views.LoginViewable;
 
-public interface LoginPresentable {
-    void bind(LoginViewable loginView);
-
-    void unBindAll();
-
+public interface LoginPresentable extends Presentable<LoginViewable>{
     void attemptLogin();
 }

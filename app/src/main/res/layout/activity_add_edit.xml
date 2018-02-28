@@ -7,10 +7,16 @@
         android:layout_height="match_parent"
         android:id="@+id/add_edit_form"
         tools:context="ru.yugsys.vvvresearch.lconfig.views.AddEditActivity">
-
-    <ScrollView
+    <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/marginCard"
+    >
+
+
+        <!--<ScrollView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -109,7 +115,6 @@
         </LinearLayout>
 
 
-
-        
-    </ScrollView>
+        <!--</ScrollView>-->
+    </android.support.v7.widget.CardView>
 </android.support.constraint.ConstraintLayout>
