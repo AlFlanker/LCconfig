@@ -18,6 +18,7 @@ public class GPSTracker {
     private static final GPSTracker instance = new GPSTracker();
     private static final String TAG = "GPS";
 
+
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -30,18 +31,18 @@ public class GPSTracker {
     public boolean mRequestingLocationUpdates = false;
 
     private GPSTracker() {
-        //Log.d(TAG, "GPSt constructor");
+        Log.d(TAG, "GPSt constructor");
         this.locationRequest = new LocationRequest();
         this.locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
      //   this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         // точность +-100 метров
-      //  Log.d(TAG, "GPSt request compl");
+        Log.d(TAG, "GPSt request compl");
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(this.locationRequest);
         this.locationSettingsRequest = builder.build();
-        //Log.d(TAG, "GPSt callBack");
+        Log.d(TAG, "GPSt callBack");
         this.locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -60,10 +61,12 @@ public class GPSTracker {
         // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!для андройд выше 6.0
         this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "perm fall");
+
             return ;
         }
         mRequestingLocationUpdates = true;
-       // Log.d(TAG, "permission compl");
+        Log.d(TAG, "permission compl");
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
     }
 
