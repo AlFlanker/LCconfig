@@ -1,8 +1,6 @@
-package ru.yugsys.vvvresearch.lconfig.model;
+package ru.yugsys.vvvresearch.lconfig.fakemodel;
 
-import ru.yugsys.vvvresearch.lconfig.model.listeners.ModelListeners;
-
-import java.util.List;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.ModelListeners;
 
 public interface Model {
     void loadAllData();

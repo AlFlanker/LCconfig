@@ -6,12 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
-import ru.yugsys.vvvresearch.lconfig.model.Device;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.BusinessModel;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
-
-import java.lang.reflect.Field;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable,View.OnClickListener {
 

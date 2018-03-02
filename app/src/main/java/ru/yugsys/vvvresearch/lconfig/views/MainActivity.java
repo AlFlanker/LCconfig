@@ -2,9 +2,6 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,17 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
-import android.widget.ImageView;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
-import ru.yugsys.vvvresearch.lconfig.model.Device;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.BusinessModel;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {

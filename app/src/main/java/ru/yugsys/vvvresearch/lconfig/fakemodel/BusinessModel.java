@@ -1,9 +1,9 @@
-package ru.yugsys.vvvresearch.lconfig.model;
+package ru.yugsys.vvvresearch.lconfig.fakemodel;
 
-import ru.yugsys.vvvresearch.lconfig.model.listeners.ModelListeners;
-import ru.yugsys.vvvresearch.lconfig.model.listeners.OnCheckDeviceListener;
-import ru.yugsys.vvvresearch.lconfig.model.listeners.OnDataRecieveListener;
-import ru.yugsys.vvvresearch.lconfig.model.listeners.OnNFCConnectedListener;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.ModelListeners;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.OnCheckDeviceListener;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.OnDataRecieveListener;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.OnNFCConnectedListener;
 
 import java.util.ArrayList;
 import java.util.List;

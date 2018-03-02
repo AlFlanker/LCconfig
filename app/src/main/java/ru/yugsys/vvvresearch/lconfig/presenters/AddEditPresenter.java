@@ -1,8 +1,8 @@
 package ru.yugsys.vvvresearch.lconfig.presenters;
 
-import ru.yugsys.vvvresearch.lconfig.model.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Model;
-import ru.yugsys.vvvresearch.lconfig.model.listeners.OnNFCConnectedListener;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.Device;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.Model;
+import ru.yugsys.vvvresearch.lconfig.fakemodel.listeners.OnNFCConnectedListener;
 import ru.yugsys.vvvresearch.lconfig.views.AddEditViewable;
 
 public class AddEditPresenter implements AddEditPresentable, OnNFCConnectedListener{

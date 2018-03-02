@@ -1,4 +1,4 @@
-package ru.yugsys.vvvresearch.lconfig.model;
+package ru.yugsys.vvvresearch.lconfig.fakemodel;
 
 import java.lang.reflect.Field;
 import java.util.Random;
