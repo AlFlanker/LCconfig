@@ -10,7 +10,7 @@ public interface ModelListener<T> {
 
     void OnDataRecived(List<T> devList);
 
-    void OnNFCconnected(Device dev);
+    void OnNFCConnected(Device dev);
 
     void OnCheckedDevData(boolean check);
 

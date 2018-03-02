@@ -3,69 +3,44 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
-import android.content.*;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.Parcelable;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.LoginFilter;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.*;
+import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataRead;
+import ru.yugsys.vvvresearch.lconfig.model.DataModel;
+import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
+import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresentable;
+import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.yugsys.vvvresearch.lconfig.App;
-import ru.yugsys.vvvresearch.lconfig.Manifest;
-import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-
-import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataRead;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.DataModel;
-import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
-import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.DataActivityPresenter;
-import ru.yugsys.vvvresearch.lconfig.presenters.Presentable.ListPresenter;
-import ru.yugsys.vvvresearch.lconfig.views.Activities.EditAndViewActivity;
-
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.READ_CONTACTS;
-import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
-import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresentable;
-import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresenter;
 
 /**
  * A login screen that offers login via email/password.
@@ -74,10 +49,9 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
     // UI references.
     private EditText mLoginView;
     private EditText mServerView;
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,GPScallback<Location> {
+
     private static final int REQUEST_READ_CONTACTS = 0;
     private static final int PERMISSION_REQUEST_CODE = 100;
-    protected ListPresenter listPresenter = new DataActivityPresenter();
     private GPSTracker gps;
     private NfcAdapter mAdapter;
     private PendingIntent mPendingIntent;
@@ -85,28 +59,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private String[][] mTechLists;
     final static String TAG = "NFC";
     public DataDevice dataDevice;
-    private UserLoginTask mAuthTask = null;
-    byte[] GetSystemInfoAnswer = null;
-    byte[] ReadMultipleBlockAnswer = null;
-    byte[] numberOfBlockToRead = null;
-    private long cpt = 0L;
+    private LoginPresenter.UserLoginTask mAuthTask = null;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private LoginPresentable presenter;
 
-    List<DataRead> listOfData = null;
     private Button BtnRead;
-    String[] catBlocks = null;
-    String[] catValueBlocks = null;
+
     private DataModel dataModel;
-    String startAddressString;
-    byte[] addressStart = null;
-    String sNbOfBlock = null;
-    int nbblocks = 0;
-    ArrayList<Character> bytesFromNFC = new ArrayList<>();
-    StringBuilder sb = new StringBuilder();
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -115,28 +78,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     @Override
-    public void OnGPSdata(Location gps) {
-        Log.d("GPS",gps.toString());
-    }
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("OnCreate", "create activity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-      //  Intent intent = new Intent(this, GPSTracker.class);
+        //  Intent intent = new Intent(this, GPSTracker.class);
 //        startService(intent);
         Log.d("OnCreate", "t");
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -145,23 +91,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     PERMISSION_REQUEST_CODE);
         }
 
-        dataModel = new DataModel(((App) getApplication()).getDaoSession());
-        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDataReceive, listPresenter);
-        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDevDataChecked, listPresenter);
-        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
-        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnGPSdata, listPresenter);
-        listPresenter.bindView(this);
-        listPresenter.setModel(dataModel);
+//        listPresenter.bindView(this);
+//        listPresenter.setModel(dataModel);
+//        dataModel = new DataModel(((App) getApplication()).getDaoSession());
+//        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDataReceive, listPresenter);
+//        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDevDataChecked, listPresenter);
+//        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
+//        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnGPSdata, listPresenter);
+
         gps = GPSTracker.instance();
         gps.setContext(this);
         gps.OnStartGPS();
         gps.onChange(dataModel);
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        presenter = new LoginPresenter(BusinessModel.getInstance());
-        presenter.bind(this);
+//        populateAutoComplete();
+//
+//        presenter = new LoginPresenter(BusinessModel.getInstance());
+//        presenter.bind(this);
 
         mLoginView = (EditText) findViewById(R.id.login);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -172,7 +119,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                     presenter.attemptLogin();
-                  return true;
+                    return true;
                 }
                 return false;
             }
@@ -187,39 +134,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         BtnRead = (Button) findViewById(R.id.read);
-        BtnRead.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listPresenter.callReadNFC();
-            }
-        });
+//        BtnRead.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                listPresenter.callReadNFC();
+//            }
+//        });
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         //*************************************************
         mAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(mAdapter.isEnabled()){
-            mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        if (mAdapter.isEnabled()) {
+            mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
             IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-            mFilters = new IntentFilter[] {ndef,};
-            mTechLists = new String[][] { new String[] { android.nfc.tech.NfcV.class.getName() } };
+            mFilters = new IntentFilter[]{ndef,};
+            mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
     }
 
 
     @Override
-    protected void onNewIntent(Intent intent)
-    {
+    protected void onNewIntent(Intent intent) {
 
         // TODO Auto-generated method stub
-        Log.d(TAG,"onNewIntent");
+        Log.d(TAG, "onNewIntent");
         super.onNewIntent(intent);
         String action = intent.getAction();
-        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action))
-        {
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
             Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             dataDevice = new DataDevice();
             dataDevice.setCurrentTag(tagFromIntent);
-            listPresenter.currentDataDevice = dataDevice;
+//            listPresenter.currentDataDevice = dataDevice;
 //            GetSystemInfoAnswer= NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent,dataDevice);
 //            Log.d(TAG,GetSystemInfoAnswer.toString());
 //            Log.d(TAG,dataDevice.getUid());
@@ -241,13 +186,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
+//    private void populateAutoComplete() {
+//        if (!mayRequestContacts()) {
+//            return;
+//        }
+//
+//        getLoaderManager().initLoader(0, null, this);
+//    }
 
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -257,14 +202,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return true;
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
+//            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(android.R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        @TargetApi(Build.VERSION_CODES.M)
+//                        public void onClick(View v) {
+//                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+//                        }
+//                    });
         } else {
             requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
 
@@ -295,11 +240,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         gps.setContext(this);
         gps.onChange(dataModel);
         gps.OnResumeGPS();
-        Log.d(TAG,"OnResume");
+        Log.d(TAG, "OnResume");
         //Used for DEBUG : Log.v("NFCappsActivity.java", "ON RESUME NFC APPS ACTIVITY");
-        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
-        Log.d(TAG,"OnResume end");
+        Log.d(TAG, "OnResume end");
 
     }
 
@@ -307,7 +252,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onPause() {
         super.onPause();
         gps.stop();
-        this.cpt = 500L;
+//        this.cpt = 500L;
         mAdapter.disableForegroundDispatch(this);
 
     }
@@ -325,8 +270,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (mAuthTask != null) {
             return;
         }
-        Intent act = new Intent(this, EditAndViewActivity.class);
-        startActivity(act);
+//        Intent act = new Intent(this, EditAndViewActivity.class);
+//        startActivity(act);
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -345,16 +290,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -364,15 +300,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+//            mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
+
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
@@ -415,7 +348,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-//LoginViewable implements section
+    //LoginViewable implements section
     @Override
     public String getLogin() {
         return mLoginView.getText().toString();
@@ -459,4 +392,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         finish();
     }
 }
+
 

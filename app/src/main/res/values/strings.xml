@@ -97,4 +97,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="action_addedit">Add</string>
+    <string name="prompt_isOTAA">Over the Air Activation</string>
 </resources>

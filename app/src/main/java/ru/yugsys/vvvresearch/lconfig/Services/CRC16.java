@@ -1,7 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
 public class CRC16 {
-    static final short[] CRCTablHigh = {
+    static final char[] CRCTablHigh = {
             0x00, 0x3D, 0x7A, 0x47, 0xF5, 0xC8, 0x8F, 0xB2,
             0xD6, 0xEB, 0xAC, 0x91, 0x23, 0x1E, 0x59, 0x64,
             0x91, 0xAC, 0xEB, 0xD6, 0x64, 0x59, 0x1E, 0x23,
@@ -35,7 +35,7 @@ public class CRC16 {
             0xC8, 0xF5, 0xB2, 0x8F, 0x3D, 0x00, 0x47, 0x7A,
             0x1E, 0x23, 0x64, 0x59, 0xEB, 0xD6, 0x91, 0xAC
     };
-    static final short[] CRCTablLow = {
+    static final char[] CRCTablLow = {
             0x00, 0x65, 0xCA, 0xAF, 0x94, 0xF1, 0x5E, 0x3B,
             0x4D, 0x28, 0x87, 0xE2, 0xD9, 0xBC, 0x13, 0x76,
             0xFF, 0x9A, 0x35, 0x50, 0x6B, 0x0E, 0xA1, 0xC4,
@@ -70,20 +70,20 @@ public class CRC16 {
             0x73, 0x16, 0xB9, 0xDC, 0xE7, 0x82, 0x2D, 0x48
     };
 
-    public short CRC16Get(short beginCRC, short bt) {
-        short i;
+    public char CRC16Get(char beginCRC, char bt) {
+        char i;
 
-        i = (short) ((beginCRC >> 8) ^ (bt & (0x00ff)));
-        beginCRC = (short) ((beginCRC & 0x00ff) | ((CRCTablHigh[i] ^ (char) beginCRC) << 8));
-        beginCRC = (short) ((beginCRC & 0xff00) | CRCTablLow[i]);
+        i = (char) ((beginCRC >> 8) ^ (bt & (0x00ff)));
+        beginCRC = (char) ((beginCRC & 0x00ff) | ((CRCTablHigh[i] ^ (char) beginCRC) << 8));
+        beginCRC = (char) ((beginCRC & 0xff00) | CRCTablLow[i]);
         return beginCRC;
     }
 
-    public short CRC16ArrayGet(short beginCRC, byte[] buffer) {
-        short j;
-        for (byte b : buffer) {
+    public char CRC16ArrayGet(char beginCRC, char[] buffer) {
+        char j;
+        for (char b : buffer) {
             beginCRC = CRC16Get(beginCRC, b);
         }
-        return (short) (~beginCRC);
+        return (char) (~beginCRC);
     }
 }

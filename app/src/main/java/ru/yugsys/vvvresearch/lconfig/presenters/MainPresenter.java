@@ -1,19 +1,22 @@
 package ru.yugsys.vvvresearch.lconfig.presenters;
 
-import ru.yugsys.vvvresearch.lconfig.model.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Model;
-import ru.yugsys.vvvresearch.lconfig.model.listeners.OnDataRecieveListener;
+
+import android.location.Location;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
+import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import ru.yugsys.vvvresearch.lconfig.views.MainViewable;
 
 import java.util.List;
 
-public class MainPresenter implements MainPresentable,OnDataRecieveListener{
+public class MainPresenter implements MainPresentable, ModelListener<Device> {
     private Model model;
     MainViewable mainView;
 
     public MainPresenter(Model model) {
         this.model = model;
-        model.subscribe(this);
+        model.getEventManager().subscribe(EventManager.TypeEvent.OnDataReceive, this);
     }
 
     @Override
@@ -28,7 +31,7 @@ public class MainPresenter implements MainPresentable,OnDataRecieveListener{
 
     @Override
     public void fireUpdateDataForView() {
-        model.loadAllData();
+        model.loadAllDeviceData();
     }
 
 
@@ -37,6 +40,20 @@ public class MainPresenter implements MainPresentable,OnDataRecieveListener{
         if (mainView != null) {
             mainView.setContentForView(devices);
         }
+    }
+
+    @Override
+    public void OnNFCConnected(Device dev) {
+
+    }
+
+    @Override
+    public void OnCheckedDevData(boolean check) {
+
+    }
+
+    @Override
+    public void OnGPSdata(Location location) {
 
     }
 }

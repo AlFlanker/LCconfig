@@ -1,17 +1,23 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.fakemodel.BusinessModel;
-import ru.yugsys.vvvresearch.lconfig.fakemodel.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable,View.OnClickListener {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
 
     private EditText deveuiEdit;
     private EditText appEUIEdit;
@@ -26,13 +32,21 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText typeEdit;
     private Button addEditButton;
     private AddEditPresentable presenter;
+    // new  fields
+    private NfcAdapter mAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mFilters;
+    private String[][] mTechLists;
+    public DataDevice dataDevice;
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
-        presenter = new AddEditPresenter(BusinessModel.getInstance());
+        presenter = new AddEditPresenter(((App)getApplication()).getModel());
         presenter.bind(this);
         typeEdit = findViewById(R.id.lc5_edit_type);
         appEUIEdit = findViewById(R.id.lc5_edit_appEUI);
@@ -47,6 +61,25 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         addEditButton = findViewById(R.id.action_add_edit);
         addEditButton.setOnClickListener(this);
+
+        // new code
+        mAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (mAdapter.isEnabled()) {
+            mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+            mFilters = new IntentFilter[]{ndef,};
+            mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())){
+            Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            dataDevice = new DataDevice();
+            dataDevice.setCurrentTag(tagFromIntent);
+        }
     }
 
     @Override
@@ -60,11 +93,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         //isOTAAEdit.setText(device.get
-        gpsEdit.setText(device.getLatitude() + ", " +device.getLongitude());
+        gpsEdit.setText(device.getLatitude() + ", " + device.getLongitude());
         out_typeEdit.setText(device.getOutType());
     }
 
-    private Device fieldToDevice (){
+    private Device fieldToDevice() {
         Device device = new Device();
         device.setType(typeEdit.getText().toString());
         device.setEui(deveuiEdit.getText().toString());
@@ -74,10 +107,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setDevadr(devAdrEdit.getText().toString());
         device.setNwkskey(nwkSKeyEdit.getText().toString());
         device.setAppskey(appSKeyEdit.getText().toString());
+        device.setKI("gdfg");
+        device.setKV("gdfg");
         //isOTAAEdit.setText(device.get
         String gpsText = gpsEdit.getText().toString();
         String[] gpsSplit = gpsText.split(",");
-        if (gpsSplit.length==2) {
+        if (gpsSplit.length == 2) {
             device.setLatitude(Double.parseDouble(gpsSplit[0]));
             device.setLongitude(Double.parseDouble(gpsSplit[1]));
         }

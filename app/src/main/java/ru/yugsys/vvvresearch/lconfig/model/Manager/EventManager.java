@@ -49,7 +49,7 @@ public class EventManager {
                 break;
             case OnNFCconnected:
                 for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnNFCconnected(dev);
+                    listener.OnNFCConnected(dev);
                 }
                 break;
             case OnGPSdata:

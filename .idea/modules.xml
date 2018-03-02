@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/LConfig.iml" filepath="$PROJECT_DIR$/LConfig.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/lconfig.iml" filepath="$PROJECT_DIR$/lconfig.iml" />
     </modules>

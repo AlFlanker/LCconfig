@@ -11,12 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.widget.TextView;
+import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.fakemodel.BusinessModel;
-import ru.yugsys.vvvresearch.lconfig.fakemodel.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {
@@ -27,7 +28,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -37,11 +37,29 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MainPresentable mainPresenter = new MainPresenter(BusinessModel.getInstance());
+        MainPresentable mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         mainPresenter.bind(this);
+        for (int i = 0; i < 10; i++) {
+            Device d = new Device();
+            for (Field field :
+                    Device.class.getFields()) {
+                try {
+                    if (field.getType() == String.class) {
+
+                        field.set(d, " Somthing");
+
+                    } else if (field.getType() == double.class) {
+                        field.set(d, 2.3);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //((App) getApplication()).getModel().saveDevice(d);
+        }
+
         mainPresenter.fireUpdateDataForView();
-
-
     }
 
     @Override
@@ -134,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.typeOfLC5.setText(devices.get(position).type);
             //holder.isOTAA.setText(devices.get(position).);
-            //holder.devEUI.setText(devices.get(position).);
+            holder.devEUI.setText(devices.get(position).getEui());
             holder.appEUI.setText(devices.get(position).appeui);
             holder.appKey.setText(devices.get(position).appkey);
             holder.nwkID.setText(devices.get(position).nwkid);

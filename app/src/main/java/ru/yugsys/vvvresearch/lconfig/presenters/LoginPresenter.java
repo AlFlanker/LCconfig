@@ -4,7 +4,8 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.model.Model;
+
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.views.LoginViewable;
 
 public class LoginPresenter implements LoginPresentable {

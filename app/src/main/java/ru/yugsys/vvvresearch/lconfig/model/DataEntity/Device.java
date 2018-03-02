@@ -21,6 +21,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
         generateGettersSetters = true
 )
 public class Device {
+
     @Override
     public boolean equals(Object obj) {
 

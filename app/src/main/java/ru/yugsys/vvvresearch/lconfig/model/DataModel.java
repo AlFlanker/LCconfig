@@ -24,12 +24,20 @@ import java.util.*;
 public class DataModel implements Model, GPScallback<Location> {
 
 
+
     /*-----------------------------------------------------------------------*/
     public DaoSession daoSession;
+
+    @Override
+    public void writeAuthData(String login, String password, String server) {
+
+    }
+
     public EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
     private DataDevice currentDataDevice;
     Device dev;
+
 
     /*-----------------------------------------------------------------------*/
     /*-----------------------------------------------------------------------*/
@@ -84,7 +92,10 @@ public class DataModel implements Model, GPScallback<Location> {
         this.currentDataDevice = d;
     }
 
-
+    @Override
+    public EventManager getEventManager() {
+        return eventManager;
+    }
 
 
     @Override
@@ -94,7 +105,7 @@ public class DataModel implements Model, GPScallback<Location> {
     }
 
     @Override
-    public void load() {
+    public void loadAllDeviceData() {
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Id).build();
         eventManager.notify(EventManager.TypeEvent.OnDataReceive, null, false, queue.list(), null);

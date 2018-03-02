@@ -84,7 +84,7 @@
                 android:id="@+id/lc5_isOTAA"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_appSKey"
+                android:hint="@string/prompt_isOTAA"
                 android:maxLines="1"
         />
         <TextView
