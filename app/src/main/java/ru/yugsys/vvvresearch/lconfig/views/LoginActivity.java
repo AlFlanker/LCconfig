@@ -34,6 +34,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.*;
 
 import java.util.ArrayList;
@@ -59,10 +63,17 @@ import ru.yugsys.vvvresearch.lconfig.views.Activities.EditAndViewActivity;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.READ_CONTACTS;
+import ru.yugsys.vvvresearch.lconfig.model.BusinessModel;
+import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresentable;
+import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresenter;
 
 /**
  * A login screen that offers login via email/password.
  */
+public class LoginActivity extends AppCompatActivity implements LoginViewable {
+    // UI references.
+    private EditText mLoginView;
+    private EditText mServerView;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,GPScallback<Location> {
     private static final int REQUEST_READ_CONTACTS = 0;
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -83,6 +94,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private LoginPresentable presenter;
+
     List<DataRead> listOfData = null;
     private Button BtnRead;
     String[] catBlocks = null;
@@ -147,23 +160,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
+        presenter = new LoginPresenter(BusinessModel.getInstance());
+        presenter.bind(this);
+
+        mLoginView = (EditText) findViewById(R.id.login);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mServerView = (EditText) findViewById(R.id.connectServer);
+
+        mServerView.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    presenter.attemptLogin();
+                  return true;
                 }
                 return false;
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+
+        Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
+        mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                presenter.attemptLogin();
             }
         });
         BtnRead = (Button) findViewById(R.id.read);
@@ -395,115 +415,48 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+//LoginViewable implements section
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
+    public String getLogin() {
+        return mLoginView.getText().toString();
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
+    public String getPassword() {
+        return mPasswordView.getText().toString();
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
+    public String getServer() {
+        return mServerView.getText().toString();
     }
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
+    @Override
+    public void fireLoginError(int resIDErrorMessage) {
+        mLoginView.setError(getString(resIDErrorMessage));
+        mLoginView.requestFocus();
     }
 
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
+    @Override
+    public void firePasswordError(int resIDErrorMessage) {
+        mPasswordView.setError(getString(resIDErrorMessage));
+        mPasswordView.requestFocus();
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    @Override
+    public void fireServerError(int resIDErrorMessage) {
+        mServerView.setError(getString(resIDErrorMessage));
+        mServerView.requestFocus();
+    }
 
-        private final String mEmail;
-        private final String mPassword;
+    @Override
+    public void fireShowSignProgress(boolean isShow) {
+        showProgress(isShow);
+    }
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
+    @Override
+    public void fireCloseLoginView() {
+        finish();
     }
 }
 
