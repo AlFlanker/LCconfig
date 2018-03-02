@@ -5,9 +5,13 @@ import android.content.Context;
 import org.greenrobot.greendao.database.Database;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoMaster;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 
 public class App extends Application {
+
+
     private DaoSession daoSession;
+    private DataDevice currentDevice;
 
 
 
@@ -19,11 +23,19 @@ public class App extends Application {
         daoSession = new DaoMaster(db).newSession();
 
 
+
     }
 
     public DaoSession getDaoSession() {
         return daoSession;
     }
 
+    public DataDevice getCurrentDevice() {
+        return currentDevice;
+    }
+
+    public void setCurrentDevice(DataDevice currentDevice) {
+        this.currentDevice = currentDevice;
+    }
 
 }

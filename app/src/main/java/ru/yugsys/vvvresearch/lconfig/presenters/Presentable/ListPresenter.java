@@ -1,6 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
 import android.support.annotation.NonNull;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
 import java.lang.ref.WeakReference;
@@ -10,6 +11,8 @@ public abstract class ListPresenter<M, V> implements BasePresent {
 
 
     protected M model;
+    public Device dev;
+    public DataDevice currentDataDevice;
     private WeakReference<V> view;
     public abstract List<Device> getList();
     public void setModel(M model) {
@@ -44,5 +47,6 @@ public abstract class ListPresenter<M, V> implements BasePresent {
         return (this.view != null) ? view.get() : null;
     }
 
+    public abstract void callReadNFC();
 
 }

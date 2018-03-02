@@ -14,7 +14,7 @@ public interface BasePresent extends ModelListener<Device> {
     void OnDataRecived(List<Device> devList);
 
     @Override
-    void OnNFCconnected(boolean flag);
+    void OnNFCconnected(Device dev);
 
     @Override
     void OnCheckedDevData(boolean check);

@@ -34,7 +34,7 @@ public class EventManager {
         return false;
     }
 
-    public void notify(TypeEvent evType, boolean flag, boolean check, List devList, Location location) {
+    public void notify(TypeEvent evType, Device dev, boolean check, List devList, Location location) {
 
         switch (evType) {
             case OnDevDataChecked:
@@ -49,7 +49,7 @@ public class EventManager {
                 break;
             case OnNFCconnected:
                 for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnNFCconnected(flag);
+                    listener.OnNFCconnected(dev);
                 }
                 break;
             case OnGPSdata:

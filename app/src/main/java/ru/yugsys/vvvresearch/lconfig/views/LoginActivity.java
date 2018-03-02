@@ -92,6 +92,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     byte[] addressStart = null;
     String sNbOfBlock = null;
     int nbblocks = 0;
+    ArrayList<Character> bytesFromNFC = new ArrayList<>();
+    StringBuilder sb = new StringBuilder();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -129,16 +131,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
-        gps = GPSTracker.instance();
-        gps.setContext(this);
-        gps.OnStartGPS();
-        gps.onChange(this);
-        DataModel dataModel = new DataModel(((App)getApplication()).getDaoSession());
+
+        dataModel = new DataModel(((App) getApplication()).getDaoSession());
         dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDataReceive, listPresenter);
         dataModel.eventManager.subscribe(EventManager.TypeEvent.OnDevDataChecked, listPresenter);
         dataModel.eventManager.subscribe(EventManager.TypeEvent.OnNFCconnected, listPresenter);
+        dataModel.eventManager.subscribe(EventManager.TypeEvent.OnGPSdata, listPresenter);
         listPresenter.bindView(this);
         listPresenter.setModel(dataModel);
+        gps = GPSTracker.instance();
+        gps.setContext(this);
+        gps.OnStartGPS();
+        gps.onChange(dataModel);
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -166,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         BtnRead.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new StartReadTask().execute(new Void[0]);
+                listPresenter.callReadNFC();
             }
         });
         mLoginFormView = findViewById(R.id.login_form);
@@ -192,14 +196,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String action = intent.getAction();
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action))
         {
-
             Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
             dataDevice = new DataDevice();
-            Log.d(TAG,dataDevice.getManufacturer() +  " 1");
             dataDevice.setCurrentTag(tagFromIntent);
-            Log.d(TAG,dataDevice.getManufacturer() +  " 2");
-
+            listPresenter.currentDataDevice = dataDevice;
 //            GetSystemInfoAnswer= NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent,dataDevice);
 //            Log.d(TAG,GetSystemInfoAnswer.toString());
 //            Log.d(TAG,dataDevice.getUid());
@@ -273,7 +273,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onResume() {
         super.onResume();
         gps.setContext(this);
-        gps.onChange(this);
+        gps.onChange(dataModel);
         gps.OnResumeGPS();
         Log.d(TAG,"OnResume");
         //Used for DEBUG : Log.v("NFCappsActivity.java", "ON RESUME NFC APPS ACTIVITY");
@@ -505,88 +505,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
         }
     }
-
-
-    private class StartReadTask extends AsyncTask<Void, Void, Void> {
-        // private final ProgressDialog dialog;
-
-        private StartReadTask() {
-            //this.dialog = new ProgressDialog(LoginActivity.this);
-        }
-
-        protected void onPreExecute() {
-            DataDevice dataDevice = LoginActivity.this.dataDevice;
-            LoginActivity.this.GetSystemInfoAnswer = NFCCommand.SendGetSystemInfoCommandCustom(dataDevice.getCurrentTag(), dataDevice);
-            if ((LoginActivity.this.dataDevice = Helper.DecodeGetSystemInfoResponse(LoginActivity.this.GetSystemInfoAnswer, dataDevice)) != null) {
-                LoginActivity.this.startAddressString = "0";
-                LoginActivity.this.startAddressString = Helper.castHexKeyboard(LoginActivity.this.startAddressString);
-                LoginActivity.this.startAddressString = Helper.FormatStringAddressStart(LoginActivity.this.startAddressString, dataDevice);
-                LoginActivity.this.addressStart = Helper.ConvertStringToHexBytes(LoginActivity.this.startAddressString);
-                LoginActivity.this.sNbOfBlock = "128";
-                LoginActivity.this.sNbOfBlock = Helper.FormatStringNbBlockInteger(LoginActivity.this.sNbOfBlock, LoginActivity.this.startAddressString, dataDevice);
-                LoginActivity.this.numberOfBlockToRead = Helper.ConvertIntTo2bytesHexaFormat(Integer.parseInt(LoginActivity.this.sNbOfBlock));
-            }
-        }
-
-        protected Void doInBackground(Void... params) {
-
-            LoginActivity.this.ReadMultipleBlockAnswer = null;
-            LoginActivity.this.cpt = 0L;
-            if ((dataDevice = Helper.DecodeGetSystemInfoResponse(LoginActivity.this.GetSystemInfoAnswer, dataDevice)) != null) {
-                if (LoginActivity.this.dataDevice.isMultipleReadSupported() && Helper.Convert2bytesHexaFormatToInt(LoginActivity.this.numberOfBlockToRead) > 1) {
-                    if (Helper.Convert2bytesHexaFormatToInt(LoginActivity.this.numberOfBlockToRead) < 32) {
-                        while ((LoginActivity.this.ReadMultipleBlockAnswer == null || LoginActivity.this.ReadMultipleBlockAnswer[0] == 1) && LoginActivity.this.cpt <= 10L) {
-                            LoginActivity.this.ReadMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(dataDevice.getCurrentTag(), LoginActivity.this.addressStart, LoginActivity.this.numberOfBlockToRead[1], dataDevice);
-                            LoginActivity.this.cpt = LoginActivity.this.cpt + 1L;
-                        }
-
-                        LoginActivity.this.cpt = 0L;
-                    } else {
-                        while ((LoginActivity.this.ReadMultipleBlockAnswer == null || LoginActivity.this.ReadMultipleBlockAnswer[0] == 1) && LoginActivity.this.cpt <= 10L) {
-                            LoginActivity.this.ReadMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(dataDevice.getCurrentTag(), LoginActivity.this.addressStart, LoginActivity.this.numberOfBlockToRead, dataDevice);
-                            LoginActivity.this.cpt = LoginActivity.this.cpt + 1L;
-                        }
-
-                        LoginActivity.this.cpt = 0L;
-                    }
-                } else {
-                    while ((LoginActivity.this.ReadMultipleBlockAnswer == null || LoginActivity.this.ReadMultipleBlockAnswer[0] == 1) && LoginActivity.this.cpt <= 10L) {
-                        LoginActivity.this.ReadMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(dataDevice.getCurrentTag(), LoginActivity.this.addressStart, LoginActivity.this.numberOfBlockToRead, dataDevice);
-                        LoginActivity.this.cpt = LoginActivity.this.cpt + 1L;
-                    }
-
-                    LoginActivity.this.cpt = 0L;
-                }
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Log.d("NFC", "Button Read CLICKED **** On Post Execute ");
-
-            if ((dataDevice = Helper.DecodeGetSystemInfoResponse(LoginActivity.this.GetSystemInfoAnswer, dataDevice)) != null) {
-                LoginActivity.this.nbblocks = Integer.parseInt(LoginActivity.this.sNbOfBlock);
-                if (LoginActivity.this.ReadMultipleBlockAnswer != null && LoginActivity.this.ReadMultipleBlockAnswer.length - 1 > 0) {
-                    if (LoginActivity.this.ReadMultipleBlockAnswer[0] == 0) {
-                        LoginActivity.this.catBlocks = Helper.buildArrayBlocks(LoginActivity.this.addressStart, LoginActivity.this.nbblocks);
-                        LoginActivity.this.catValueBlocks = Helper.buildArrayValueBlocks(LoginActivity.this.ReadMultipleBlockAnswer, LoginActivity.this.nbblocks);
-                        LoginActivity.this.listOfData = new ArrayList();
-
-                        for (int i = 0; i < LoginActivity.this.nbblocks; ++i) {
-                            DataRead dataRead = new DataRead(LoginActivity.this.catBlocks[i], LoginActivity.this.catValueBlocks[i]);
-                            LoginActivity.this.listOfData.add(dataRead);
-                            Log.d("NFC", dataRead.toString());
-                        }
-
-
-                    }
-                }
-            }
-
-        }
-    }
-
-
 }
 

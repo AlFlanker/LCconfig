@@ -17,18 +17,15 @@ public class GPSTracker {
     private  Context mContext;
     private static final GPSTracker instance = new GPSTracker();
     private static final String TAG = "GPS";
-
-
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
     private LocationSettingsRequest locationSettingsRequest;
-
     private GPScallback<Location> GPScb;
-
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     public boolean mRequestingLocationUpdates = false;
+
 
     private GPSTracker() {
         Log.d(TAG, "GPSt constructor");
@@ -48,7 +45,7 @@ public class GPSTracker {
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location currentLocation = locationResult.getLastLocation();
-                Log.d(TAG, "Location Callback results: " + currentLocation.toString());
+                Log.d(TAG, "Tracker: " + currentLocation.toString());
                 if (GPScb!=null)
                     GPScb.OnGPSdata(currentLocation);//в мой класс обратка
             }

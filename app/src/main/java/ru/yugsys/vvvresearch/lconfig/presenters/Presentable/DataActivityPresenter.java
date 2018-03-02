@@ -2,6 +2,7 @@ package ru.yugsys.vvvresearch.lconfig.presenters.Presentable;
 
 import android.location.Location;
 import android.util.Log;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
 import ru.yugsys.vvvresearch.lconfig.views.Interfaces.IEditView;
@@ -10,6 +11,26 @@ import java.util.List;
 
 
 public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
+    @Override
+    public void OnNFCconnected(Device device) {
+        this.dev = device;
+        Log.d("NFC", "DEVICE: ");
+        Log.d("NFC", "type - " + dev.type);
+        Log.d("NFC", "eui - " + dev.eui);
+        Log.d("NFC", "appeui -" + dev.appeui);
+        Log.d("NFC", "devAdr -" + dev.devadr);
+        Log.d("NFC", "nwkSKey - " + dev.nwkskey);
+        Log.d("NFC", "appsKey - " + dev.appskey);
+        Log.d("NFC", "Lat -" + dev.getLatitude());
+        Log.d("NFC", "Lon -" + dev.getLongitude());
+    }
+
+    @Override
+    public void callReadNFC() {
+        model.setCurrentDataDevice(currentDataDevice);
+        model.readNfcDev();
+    }
+
     @Override
     public List<Device> getList() {
         return devList;
@@ -62,11 +83,7 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
         //updateView();
     }
 
-    @Override
-    public void OnNFCconnected(boolean flag) {
-        this.NFCenable = flag;
 
-    }
 
     @Override
     public void OnCheckedDevData(boolean check) {
@@ -77,6 +94,6 @@ public class DataActivityPresenter extends ListPresenter<BaseModel, IEditView> {
     @Override
     public void OnGPSdata(Location location) {
         this.location = location;
-        Log.d("MyTag", "OnGPSdata: " + " " + location.toString());
+        Log.d("GPS", "Presenter GPS data: " + " " + location.toString());
     }
 }
