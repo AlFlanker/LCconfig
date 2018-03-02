@@ -14,14 +14,14 @@ import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataRead;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.BaseModel;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 
 import java.util.*;
 
 
-public class DataModel implements BaseModel<Device>, GPScallback<Location> {
+public class DataModel implements Model, GPScallback<Location> {
 
 
     /*-----------------------------------------------------------------------*/
@@ -58,8 +58,8 @@ public class DataModel implements BaseModel<Device>, GPScallback<Location> {
     }
 
     @Override
-    public void save(Device device) {
-        Log.d("BD","datamodel -> save ->" + device.type);
+    public void saveDevice(Device device) {
+        Log.d("BD","datamodel -> saveDevice ->" + device.type);
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Log.d("BD","device.type = "+device.type);
         try {
