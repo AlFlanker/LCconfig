@@ -77,7 +77,7 @@ public class Helper {
 	//***********************************************************************/
 	public static String castHexKeyboard (String sInput)
 	{
-		String sOutput ="";
+        StringBuilder sOutput = new StringBuilder();
 		
 		sInput = sInput.toUpperCase();
 		char[] cInput = sInput.toCharArray();
@@ -90,10 +90,10 @@ public class Helper {
 			{
 				cInput[i] = 'F';
 			}
-			sOutput += cInput[i];
-		}
-		
-		return sOutput;
+            sOutput.append(cInput[i]);
+        }
+
+        return sOutput.toString();
 	}
 
 	//***********************************************************************/
@@ -224,38 +224,36 @@ public class Helper {
 	//***********************************************************************/
 	public static String StringForceDigit (String sStringToFormat, int nbOfDigit)
 	{
-		String sStringFormated = sStringToFormat.replaceAll(" ", "");
-		
-		if(sStringFormated.length() == 4)
-		{
-			return sStringFormated;
-		}
-		else if (sStringFormated.length() < nbOfDigit)
-		{
-			while (sStringFormated.length() !=nbOfDigit)
+        StringBuilder sFormated = new StringBuilder(sStringToFormat.replaceAll(" ", ""));
+
+        if (sFormated.length() == 4) {
+            return sFormated.toString();
+        } else if (sFormated.length() < nbOfDigit) {
+            while (sFormated.length() != nbOfDigit)
 			{
-				sStringFormated = "0".concat(sStringFormated);
+                sFormated.insert(0, "0");
 			}
 		}
-		
-		return sStringFormated;
+
+        return sFormated.toString();
 	}
 	
 	//***********************************************************************/
 	 //* the function Convert byte value to a "2-char String" Format
 	 //* Example : ConvertHexByteToString ((byte)0X0F) -> returns "0F"
+    //* refactor AlexFlanker
 	 //***********************************************************************/
 	public static String ConvertHexByteToString (byte byteToConvert)
 	 {
-		 String ConvertedByte = "";
+         String ConvertedByte;
 		 if (byteToConvert < 0) {
-			 ConvertedByte += Integer.toString(byteToConvert + 256, 16)
+             ConvertedByte = Integer.toString(byteToConvert + 256, 16)
 					+ " ";
 		} else if (byteToConvert <= 15) {
-			ConvertedByte += "0" + Integer.toString(byteToConvert, 16)
+             ConvertedByte = "0" + Integer.toString(byteToConvert, 16)
 					+ " ";
 		} else {
-			ConvertedByte += Integer.toString(byteToConvert, 16) + " ";
+             ConvertedByte = Integer.toString(byteToConvert, 16) + " ";
 		}		
 		 
 		 return ConvertedByte;
@@ -300,9 +298,10 @@ public class Helper {
 		{
 			stringFormated = ma.getMemorySize().replace(" ", "");
 		}
-		
-		int iAddressStart = ConvertStringToInt(stringFormated);
-		int iAddresStartMax = ConvertStringToInt(StringForceDigit(ma.getMemorySize(),4));
+
+        int iAddressStart = Integer.valueOf(stringFormated, 16);
+        int iAddresStartMax = Integer.valueOf(StringForceDigit(ma.getMemorySize(), 4), 16);
+
 
 		if(iAddressStart > iAddresStartMax)
 		{
@@ -330,16 +329,12 @@ public class Helper {
 	//***********************************************************************/
 	//* the function convert an Int value to a String with Hexadecimal format
 	//* Example : ConvertIntToHexFormatString (2047) -> returns "7FF"
+    //* Refactor AlexFlanker
 	//***********************************************************************/
 	public static String ConvertIntToHexFormatString (int iNumberToConvert)
 	{
-		String sConvertedNumber ="";
-		byte[] bNumberToConvert;
-		
-		bNumberToConvert = ConvertIntTo2bytesHexaFormat(iNumberToConvert);
-		sConvertedNumber = ConvertHexByteArrayToString(bNumberToConvert);
-		sConvertedNumber = sConvertedNumber.replaceAll(" ","");
-		return sConvertedNumber ;
+
+        return Integer.toHexString(iNumberToConvert);
 	}
 	
 	
@@ -420,64 +415,17 @@ public class Helper {
 	//***********************************************************************/
 	//* the function Convert a "4-char String" to a two bytes format
 	//* Example : "0F43" -> { 0X0F ; 0X43 }
+    //* refactor by AlexFlanker
 	//***********************************************************************/
 	public static byte[] ConvertStringToHexBytes (String StringToConvert)
 	 {
-		StringToConvert = StringToConvert.toUpperCase(); 
-		StringToConvert = StringToConvert.replaceAll(" ", "");
-		char[]CharArray = StringToConvert.toCharArray();
-		 char[] Char = new char[]{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-		 int result = 0;
-		 byte[] ConvertedString = new byte[]{(byte)0x00,(byte)0x00};
-		 for(int i=0;i <= 1 ; i++ )
-		 {
-			 
-			 for(int j=0; j<=15 ; j++)
-			 {
-				 if(CharArray[i] == Char[j])
-				 {
-					 if(i == 1)
-					 {
-						 result = result + j;
-						 j=15;
-					 }
-						 
-					 else if (i==0)
-					 {
-						 result = result + j*16;
-						 j = 15;
-					 }
-						 
-				 }
-			 }
-		 }
-		 ConvertedString[0]= (byte)result;
-		 
-		 result = 0;
-		 for(int i=2;i <= 3 ; i++ )
-		 {
-			 for(int j=0; j<=15 ; j++)
-			 {
-				 if(CharArray[i] == Char[j])
-				 {
-					 if(i==3)
-					 {
-						 result = result + j;
-						 j=15;
-					 }
-						 
-					 else if (i==2)
-					 {
-						 result = result + j*16;
-						 j=15;
-					 }
-						 
-				 }
-			 }
-		 }
-		 ConvertedString[1]= (byte)result;
-		  
-		 return ConvertedString;
+         byte[] ConvertedString = new byte[StringToConvert.length() * 2];
+         int j = 0;
+         for (int i = 0; i < StringToConvert.length(); i += 2) {
+             ConvertedString[j++] = Byte.valueOf(StringToConvert.toUpperCase().substring(i, i + 2), 16);
+         }
+
+         return ConvertedString;
 	 }
 	
 	
@@ -598,25 +546,9 @@ public class Helper {
 	//***********************************************************************/
 	//* the function Convert String to an Int value
 	//***********************************************************************/
-	public static int ConvertStringToInt (String nbOfBlocks)
-	{
-		int count = 0;
-		
-		if(nbOfBlocks.length()>2)
-		{
-			String msb = nbOfBlocks.substring(0, 2);
-			String lsb = nbOfBlocks.substring(2, 4);
-		
-			count = Integer.parseInt(lsb,16);
-			count += (Integer.parseInt(msb,16))*256;
-		}
-		else
-		{
-			String lsb = nbOfBlocks.substring(0, 2);
-			count = Integer.parseInt(lsb,16);
-		}
-		
-		return count;
+	public static int ConvertStringToInt (String nbOfBlocks) {
+
+        return Integer.parseInt(nbOfBlocks, 16);
 	}
 	
 
