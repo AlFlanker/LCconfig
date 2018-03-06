@@ -10,10 +10,19 @@ import android.util.Log;
 import com.google.android.gms.location.*;
 
 public class GPSTracker {
+    /**
+     * @autor Alex Flanker
+     * @version 1.0
+     *
+     */
+    /**
+     * Добавляем контекс activity
+     *
+     * @param context - Context
+     */
     public void setContext(Context context) {
         this.mContext = context;
     }
-
     private  Context mContext;
     private static final GPSTracker instance = new GPSTracker();
     private static final String TAG = "GPS";
@@ -60,7 +69,7 @@ public class GPSTracker {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "perm fall");
 
-            return ;
+
         }
         mRequestingLocationUpdates = true;
         Log.d(TAG, "permission compl");
@@ -72,6 +81,9 @@ public class GPSTracker {
         return instance;
     }
 
+    /** для callBack
+     * @param cb - callBack function
+     */
     public void onChange(GPScallback<Location> cb) {
         this.GPScb = cb;
     }

@@ -6,15 +6,23 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
 import java.util.List;
 
-public interface ModelListener<T> {
+public interface ModelListener {
 
-    void OnDataRecived(List<T> devList);
+    interface OnGPSdata {
+        void OnGPSdata(Location location);
+    }
 
-    void OnNFCConnected(Device dev);
+    interface OnDataRecived {
+        void OnDataRecived(List<Device> devList);
+    }
 
-    void OnCheckedDevData(boolean check);
+    interface OnNFCConnected {
+        void OnNFCConnected(Device dev);
+    }
 
-    void OnGPSdata(Location location);
+    interface OnCheckedDevData {
+        void OnCheckedDevData(boolean check);
+    }
 
 
 }

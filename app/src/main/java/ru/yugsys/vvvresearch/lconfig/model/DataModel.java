@@ -77,7 +77,7 @@ public class DataModel implements Model, GPScallback<Location> {
            Log.d("BD","exception: ",e);
         }
         Log.d("BD","Save into");
-        eventManager.notify(EventManager.TypeEvent.OnDevDataChecked, null, true, Collections.emptyList(), null);
+        eventManager.notifyOnDevDataChecked(true);
     }
 
 
@@ -104,23 +104,27 @@ public class DataModel implements Model, GPScallback<Location> {
         Log.d("GPS","inside");
     }
 
+    /**
+     * загрузка объектов Device из БД в List
+     */
     @Override
     public void loadAllDeviceData() {
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Id).build();
-        eventManager.notify(EventManager.TypeEvent.OnDataReceive, null, false, queue.list(), null);
-
-
+        eventManager.notifyOnDataReceive(queue.list());
     }
-
 
     @Override
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
         Log.d("GPS", "In Model: " + mCurrentLocation.toString());
-        eventManager.notify(EventManager.TypeEvent.OnGPSdata, null, false, Collections.emptyList(), mCurrentLocation);
+        eventManager.notifyOnGPS(mCurrentLocation);
     }
 
+    /**
+     * класс чтения данных NFC
+     * возвращает данные через @see EventManager#EventManager()
+     */
     private class StartReadTask extends AsyncTask<Void, Void, Void> {
 
 
@@ -195,7 +199,7 @@ public class DataModel implements Model, GPScallback<Location> {
                         }
                         Log.d("NFC", sb.toString());
                         dev = decodeByteList(sb.toString());
-                        eventManager.notify(EventManager.TypeEvent.OnNFCconnected, dev, false, Collections.emptyList(), null);
+                        eventManager.notifyOnNFC(dev);
 
                     }
                 }

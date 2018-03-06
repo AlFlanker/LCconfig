@@ -9,14 +9,14 @@ import ru.yugsys.vvvresearch.lconfig.views.AddEditViewable;
 
 import java.util.List;
 
-public class AddEditPresenter implements AddEditPresentable, ModelListener<Device>{
+public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFCConnected {
 
     private Model model;
     AddEditViewable addEditView;
 
     public AddEditPresenter(Model model) {
         this.model = model;
-        model.getEventManager().subscribe(EventManager.TypeEvent.OnNFCconnected,this);
+        model.getEventManager().subscribeOnNFC(this);
     }
 
     @Override
@@ -40,20 +40,6 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener<Devic
         model.saveDevice(device);
     }
 
-    @Override
-    public void OnDataRecived(List<Device> devList) {
-
-    }
 
 
-
-    @Override
-    public void OnCheckedDevData(boolean check) {
-
-    }
-
-    @Override
-    public void OnGPSdata(Location location) {
-
-    }
 }

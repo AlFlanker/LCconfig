@@ -1,65 +1,102 @@
 package ru.yugsys.vvvresearch.lconfig.model.Manager;
 
+
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.*;
 
+/**
+ * @author AlexFlanker
+ * @version 1.0
+ * @since 2018-03-06
+ */
 public class EventManager {
+
+
     public enum TypeEvent {
         OnDataReceive, OnNFCconnected, OnDevDataChecked, OnGPSdata
     }
 
-    private EnumMap<TypeEvent, ArrayList<ModelListener<Device>>> listeners = new EnumMap<>(TypeEvent.class);
+    private EnumMap<TypeEvent, List> listeners = new EnumMap<>(TypeEvent.class);
 
+    /**Supportable Events */
+    /**
+     * Создает новый объект с заданными значениями
+     *
+     * @see EventManager#EventManager()
+     */
     public EventManager() {
-        for (TypeEvent event : TypeEvent.values())
-            this.listeners.put(event, new ArrayList<ModelListener<Device>>());
+        listeners.put(TypeEvent.OnDataReceive, new ArrayList<ModelListener.OnDataRecived>());
+        listeners.put(TypeEvent.OnGPSdata, new ArrayList<ModelListener.OnGPSdata>());
+        listeners.put(TypeEvent.OnNFCconnected, new ArrayList<ModelListener.OnNFCConnected>());
+        listeners.put(TypeEvent.OnDevDataChecked, new ArrayList<ModelListener.OnCheckedDevData>());
     }
 
-    public boolean subscribe(TypeEvent event, ModelListener listener) {
-        if (listeners.containsKey(event)) {
-            listeners.get(event).add(listener);
-            return true;
+    @SuppressWarnings("unchecked")
+    public void subscribeOnGPS(ModelListener.OnGPSdata listener) {
+
+        listeners.get(TypeEvent.OnGPSdata).add(listener);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void subscribeOnNFC(ModelListener.OnNFCConnected listener) {
+        listeners.get(TypeEvent.OnNFCconnected).add(listener);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void subscribeOnDataRecive(ModelListener.OnDataRecived listener) {
+        listeners.get(TypeEvent.OnDataReceive).add(listener);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void subscribeOnDevDataChecked(ModelListener.OnCheckedDevData listener) {
+        listeners.get(TypeEvent.OnDevDataChecked).add(listener);
+    }
+
+
+    public void unsubscribeOnGPS(ModelListener.OnGPSdata listener) {
+        listeners.get(TypeEvent.OnGPSdata).remove(listener);
+    }
+
+    public void unsubscribeOnNFC(ModelListener.OnNFCConnected listener) {
+        listeners.get(TypeEvent.OnNFCconnected).remove(listener);
+    }
+
+    public void unsubscribeOnDataRecive(ModelListener.OnDataRecived listener) {
+        listeners.get(TypeEvent.OnDataReceive).remove(listener);
+    }
+
+    public void unsubscribeOnDevDataChecked(ModelListener.OnCheckedDevData listener) {
+        listeners.get(TypeEvent.OnDevDataChecked).remove(listener);
+    }
+
+
+    public void notifyOnGPS(Location location) {
+
+        for (Object listener : listeners.get(TypeEvent.OnGPSdata)) {
+            ((ModelListener.OnGPSdata) listener).OnGPSdata(location);
         }
-        return false;
     }
 
-    public boolean unsubscribe(TypeEvent event, ModelListener listener) {
-        if (listeners.containsKey(event)) {
-            return listeners.get(event).remove(listener);
-
+    public void notifyOnNFC(Device dev) {
+        for (Object listener : listeners.get(TypeEvent.OnNFCconnected)) {
+            ((ModelListener.OnNFCConnected) listener).OnNFCConnected(dev);
         }
-        return false;
     }
 
-    public void notify(TypeEvent evType, Device dev, boolean check, List devList, Location location) {
-
-        switch (evType) {
-            case OnDevDataChecked:
-                for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnCheckedDevData(check);
-                }
-                break;
-            case OnDataReceive:
-                for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnDataRecived(devList);
-                }
-                break;
-            case OnNFCconnected:
-                for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnNFCConnected(dev);
-                }
-                break;
-            case OnGPSdata:
-                for (ModelListener<Device> listener : listeners.get(evType)) {
-                    listener.OnGPSdata(location);
-                }
-                break;
+    public void notifyOnDataReceive(List<Device> devList) {
+        for (Object listener : listeners.get(TypeEvent.OnDataReceive)) {
+            ((ModelListener.OnDataRecived) listener).OnDataRecived(devList);
         }
-
-
     }
+
+    public void notifyOnDevDataChecked(boolean check) {
+        for (Object listener : listeners.get(TypeEvent.OnDevDataChecked)) {
+            ((ModelListener.OnCheckedDevData) listener).OnCheckedDevData(check);
+        }
+    }
+
 
 }

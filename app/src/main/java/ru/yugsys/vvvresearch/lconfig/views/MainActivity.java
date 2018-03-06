@@ -1,10 +1,13 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +16,7 @@ import android.view.*;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
@@ -23,6 +27,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {
     private ContentAdapter adapter;
     private RecyclerView recyclerView;
+    private static final int PERMISSION_REQUEST_CODE = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
             //((App) getApplication()).getModel().saveDevice(d);
         }
+        GPSTracker gpsTracker = GPSTracker.instance();
+        gpsTracker.setContext(this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_REQUEST_CODE);
+        }
+        gpsTracker.OnStartGPS();
+
 
         mainPresenter.fireUpdateDataForView();
     }
