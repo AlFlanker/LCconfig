@@ -9,14 +9,14 @@ import ru.yugsys.vvvresearch.lconfig.views.AddEditViewable;
 
 import java.util.List;
 
-public class AddEditPresenter implements AddEditPresentable, ModelListener<Device>{
+public class AddEditPresenter implements AddEditPresentable, ModelListener<Device> {
 
     private Model model;
     AddEditViewable addEditView;
 
     public AddEditPresenter(Model model) {
         this.model = model;
-        model.getEventManager().subscribe(EventManager.TypeEvent.OnNFCconnected,this);
+        model.getEventManager().subscribe(EventManager.TypeEvent.OnNFCconnected, this);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener<Devic
     }
 
     @Override
-    public void unBindAll() {
+    public void unBind() {
 
     }
 
@@ -44,8 +44,6 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener<Devic
     public void OnDataRecived(List<Device> devList) {
 
     }
-
-
 
     @Override
     public void OnCheckedDevData(boolean check) {

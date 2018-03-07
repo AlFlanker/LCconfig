@@ -11,76 +11,59 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.widget.TextView;
+import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {
     private ContentAdapter adapter;
     private RecyclerView recyclerView;
+    private MainPresentable mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
         recyclerView = findViewById(R.id.lc5_recycler_view);
         adapter = new ContentAdapter(recyclerView.getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MainPresentable mainPresenter = new MainPresenter(((App) getApplication()).getModel());
+        //Connect presenter to main view
+        mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         mainPresenter.bind(this);
-        for (int i = 0; i < 10; i++) {
-            Device d = new Device();
-            for (Field field :
-                    Device.class.getFields()) {
-                try {
-                    if (field.getType() == String.class) {
+        mainPresenter.fireUpdateDataForView();
+    }
 
-                        field.set(d, " Somthing");
-
-                    } else if (field.getType() == double.class) {
-                        field.set(d, 2.3);
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //((App) getApplication()).getModel().saveDevice(d);
-        }
-
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
         mainPresenter.fireUpdateDataForView();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -92,14 +75,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
     @Override
     public void onClick(View view) {
-
         if (view.getId() == R.id.fab) {
             Intent addEditIntent = new Intent(this, AddEditActivity.class);
             startActivity(addEditIntent);
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
         }
-
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -114,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         public TextView appSKey;
         public TextView gps;
         public TextView outType;
-        ;
 
         public ViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.lc5_item_list, parent, false));
@@ -161,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             holder.appSKey.setText(devices.get(position).appskey);
             holder.gps.setText(devices.get(position).Latitude + ", " + devices.get(position).Longitude);
             holder.outType.setText(devices.get(position).outType);
+
         }
 
         @Override

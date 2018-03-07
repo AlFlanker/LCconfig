@@ -2,10 +2,9 @@ package ru.yugsys.vvvresearch.lconfig.presenters;
 
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.view.View;
 import ru.yugsys.vvvresearch.lconfig.R;
-
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
+import ru.yugsys.vvvresearch.lconfig.model.LoginData;
 import ru.yugsys.vvvresearch.lconfig.views.LoginViewable;
 
 public class LoginPresenter implements LoginPresentable {
@@ -24,11 +23,11 @@ public class LoginPresenter implements LoginPresentable {
     }
 
     @Override
-    public void unBindAll() {
+    public void unBind() {
         this.loginView = null;
     }
 
-    public void attemptLogin() {
+    public void attemptToLogin() {
         if (mAuthTask != null) {
             return;
         }
@@ -38,7 +37,6 @@ public class LoginPresenter implements LoginPresentable {
         String server = loginView.getServer();
 
         boolean cancel = false;
-        View focusView = null;
 
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
 
@@ -62,6 +60,20 @@ public class LoginPresenter implements LoginPresentable {
         }
     }
 
+    @Override
+    public void saveLoginData() {
+        String login = loginView.getLogin();
+        String password = loginView.getPassword();
+        String server = loginView.getServer();
+        model.writeAuthData(login, password, server);
+        loginView.fireCloseLoginView();
+    }
+
+    @Override
+    public LoginData loadLoginData() {
+        return null;
+    }
+
     private boolean isLoginValid(String login) {
         return login.matches("^[a-zA-Z0-9]+$");
     }
@@ -74,10 +86,6 @@ public class LoginPresenter implements LoginPresentable {
         return true;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String login;
@@ -92,8 +100,7 @@ public class LoginPresenter implements LoginPresentable {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            model.writeAuthData(login, password, server);
-            return true;
+            return model.testLoginConnection(login, password, server);
         }
 
         @Override

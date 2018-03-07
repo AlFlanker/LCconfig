@@ -4,5 +4,5 @@ import ru.yugsys.vvvresearch.lconfig.views.MainViewable;
 
 public interface Presentable<V> {
     void bind(V mainView);
-    void unBindAll();
+    void unBind();
 }

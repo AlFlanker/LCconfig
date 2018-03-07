@@ -33,6 +33,12 @@ public class DataModel implements Model, GPScallback<Location> {
 
     }
 
+    @Override
+    public boolean testLoginConnection(String login, String password, String server) {
+        return true;
+
+    }
+
     public EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
     private DataDevice currentDataDevice;

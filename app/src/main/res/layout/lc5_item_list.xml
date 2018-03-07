@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:tools="http://schemas.android.com/tools"
+                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                     android:id="@+id/lc5_form"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
@@ -30,77 +31,78 @@
         />
 
 
-        <TextView
-                android:id="@+id/lc5_deveui"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_devEUI"
-                android:maxLines="1"
-        />
+            <TextView
+                    android:id="@+id/lc5_deveui"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_devEUI"
+                    android:maxLines="1"
+            />
 
-        <TextView
-                android:id="@+id/lc5_appEUI"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_appEUI"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_appKey"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_appKey"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_nwkID"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_nwkID"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_devAdr"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_devAdr"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_nwkSKey"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_nwkSKey"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_appSKey"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_appSKey"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_isOTAA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_isOTAA"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_gps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_gps"
-                android:maxLines="1"
-        />
-        <TextView
-                android:id="@+id/lc5_out_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/prompt_outType"
-                android:maxLines="1"
-        />
+            <TextView
+                    android:id="@+id/lc5_appEUI"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_appEUI"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_appKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_appKey"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_nwkID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_nwkID"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_devAdr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_devAdr"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_nwkSKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_nwkSKey"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_appSKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_appSKey"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_isOTAA"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_isOTAA"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_gps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_gps"
+                    android:maxLines="1"
+            />
+            <TextView
+                    android:id="@+id/lc5_out_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_outType"
+                    android:maxLines="1"
+            />
+
     </LinearLayout>
 
 

@@ -123,6 +123,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     public void onClick(View view) {
         presenter.fireNewDevice(fieldToDevice());
+        finish();
     }
 }
 ;
