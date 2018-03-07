@@ -3,17 +3,23 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
@@ -38,6 +44,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
     public DataDevice dataDevice;
+    private Location location;
 
 
 
@@ -70,6 +77,17 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
+
+        GPSTracker gpsTracker = GPSTracker.instance();
+        gpsTracker.setContext(this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    100);
+        }
+        Log.d("GPS", "Activity gps start");
+        gpsTracker.OnStartGPS();
+
     }
 
     @Override
@@ -124,5 +142,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public void onClick(View view) {
         presenter.fireNewDevice(fieldToDevice());
     }
+
+
 }
 ;

@@ -11,13 +11,14 @@ import ru.yugsys.vvvresearch.lconfig.views.MainViewable;
 
 import java.util.List;
 
-public class MainPresenter implements MainPresentable {
+public class MainPresenter implements MainPresentable, ModelListener.OnDataRecived {
     private Model model;
     MainViewable mainView;
 
 
     public MainPresenter(Model model) {
         this.model = model;
+        this.model.getEventManager().subscribeOnDataRecive(this);
 
     }
 
@@ -37,6 +38,10 @@ public class MainPresenter implements MainPresentable {
     }
 
 
-
-
+    @Override
+    public void OnDataRecived(List<Device> devList) {
+        if (mainView != null) {
+            mainView.setContentForView(devList);
+        }
+    }
 }

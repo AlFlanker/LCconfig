@@ -8,6 +8,10 @@ import org.greenrobot.greendao.DaoException;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
 
+/**
+ * @author Alex Flanker
+ * после внесения ЛЮБЫХ изменний в класс инкрементировать scheme в build.gradle !!!
+ */
 @Entity(
 
         active = true,
@@ -61,20 +65,20 @@ public class Device {
 
     @Override
     public int hashCode() {
-         final int tmp = 37;
-         int result = 1;
-         result = result*tmp + this.type.hashCode();
-         result = result*tmp + this.eui.hashCode();
-         result = result*tmp + this.appeui.hashCode();
-         result = result*tmp + this.appkey.hashCode();
-         result = result*tmp + this.nwkid.hashCode();
-         result = result*tmp + this.devadr.hashCode();
-         result = result*tmp + this.nwkskey.hashCode();
-         result = result*tmp + this.appskey.hashCode();
-         result = result*tmp + this.outType.hashCode();
-         result = result*tmp + + this.kV.hashCode();
-         result = result*tmp + this.kI.hashCode();
-            return result;
+        final int tmp = 37;
+        int result = 1;
+        result = result*tmp + this.type.hashCode();
+        result = result*tmp + this.eui.hashCode();
+        result = result*tmp + this.appeui.hashCode();
+        result = result*tmp + this.appkey.hashCode();
+        result = result*tmp + this.nwkid.hashCode();
+        result = result*tmp + this.devadr.hashCode();
+        result = result*tmp + this.nwkskey.hashCode();
+        result = result*tmp + this.appskey.hashCode();
+        result = result*tmp + this.outType.hashCode();
+        result = result*tmp + + this.kV.hashCode();
+        result = result*tmp + this.kI.hashCode();
+        return result;
     }
 
     /**

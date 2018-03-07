@@ -12,6 +12,14 @@ import java.util.*;
  * @version 1.0
  * @since 2018-03-06
  */
+
+/**
+ * Supportable Events:
+ * OnDataReceive - вычитывание данных из БД;
+ * OnNFCconnected - данные от NFC;
+ * OnDevDataChecked - данные сохранены в БД;
+ * OnGPSdata - поступление данных от GPS.
+ */
 public class EventManager {
 
 
@@ -21,7 +29,7 @@ public class EventManager {
 
     private EnumMap<TypeEvent, List> listeners = new EnumMap<>(TypeEvent.class);
 
-    /**Supportable Events */
+
     /**
      * Создает новый объект с заданными значениями
      *
@@ -34,22 +42,39 @@ public class EventManager {
         listeners.put(TypeEvent.OnDevDataChecked, new ArrayList<ModelListener.OnCheckedDevData>());
     }
 
+    /**
+     * Подписка на обновление GPS координат
+     *
+     * @return Location
+     */
     @SuppressWarnings("unchecked")
     public void subscribeOnGPS(ModelListener.OnGPSdata listener) {
 
         listeners.get(TypeEvent.OnGPSdata).add(listener);
     }
 
+    /**
+     * Подписка на получение данных NFC.
+     * @return new Device()
+     */
     @SuppressWarnings("unchecked")
     public void subscribeOnNFC(ModelListener.OnNFCConnected listener) {
         listeners.get(TypeEvent.OnNFCconnected).add(listener);
     }
 
+    /**
+     * Подписка на получение данных из БД
+     * @return ArrayList<Device>
+     */
     @SuppressWarnings("unchecked")
     public void subscribeOnDataRecive(ModelListener.OnDataRecived listener) {
         listeners.get(TypeEvent.OnDataReceive).add(listener);
     }
 
+    /**
+     * Подписка на получение уведомления о успешном сохранении в БД
+     * @return Boolean
+     */
     @SuppressWarnings("unchecked")
     public void subscribeOnDevDataChecked(ModelListener.OnCheckedDevData listener) {
         listeners.get(TypeEvent.OnDevDataChecked).add(listener);

@@ -2,6 +2,10 @@ package ru.yugsys.vvvresearch.lconfig.model.DataEntity;
 
 
 public class DataRead {
+    /**
+     * класс для хранения вычитанных данных из блока флеши
+     * block XX ->{0xXX, 0xXX, 0xXX, 0xXX};
+     */
     @Override
     public String toString() {
         return "DataRead{" +

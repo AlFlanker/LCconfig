@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
 import ru.yugsys.vvvresearch.lconfig.App;
@@ -70,9 +71,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
+        Log.d("GPS", "Activity gps start");
         gpsTracker.OnStartGPS();
-
-
         mainPresenter.fireUpdateDataForView();
     }
 

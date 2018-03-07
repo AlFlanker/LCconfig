@@ -9,20 +9,17 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import com.google.android.gms.location.*;
 
+/**
+ * @version 1.0
+ * @autor Alex Flanker
+ */
 public class GPSTracker {
+
     /**
-     * @autor Alex Flanker
-     * @version 1.0
+     * Перед
      *
      */
-    /**
-     * Добавляем контекс activity
-     *
-     * @param context - Context
-     */
-    public void setContext(Context context) {
-        this.mContext = context;
-    }
+
     private  Context mContext;
     private static final GPSTracker instance = new GPSTracker();
     private static final String TAG = "GPS";
@@ -62,6 +59,12 @@ public class GPSTracker {
         Log.d(TAG, "client");
 
     }
+
+    public void setContext(Context context) {
+        this.mContext = context;
+    }
+
+
     public void OnStartGPS(){
 
         // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!для андройд выше 6.0
