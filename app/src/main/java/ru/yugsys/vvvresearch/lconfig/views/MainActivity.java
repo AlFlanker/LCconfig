@@ -1,17 +1,18 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
-import android.content.Context;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
+import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
@@ -81,71 +82,5 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView typeOfLC5;
-        public TextView isOTAA;
-        public TextView devEUI;
-        public TextView appEUI;
-        public TextView appKey;
-        public TextView nwkID;
-        public TextView devAdr;
-        public TextView nwkSKey;
-        public TextView appSKey;
-        public TextView gps;
-        public TextView outType;
-
-        public ViewHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.lc5_item_list, parent, false));
-            typeOfLC5 = itemView.findViewById(R.id.lc5_type);
-            isOTAA = itemView.findViewById(R.id.lc5_isOTAA);
-            devEUI = itemView.findViewById(R.id.lc5_deveui);
-            appEUI = itemView.findViewById(R.id.lc5_appEUI);
-            appKey = itemView.findViewById(R.id.lc5_appKey);
-            nwkID = itemView.findViewById(R.id.lc5_nwkID);
-            devAdr = itemView.findViewById(R.id.lc5_devAdr);
-            nwkSKey = itemView.findViewById(R.id.lc5_nwkSKey);
-            appSKey = itemView.findViewById(R.id.lc5_appSKey);
-            gps = itemView.findViewById(R.id.lc5_gps);
-            outType = itemView.findViewById(R.id.lc5_out_type);
-        }
-    }
-
-    public static class ContentAdapter extends RecyclerView.Adapter<ViewHolder> {
-        List<Device> devices;
-
-        public ContentAdapter(Context context) {
-
-        }
-
-        public void setDevices(List<Device> devices) {
-            this.devices = devices;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()), parent);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.typeOfLC5.setText(devices.get(position).type);
-            //holder.isOTAA.setText(devices.get(position).);
-            holder.devEUI.setText(devices.get(position).getEui());
-            holder.appEUI.setText(devices.get(position).appeui);
-            holder.appKey.setText(devices.get(position).appkey);
-            holder.nwkID.setText(devices.get(position).nwkid);
-            holder.devAdr.setText(devices.get(position).devadr);
-            holder.nwkSKey.setText(devices.get(position).nwkskey);
-            holder.appSKey.setText(devices.get(position).appskey);
-            holder.gps.setText(devices.get(position).Latitude + ", " + devices.get(position).Longitude);
-            holder.outType.setText(devices.get(position).outType);
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return devices.size();
-        }
-    }
 
 }
