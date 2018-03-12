@@ -65,6 +65,13 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 // output : String "Block 0 : 32 FF EE 44"
 
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Helper {
 
@@ -813,5 +820,54 @@ public class Helper {
 			return null;
 
 	}
+	//***********************************************************************/
+	//* the function Convert Fields of Object to byte array
+	// Alex Flanker
+	//***********************************************************************/
+	public byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException {
+		Field[] f = Device.class.getFields();
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		for(Field field: f){
+			System.out.println(field.getName());
+			if(field.getType() == String.class) {
+				byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+			}
+			else if(field.getType()==Float.class){
+				byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+			}
+		}
+		return byteArrayOutputStream.toByteArray();
+	}
 
+	String getStringAchi(String s) {
+		StringBuilder output = new StringBuilder();
+		for (int i = 0; i < s.length(); i += 2) {
+			String str = s.substring(i, i + 2);
+			output.append((char) Integer.parseInt(str, 16));
+		}
+		return output.toString();
+
+	}
+	//***********************************************************************/
+	//* the function Convert String to Device
+	// Alex Flanker
+	//***********************************************************************/
+	public Device decodeByteList(String s) {
+		String srt = s.replace(" ", "");
+		Device d = new Device();
+		d.type = getStringAchi(srt.substring(0, 10));
+		d.eui = srt.substring(12, 28);
+		d.appeui = srt.substring(28, 44);
+		d.appkey = srt.substring(44, 75);
+		d.nwkid = srt.substring(75, 83);
+		d.devadr = srt.substring(84, 92);
+		d.nwkskey = srt.substring(92, 124);
+		d.appskey = srt.substring(124, 156);
+		d.setLatitude(Float.intBitsToFloat((int)Long.parseLong(srt.substring(156, 164), 16)));
+		d.setLongitude(Float.intBitsToFloat((int) Long.parseLong(srt.substring(164, 172), 16)));
+		d.outType = srt.substring(172,182);
+		d.kV = srt.substring(182,238);
+		d.kI = srt.substring(238,242);
+		return d;
+	}
 }
