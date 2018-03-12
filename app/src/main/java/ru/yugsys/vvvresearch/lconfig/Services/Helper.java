@@ -828,13 +828,7 @@ public class Helper {
 		Field[] f = Device.class.getFields();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		for(Field field: f){
-			System.out.println(field.getName());
-			if(field.getType() == String.class) {
-				byteArrayOutputStream.write(field.get(dev).toString().getBytes());
-			}
-			else if(field.getType()==Float.class){
-				byteArrayOutputStream.write(field.get(dev).toString().getBytes());
-			}
+		    byteArrayOutputStream.write(field.get(dev).toString().getBytes());
 		}
 		return byteArrayOutputStream.toByteArray();
 	}
