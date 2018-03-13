@@ -8,61 +8,7 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
 
-//**** SUMMARY *****
 
-// castHexKeyboard
-// input : String "AZER" 
-// output : String "AFEF"
-
-// StringForceDigit
-// input : String "23"
-// input : Int 4
-// output : String"0023"
-
-// ConvertHexByteToString 
-// input :  byte 0x0F  
-// output : String "0F" 
-
-// ConvertHexByteArrayToStrin
-// input :  byte[] { 0X0F ; 0X43 ; 0xA4 ; ...}
-// output : String "0F 43 A4 ..." 
-
-// FormatStringAddressStart
-// input : String "0F"
-// input : DataDevice
-// output: String  "000F"
-
-// ConvertIntToHexFormatString
-// input : Int 2047
-// output : String "7FF"
-
-// FormatStringNbBlock
-// input :  String "2"  
-// output : String "02"
-
-// ConvertStringToHexBytes
-// input : String "0F43" 
-// output : byte[] { 0X0F ; 0X43 }
-
-// ConvertStringToHexByte
-// input : String "43" 
-// output : byte { 0X43 }
-
-// ConvertIntTo2bytesHexaFormat
-// input : Int 1876 
-// output : byte[] {0x07, 0x54}
-
-// Convert2bytesHexaFormatToInt
-// input : byte[] {0x07, 0x54}
-// output : Int 1876
-
-// ConvertStringToInt
-// input : String "0754"
-// output : Int 1876
-
-// FormatDisplayReadBlock 
-// input : byte[] ReadMultipleBlockAnswer & byte[]AddressStart 
-// output : String "Block 0 : 32 FF EE 44"
 
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
@@ -70,8 +16,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+
 
 public class Helper {
 
@@ -196,7 +142,7 @@ public class Helper {
 	//***********************************************************************/
 	public static String checkAndChangeFileName (String sInput)
 	{
-		String CheckedAndChangedName = "";
+        StringBuilder CheckedAndChangedName = new StringBuilder();
 		//sInput = sInput.toUpperCase();
 		char[] cInput = sInput.toCharArray();
 		
@@ -218,10 +164,10 @@ public class Helper {
 				cInput[i] == 'Z' ||
 				cInput[i] == '.' || cInput[i] == '_')
 			{
-				CheckedAndChangedName +=  cInput[i];
+                CheckedAndChangedName.append(cInput[i]);
 			}
 		}
-		return CheckedAndChangedName;		
+        return CheckedAndChangedName.toString();
 	}	
 	
 	//***********************************************************************/
@@ -824,14 +770,21 @@ public class Helper {
 	//* the function Convert Fields of Object to byte array
 	// Alex Flanker
 	//***********************************************************************/
-	public byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException {
-		Field[] f = Device.class.getFields();
+    public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException {
+        Field[] fields = Device.class.getFields();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		for(Field field: f){
-		    byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+        for (Field field : fields) {
+            if (field.getType() == String.class) {
+                byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+            } else if ((field.getType() == Float.class) || (field.getType() == float.class)) {
+                byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat((float) field.get(dev)).array());
+            } else if (field.getType() == char.class) {
+                byteArrayOutputStream.write((char) field.get(dev));
+            }
 		}
 		return byteArrayOutputStream.toByteArray();
 	}
+
 
 	String getStringAchi(String s) {
 		StringBuilder output = new StringBuilder();
@@ -842,26 +795,44 @@ public class Helper {
 		return output.toString();
 
 	}
+
 	//***********************************************************************/
 	//* the function Convert String to Device
 	// Alex Flanker
 	//***********************************************************************/
-	public Device decodeByteList(String s) {
+    public static Device decodeByteList(String s) {
 		String srt = s.replace(" ", "");
 		Device d = new Device();
-		d.type = getStringAchi(srt.substring(0, 10));
+        d.type = srt.substring(0, 10);
+        //d.isOTAA = srt.substring(10,12);
 		d.eui = srt.substring(12, 28);
 		d.appeui = srt.substring(28, 44);
-		d.appkey = srt.substring(44, 75);
-		d.nwkid = srt.substring(75, 83);
+        d.appkey = srt.substring(44, 76);
+        d.nwkid = srt.substring(76, 84);
 		d.devadr = srt.substring(84, 92);
 		d.nwkskey = srt.substring(92, 124);
 		d.appskey = srt.substring(124, 156);
 		d.setLatitude(Float.intBitsToFloat((int)Long.parseLong(srt.substring(156, 164), 16)));
 		d.setLongitude(Float.intBitsToFloat((int) Long.parseLong(srt.substring(164, 172), 16)));
-		d.outType = srt.substring(172,182);
+        d.outType = srt.substring(172, 182);
 		d.kV = srt.substring(182,238);
 		d.kI = srt.substring(238,242);
 		return d;
 	}
+
+    //***********************************************************************/
+    //* the function Convert hex string to bytes
+    //*example 0A10 -> bytes[]{0x0A,0x10};
+    // Alex Flanker
+    //***********************************************************************/
+    public static byte[] hexToBytes(String hexString) {
+        int len = hexString.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+                    + Character.digit(hexString.charAt(i + 1), 16));
+        }
+        return data;
+
+    }
 }
