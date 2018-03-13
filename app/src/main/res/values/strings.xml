@@ -99,4 +99,5 @@
     <string name="action_addedit">Add</string>
     <string name="prompt_isOTAA">Over the Air Activation</string>
     <string name="prompt_typeServer">Type of server</string>
+    <string name="more">More</string>
 </resources>

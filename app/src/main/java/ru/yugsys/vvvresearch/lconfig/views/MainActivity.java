@@ -1,6 +1,5 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
-import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,10 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
-import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
@@ -22,7 +17,7 @@ import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {
-    private ContentAdapter adapter;
+    private MainContentAdapter adapter;
     private RecyclerView recyclerView;
     private MainPresentable mainPresenter;
 
@@ -35,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
         recyclerView = findViewById(R.id.lc5_recycler_view);
-        adapter = new ContentAdapter(recyclerView.getContext());
+        adapter = new MainContentAdapter(recyclerView.getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
