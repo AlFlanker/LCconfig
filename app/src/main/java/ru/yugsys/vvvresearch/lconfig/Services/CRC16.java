@@ -70,20 +70,24 @@ public class CRC16 {
             0x73, 0x16, 0xB9, 0xDC, 0xE7, 0x82, 0x2D, 0x48
     };
 
-    public char CRC16Get(char beginCRC, char bt) {
-        char i;
+    public int CRC16Get(int beginCRC, int bt) {
 
-        i = (char) ((beginCRC >> 8) ^ (bt & (0x00ff)));
-        beginCRC = (char) ((beginCRC & 0x00ff) | ((CRCTablHigh[i] ^ (char) beginCRC) << 8));
-        beginCRC = (char) ((beginCRC & 0xff00) | CRCTablLow[i]);
+        int tmp;
+        beginCRC &= 0x0000FFFF;
+        tmp = ((beginCRC >> 8) ^ (bt & (0x00ff)));
+        beginCRC = ((beginCRC & 0x000000ff) | ((CRCTablHigh[tmp] ^ beginCRC & 0x0000FFFF) << 8));
+        beginCRC = ((beginCRC & 0x0000ff00) | CRCTablLow[tmp]);
+        tmp = beginCRC & 0x0000FFFF;
         return beginCRC;
+
+
     }
 
-    public char CRC16ArrayGet(char beginCRC, char[] buffer) {
+    public int CRC16ArrayGet(int beginCRC, char[] buffer) {
         char j;
         for (char b : buffer) {
             beginCRC = CRC16Get(beginCRC, b);
         }
-        return (char) (~beginCRC);
+        return (~beginCRC);
     }
 }
