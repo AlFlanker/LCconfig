@@ -70,13 +70,13 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.expandableLayout.setListener(new ExpandableLayoutListenerAdapter() {
             @Override
             public void onPreOpen() {
-                createRotateAnimator(holder.buttonLayout, 0f, 180f).start();
+                createRotateAnimator(holder.triangleView, 0f, 180f).start();
                 expandState.put(finalPosition, true);
             }
 
             @Override
             public void onPreClose() {
-                createRotateAnimator(holder.buttonLayout, 180f, 0f).start();
+                createRotateAnimator(holder.triangleView, 180f, 0f).start();
                 expandState.put(finalPosition, false);
             }
         });
@@ -101,6 +101,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public RelativeLayout buttonLayout;
+        public View triangleView;
         public TextView typeOfLC5;
         public TextView isOTAA;
         public TextView devEUI;
@@ -130,6 +131,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             gps_Longitude = itemView.findViewById(R.id.lc5_gps_longitude);
             outType = itemView.findViewById(R.id.lc5_out_type);
             buttonLayout = (RelativeLayout) itemView.findViewById(R.id.button);
+            triangleView = itemView.findViewById(R.id.button_triangle);
             expandableLayout = (ExpandableLinearLayout) itemView.findViewById(R.id.expandableLayout);
         }
     }
