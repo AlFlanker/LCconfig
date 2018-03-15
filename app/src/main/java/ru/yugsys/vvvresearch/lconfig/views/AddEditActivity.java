@@ -131,8 +131,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         String gpsText = gpsEdit.getText().toString();
         String[] gpsSplit = gpsText.split(",");
         if (gpsSplit.length == 2) {
-            device.setLatitude(Double.parseDouble(gpsSplit[0]));
-            device.setLongitude(Double.parseDouble(gpsSplit[1]));
+            device.setLatitude(Float.parseFloat(gpsSplit[0]));
+            device.setLongitude(Float.parseFloat(gpsSplit[1]));
         }
         device.setOutType(out_typeEdit.getText().toString());
         return device;

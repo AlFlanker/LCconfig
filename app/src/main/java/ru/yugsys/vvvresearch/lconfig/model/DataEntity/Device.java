@@ -92,6 +92,7 @@ public class Device {
     public Long id;
     @NotNull
     public String type;
+    public String isOTAA;
 
     /**
      * <!-- begin-user-doc -->
@@ -171,9 +172,9 @@ public class Device {
      * @ordered
      */
     @NotNull
-    public double Latitude;
+    public float Latitude;
     @NotNull
-    public double Longitude;
+    public float Longitude;
 
     /**
      * <!-- begin-user-doc -->
@@ -214,14 +215,15 @@ public class Device {
     @Generated(hash = 371273952)
     private transient DeviceDao myDao;
 
-    @Generated(hash = 1499937711)
-    public Device(Long id, @NotNull String type, @NotNull String eui,
+    @Generated(hash = 1944223767)
+    public Device(Long id, @NotNull String type, String isOTAA, @NotNull String eui,
                   @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-                  @NotNull String devadr, @NotNull String nwkskey,
-                  @NotNull String appskey, double Latitude, double Longitude,
-                  @NotNull String outType, @NotNull String kV, @NotNull String kI) {
+                  @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
+                  float Latitude, float Longitude, @NotNull String outType, @NotNull String kV,
+                  @NotNull String kI) {
         this.id = id;
         this.type = type;
+        this.isOTAA = isOTAA;
         this.eui = eui;
         this.appeui = appeui;
         this.appkey = appkey;
@@ -316,7 +318,7 @@ public class Device {
         return this.Latitude;
     }
 
-    public void setLatitude(double Latitude) {
+    public void setLatitude(float Latitude) {
         this.Latitude = Latitude;
     }
 
@@ -324,7 +326,7 @@ public class Device {
         return this.Longitude;
     }
 
-    public void setLongitude(double Longitude) {
+    public void setLongitude(float Longitude) {
         this.Longitude = Longitude;
     }
 
@@ -395,6 +397,14 @@ public class Device {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getDeviceDao() : null;
+    }
+
+    public String getIsOTAA() {
+        return this.isOTAA;
+    }
+
+    public void setIsOTAA(String isOTAA) {
+        this.isOTAA = isOTAA;
     }
 
 

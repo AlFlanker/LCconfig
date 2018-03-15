@@ -26,18 +26,19 @@ public class DeviceDao extends AbstractDao<Device, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Type = new Property(1, String.class, "type", false, "TYPE");
-        public final static Property Eui = new Property(2, String.class, "eui", false, "EUI");
-        public final static Property Appeui = new Property(3, String.class, "appeui", false, "APPEUI");
-        public final static Property Appkey = new Property(4, String.class, "appkey", false, "APPKEY");
-        public final static Property Nwkid = new Property(5, String.class, "nwkid", false, "NWKID");
-        public final static Property Devadr = new Property(6, String.class, "devadr", false, "DEVADR");
-        public final static Property Nwkskey = new Property(7, String.class, "nwkskey", false, "NWKSKEY");
-        public final static Property Appskey = new Property(8, String.class, "appskey", false, "APPSKEY");
-        public final static Property Latitude = new Property(9, double.class, "Latitude", false, "LATITUDE");
-        public final static Property Longitude = new Property(10, double.class, "Longitude", false, "LONGITUDE");
-        public final static Property OutType = new Property(11, String.class, "outType", false, "OUT_TYPE");
-        public final static Property KV = new Property(12, String.class, "kV", false, "K_V");
-        public final static Property KI = new Property(13, String.class, "kI", false, "K_I");
+        public final static Property IsOTAA = new Property(2, String.class, "isOTAA", false, "IS_OTAA");
+        public final static Property Eui = new Property(3, String.class, "eui", false, "EUI");
+        public final static Property Appeui = new Property(4, String.class, "appeui", false, "APPEUI");
+        public final static Property Appkey = new Property(5, String.class, "appkey", false, "APPKEY");
+        public final static Property Nwkid = new Property(6, String.class, "nwkid", false, "NWKID");
+        public final static Property Devadr = new Property(7, String.class, "devadr", false, "DEVADR");
+        public final static Property Nwkskey = new Property(8, String.class, "nwkskey", false, "NWKSKEY");
+        public final static Property Appskey = new Property(9, String.class, "appskey", false, "APPSKEY");
+        public final static Property Latitude = new Property(10, float.class, "Latitude", false, "LATITUDE");
+        public final static Property Longitude = new Property(11, float.class, "Longitude", false, "LONGITUDE");
+        public final static Property OutType = new Property(12, String.class, "outType", false, "OUT_TYPE");
+        public final static Property KV = new Property(13, String.class, "kV", false, "K_V");
+        public final static Property KI = new Property(14, String.class, "kI", false, "K_I");
     }
 
     private DaoSession daoSession;
@@ -58,18 +59,19 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"DevicesTable\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"TYPE\" TEXT NOT NULL ," + // 1: type
-                "\"EUI\" TEXT NOT NULL ," + // 2: eui
-                "\"APPEUI\" TEXT NOT NULL ," + // 3: appeui
-                "\"APPKEY\" TEXT NOT NULL ," + // 4: appkey
-                "\"NWKID\" TEXT NOT NULL ," + // 5: nwkid
-                "\"DEVADR\" TEXT NOT NULL ," + // 6: devadr
-                "\"NWKSKEY\" TEXT NOT NULL ," + // 7: nwkskey
-                "\"APPSKEY\" TEXT NOT NULL ," + // 8: appskey
-                "\"LATITUDE\" REAL NOT NULL ," + // 9: Latitude
-                "\"LONGITUDE\" REAL NOT NULL ," + // 10: Longitude
-                "\"OUT_TYPE\" TEXT NOT NULL ," + // 11: outType
-                "\"K_V\" TEXT NOT NULL ," + // 12: kV
-                "\"K_I\" TEXT NOT NULL );"); // 13: kI
+                "\"IS_OTAA\" TEXT," + // 2: isOTAA
+                "\"EUI\" TEXT NOT NULL ," + // 3: eui
+                "\"APPEUI\" TEXT NOT NULL ," + // 4: appeui
+                "\"APPKEY\" TEXT NOT NULL ," + // 5: appkey
+                "\"NWKID\" TEXT NOT NULL ," + // 6: nwkid
+                "\"DEVADR\" TEXT NOT NULL ," + // 7: devadr
+                "\"NWKSKEY\" TEXT NOT NULL ," + // 8: nwkskey
+                "\"APPSKEY\" TEXT NOT NULL ," + // 9: appskey
+                "\"LATITUDE\" REAL NOT NULL ," + // 10: Latitude
+                "\"LONGITUDE\" REAL NOT NULL ," + // 11: Longitude
+                "\"OUT_TYPE\" TEXT NOT NULL ," + // 12: outType
+                "\"K_V\" TEXT NOT NULL ," + // 13: kV
+                "\"K_I\" TEXT NOT NULL );"); // 14: kI
     }
 
     /** Drops the underlying database table. */
@@ -87,18 +89,23 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindString(3, entity.getEui());
-        stmt.bindString(4, entity.getAppeui());
-        stmt.bindString(5, entity.getAppkey());
-        stmt.bindString(6, entity.getNwkid());
-        stmt.bindString(7, entity.getDevadr());
-        stmt.bindString(8, entity.getNwkskey());
-        stmt.bindString(9, entity.getAppskey());
-        stmt.bindDouble(10, entity.getLatitude());
-        stmt.bindDouble(11, entity.getLongitude());
-        stmt.bindString(12, entity.getOutType());
-        stmt.bindString(13, entity.getKV());
-        stmt.bindString(14, entity.getKI());
+
+        String isOTAA = entity.getIsOTAA();
+        if (isOTAA != null) {
+            stmt.bindString(3, isOTAA);
+        }
+        stmt.bindString(4, entity.getEui());
+        stmt.bindString(5, entity.getAppeui());
+        stmt.bindString(6, entity.getAppkey());
+        stmt.bindString(7, entity.getNwkid());
+        stmt.bindString(8, entity.getDevadr());
+        stmt.bindString(9, entity.getNwkskey());
+        stmt.bindString(10, entity.getAppskey());
+        stmt.bindDouble(11, entity.getLatitude());
+        stmt.bindDouble(12, entity.getLongitude());
+        stmt.bindString(13, entity.getOutType());
+        stmt.bindString(14, entity.getKV());
+        stmt.bindString(15, entity.getKI());
     }
 
     @Override
@@ -110,18 +117,23 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindString(3, entity.getEui());
-        stmt.bindString(4, entity.getAppeui());
-        stmt.bindString(5, entity.getAppkey());
-        stmt.bindString(6, entity.getNwkid());
-        stmt.bindString(7, entity.getDevadr());
-        stmt.bindString(8, entity.getNwkskey());
-        stmt.bindString(9, entity.getAppskey());
-        stmt.bindDouble(10, entity.getLatitude());
-        stmt.bindDouble(11, entity.getLongitude());
-        stmt.bindString(12, entity.getOutType());
-        stmt.bindString(13, entity.getKV());
-        stmt.bindString(14, entity.getKI());
+
+        String isOTAA = entity.getIsOTAA();
+        if (isOTAA != null) {
+            stmt.bindString(3, isOTAA);
+        }
+        stmt.bindString(4, entity.getEui());
+        stmt.bindString(5, entity.getAppeui());
+        stmt.bindString(6, entity.getAppkey());
+        stmt.bindString(7, entity.getNwkid());
+        stmt.bindString(8, entity.getDevadr());
+        stmt.bindString(9, entity.getNwkskey());
+        stmt.bindString(10, entity.getAppskey());
+        stmt.bindDouble(11, entity.getLatitude());
+        stmt.bindDouble(12, entity.getLongitude());
+        stmt.bindString(13, entity.getOutType());
+        stmt.bindString(14, entity.getKV());
+        stmt.bindString(15, entity.getKI());
     }
 
     @Override
@@ -140,18 +152,19 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         Device entity = new Device( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getString(offset + 1), // type
-            cursor.getString(offset + 2), // eui
-            cursor.getString(offset + 3), // appeui
-            cursor.getString(offset + 4), // appkey
-            cursor.getString(offset + 5), // nwkid
-            cursor.getString(offset + 6), // devadr
-            cursor.getString(offset + 7), // nwkskey
-            cursor.getString(offset + 8), // appskey
-            cursor.getDouble(offset + 9), // Latitude
-            cursor.getDouble(offset + 10), // Longitude
-            cursor.getString(offset + 11), // outType
-            cursor.getString(offset + 12), // kV
-            cursor.getString(offset + 13) // kI
+                cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // isOTAA
+                cursor.getString(offset + 3), // eui
+                cursor.getString(offset + 4), // appeui
+                cursor.getString(offset + 5), // appkey
+                cursor.getString(offset + 6), // nwkid
+                cursor.getString(offset + 7), // devadr
+                cursor.getString(offset + 8), // nwkskey
+                cursor.getString(offset + 9), // appskey
+                cursor.getFloat(offset + 10), // Latitude
+                cursor.getFloat(offset + 11), // Longitude
+                cursor.getString(offset + 12), // outType
+                cursor.getString(offset + 13), // kV
+                cursor.getString(offset + 14) // kI
         );
         return entity;
     }
@@ -160,18 +173,19 @@ public class DeviceDao extends AbstractDao<Device, Long> {
     public void readEntity(Cursor cursor, Device entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setType(cursor.getString(offset + 1));
-        entity.setEui(cursor.getString(offset + 2));
-        entity.setAppeui(cursor.getString(offset + 3));
-        entity.setAppkey(cursor.getString(offset + 4));
-        entity.setNwkid(cursor.getString(offset + 5));
-        entity.setDevadr(cursor.getString(offset + 6));
-        entity.setNwkskey(cursor.getString(offset + 7));
-        entity.setAppskey(cursor.getString(offset + 8));
-        entity.setLatitude(cursor.getDouble(offset + 9));
-        entity.setLongitude(cursor.getDouble(offset + 10));
-        entity.setOutType(cursor.getString(offset + 11));
-        entity.setKV(cursor.getString(offset + 12));
-        entity.setKI(cursor.getString(offset + 13));
+        entity.setIsOTAA(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setEui(cursor.getString(offset + 3));
+        entity.setAppeui(cursor.getString(offset + 4));
+        entity.setAppkey(cursor.getString(offset + 5));
+        entity.setNwkid(cursor.getString(offset + 6));
+        entity.setDevadr(cursor.getString(offset + 7));
+        entity.setNwkskey(cursor.getString(offset + 8));
+        entity.setAppskey(cursor.getString(offset + 9));
+        entity.setLatitude(cursor.getFloat(offset + 10));
+        entity.setLongitude(cursor.getFloat(offset + 11));
+        entity.setOutType(cursor.getString(offset + 12));
+        entity.setKV(cursor.getString(offset + 13));
+        entity.setKI(cursor.getString(offset + 14));
      }
     
     @Override

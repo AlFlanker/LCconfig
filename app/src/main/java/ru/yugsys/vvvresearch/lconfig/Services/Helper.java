@@ -800,11 +800,14 @@ public class Helper {
 	//* the function Convert String to Device
 	// Alex Flanker
 	//***********************************************************************/
-    public static Device decodeByteList(String s) {
+	public static Device decodeByteList(String s) throws ClassNotFoundException {
 		String srt = s.replace(" ", "");
 		Device d = new Device();
+		if (srt.length() < 242) {
+			throw new ClassNotFoundException();
+		}
         d.type = srt.substring(0, 10);
-        //d.isOTAA = srt.substring(10,12);
+		d.isOTAA = srt.substring(10, 12);
 		d.eui = srt.substring(12, 28);
 		d.appeui = srt.substring(28, 44);
         d.appkey = srt.substring(44, 76);
