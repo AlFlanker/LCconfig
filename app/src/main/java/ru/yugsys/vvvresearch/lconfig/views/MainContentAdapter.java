@@ -1,6 +1,5 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
@@ -26,13 +25,6 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
 
     public MainContentAdapter(Context context) {
         this.context = context;
-    }
-
-    public static ObjectAnimator createRotateAnimator(final View target, final float from, final float to) {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(target, "rotation", from, to);
-        animator.setDuration(300);
-        animator.setInterpolator(Utils.createInterpolator(Utils.LINEAR_INTERPOLATOR));
-        return animator;
     }
 
     public void setDevices(List<Device> devices) {
@@ -70,13 +62,13 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.expandableLayout.setListener(new ExpandableLayoutListenerAdapter() {
             @Override
             public void onPreOpen() {
-                createRotateAnimator(holder.triangleView, 0f, 180f).start();
+                UtilAnimators.createRotateAnimator(holder.triangleView, 0f, 180f).start();
                 expandState.put(finalPosition, true);
             }
 
             @Override
             public void onPreClose() {
-                createRotateAnimator(holder.triangleView, 180f, 0f).start();
+                UtilAnimators.createRotateAnimator(holder.triangleView, 180f, 0f).start();
                 expandState.put(finalPosition, false);
             }
         });
