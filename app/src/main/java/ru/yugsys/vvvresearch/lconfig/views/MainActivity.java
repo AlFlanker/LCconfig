@@ -1,12 +1,10 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,23 +44,25 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         mainPresenter.bind(this);
         mainPresenter.fireUpdateDataForView();
+        getPremissionGPS();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-            //((App) getApplication()).getModel().saveDevice(d);
-        }
+        mainPresenter.fireUpdateDataForView();
+    }
+
+    private void getPremissionGPS() {
         GPSTracker gpsTracker = GPSTracker.instance();
         gpsTracker.setContext(this);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
         Log.d("GPS", "Activity gps start");
         gpsTracker.OnStartGPS();
-        mainPresenter.fireUpdateDataForView();
     }
 
     @Override

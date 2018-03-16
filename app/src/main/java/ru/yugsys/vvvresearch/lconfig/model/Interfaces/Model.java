@@ -22,6 +22,8 @@ public interface Model {
 
     boolean testLoginConnection(String login, String password, String server);
 
+    void getGPSLocation();
+
     EventManager getEventManager();
     //void stopGPS();
 

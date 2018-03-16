@@ -39,6 +39,11 @@ public class DataModel implements Model, GPScallback<Location> {
 
     }
 
+    @Override
+    public void getGPSLocation() {
+        eventManager.notifyOnGPS(mCurrentLocation);
+    }
+
     public EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
     private DataDevice currentDataDevice;
@@ -124,7 +129,7 @@ public class DataModel implements Model, GPScallback<Location> {
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
         Log.d("GPS", "In Model: " + mCurrentLocation.toString());
-        eventManager.notifyOnGPS(mCurrentLocation);
+        //eventManager.notifyOnGPS(mCurrentLocation);
     }
 
     /**

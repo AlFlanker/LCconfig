@@ -28,7 +28,7 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
     }
 
     @Override
-    public void unBindAll() {
+    public void unBind() {
 
     }
 
