@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText nwkSKeyEdit;
     private EditText appSKeyEdit;
     private Switch isOTAASwitch;
-    private EditText gpsEdit;
+    private EditText gpsEditLongitude;
     private Spinner out_typeSpinner;
     private Spinner typeSpinner;
     private Button addEditButton;
@@ -43,6 +44,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private DataDevice dataDevice;
     private View buttonLayout;
     private View triangleButton;
+    private EditText gpsEditLatitude;
 
 
     @Override
@@ -60,7 +62,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         nwkSKeyEdit = findViewById(R.id.lc5_edit_nwkSKey);
         appSKeyEdit = findViewById(R.id.lc5_edit_appSKey);
         isOTAASwitch = findViewById(R.id.lc5_switch_isOTAA);
-        gpsEdit = findViewById(R.id.lc5_edit_gps_longitude);
+        gpsEditLongitude = findViewById(R.id.lc5_edit_gps_longitude);
+        gpsEditLatitude = findViewById(R.id.lc5_edit_gps_latitude);
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         addEditButton = findViewById(R.id.action_add_edit);
         addEditButton.setOnClickListener(this);
@@ -119,7 +122,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         appSKeyEdit.setText(device.getAppskey());
         //TODO: change "false" to device field
         isOTAASwitch.setChecked(false);
-        gpsEdit.setText(device.getLatitude() + ", " + device.getLongitude());
+        gpsEditLongitude.setText(String.valueOf(device.getLongitude()));
+        gpsEditLatitude.setText(String.valueOf(device.getLatitude()));
+    }
+
+    @Override
+    public void setLocationFields(Location location) {
+        gpsEditLongitude.setText(String.valueOf(location.getLongitude()));
+        gpsEditLatitude.setText(String.valueOf(location.getLatitude()));
     }
 
     private void setSpinnerValuePosition(String value, Spinner spinner) {
@@ -142,12 +152,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setKV("gdfg");
         //TODO: Fill device field
         //isOTAAEdit.setText(device.get
-        String gpsText = gpsEdit.getText().toString();
-        String[] gpsSplit = gpsText.split(",");
-        if (gpsSplit.length == 2) {
-            device.setLatitude(Double.parseDouble(gpsSplit[0]));
-            device.setLongitude(Double.parseDouble(gpsSplit[1]));
-        }
+        device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
+        device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
         device.setOutType(out_typeSpinner.getSelectedItem().toString());
         return device;
     }

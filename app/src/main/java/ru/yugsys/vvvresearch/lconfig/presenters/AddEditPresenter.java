@@ -12,7 +12,8 @@ import java.util.List;
 public class AddEditPresenter implements AddEditPresentable, ModelListener<Device> {
 
     private Model model;
-    AddEditViewable addEditView;
+    private AddEditViewable addEditView;
+    private Location location;
 
     public AddEditPresenter(Model model) {
         this.model = model;
@@ -21,18 +22,17 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener<Devic
 
     @Override
     public void bind(AddEditViewable addEditView) {
-
+        this.addEditView = addEditView;
     }
 
     @Override
     public void unBind() {
-
+        this.addEditView = null;
     }
 
     @Override
     public void OnNFCConnected(Device device) {
         addEditView.setDeviceFields(device);
-
     }
 
     @Override
@@ -52,6 +52,7 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener<Devic
 
     @Override
     public void OnGPSdata(Location location) {
-
+        this.location = location;
+        addEditView.setLocationFields(location);
     }
 }
