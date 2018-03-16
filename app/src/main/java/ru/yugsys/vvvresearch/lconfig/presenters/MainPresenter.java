@@ -28,7 +28,7 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
     }
 
     @Override
-    public void unBindAll() {
+    public void unBind() {
         mainView = null;
     }
 

@@ -1,7 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
 
-import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
@@ -18,7 +17,10 @@ public interface Model {
     void readNfcDev();
 
     void setCurrentDataDevice(DataDevice d);
-    void writeAuthData(String login, String password,String server);
+
+    void writeAuthData(String login, String password, String server);
+
+    boolean testLoginConnection(String login, String password, String server);
 
     EventManager getEventManager();
     //void stopGPS();

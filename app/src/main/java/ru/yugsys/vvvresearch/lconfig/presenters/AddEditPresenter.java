@@ -13,8 +13,8 @@ import java.util.List;
 public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFCConnected, ModelListener.OnGPSdata {
 
     private Model model;
-    AddEditViewable addEditView;
-    public Location location;
+    private AddEditViewable addEditView;
+    private Location location;
 
     public AddEditPresenter(Model model) {
         this.model = model;
@@ -46,7 +46,7 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
 
     @Override
     public void OnGPSdata(Location location) {
-        Log.d("GPS", "presenter " + location.toString());
         this.location = location;
+        addEditView.setLocationFields(location);
     }
 }

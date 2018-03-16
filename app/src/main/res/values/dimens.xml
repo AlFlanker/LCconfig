@@ -6,6 +6,10 @@
     <dimen name="md_keylines">16dp</dimen>
     <dimen name="cardElevation">5dp</dimen>
     <dimen name="marginCard">8dp</dimen>
+    <dimen name="marginCardBottom">8dp</dimen>
+    <dimen name="marginCardTop">8dp</dimen>
+    <dimen name="textSize">20sp</dimen>
+    <dimen name="defaultPadding">4dp</dimen>
 
 
 </resources>
