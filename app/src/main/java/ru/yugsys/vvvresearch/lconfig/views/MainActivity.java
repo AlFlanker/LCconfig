@@ -1,8 +1,12 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -12,6 +16,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
+import android.widget.Button;
+import android.widget.ImageView;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
@@ -20,8 +26,21 @@ import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener {
+    private NfcAdapter mAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mFilters;
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(mAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+            Log.d("NFC", "On new intent");
+        }
+    }
+
     private MainContentAdapter adapter;
     private RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -44,12 +63,34 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         mainPresenter.bind(this);
         mainPresenter.fireUpdateDataForView();
-        getPremissionGPS();
+        //getPremissionGPS();
+        mAdapter = NfcAdapter.getDefaultAdapter(this);
+//        PackageManager pm = getPackageManager();
+//        if(!pm.hasSystemFeature(PackageManager.FEATURE_NFC))
+//        {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.NFC},
+//                    PERMISSION_REQUEST_CODE);
+//        }
+//        else
+//        {
+//            mAdapter = NfcAdapter.getDefaultAdapter(this);
+//            if (mAdapter.isEnabled())
+//            {
+//
+//                mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+//                IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+//                mFilters = new IntentFilter[] {ndef,};
+//
+//            }
+//
+//        }
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        getPremissionGPS();
         mainPresenter.fireUpdateDataForView();
     }
 

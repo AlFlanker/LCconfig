@@ -124,6 +124,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             dataDevice = new DataDevice();
             dataDevice.setCurrentTag(tagFromIntent);
+            Log.d("NFC","newintent");
         }
     }
 
