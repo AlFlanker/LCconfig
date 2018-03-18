@@ -1723,5 +1723,7 @@ public class NFCCommand {
 			//Used for DEBUG : Log.i("NFCCOmmand", "Response Read Sigle Block" + Helper.ConvertHexByteArrayToString(response));
 			 return response;
 		 }
-		 
+
+
+
 }

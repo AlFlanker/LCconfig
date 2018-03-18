@@ -101,6 +101,8 @@ public class Device {
      * @ordered
      */
     @NotNull
+    public byte isOTTA;
+    @NotNull
     public String eui;
 
     /**
@@ -170,9 +172,9 @@ public class Device {
      * @generated
      * @ordered
      */
-    @NotNull
+
     public double Latitude;
-    @NotNull
+
     public double Longitude;
 
     /**
@@ -214,14 +216,15 @@ public class Device {
     @Generated(hash = 371273952)
     private transient DeviceDao myDao;
 
-    @Generated(hash = 1499937711)
-    public Device(Long id, @NotNull String type, @NotNull String eui,
-                  @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-                  @NotNull String devadr, @NotNull String nwkskey,
-                  @NotNull String appskey, double Latitude, double Longitude,
-                  @NotNull String outType, @NotNull String kV, @NotNull String kI) {
+    @Generated(hash = 1895241310)
+    public Device(Long id, @NotNull String type, byte isOTTA, @NotNull String eui,
+            @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
+            @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
+            double Latitude, double Longitude, @NotNull String outType, @NotNull String kV,
+            @NotNull String kI) {
         this.id = id;
         this.type = type;
+        this.isOTTA = isOTTA;
         this.eui = eui;
         this.appeui = appeui;
         this.appkey = appkey;
@@ -395,6 +398,14 @@ public class Device {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getDeviceDao() : null;
+    }
+
+    public byte getIsOTTA() {
+        return this.isOTTA;
+    }
+
+    public void setIsOTTA(byte isOTTA) {
+        this.isOTTA = isOTTA;
     }
 
 

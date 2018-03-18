@@ -776,9 +776,9 @@ public class Helper {
         for (Field field : fields) {
             if (field.getType() == String.class) {
                 byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-            } else if ((field.getType() == Float.class) || (field.getType() == float.class)) {
+            } else if ((field.getType() == Double.class) || (field.getType() == Double.class)) {
                 byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat((float) field.get(dev)).array());
-            } else if (field.getType() == char.class) {
+            } else if (field.getType() == Byte.class) {
                 byteArrayOutputStream.write((char) field.get(dev));
             }
 		}
@@ -819,7 +819,10 @@ public class Helper {
 		d.kI = srt.substring(238,242);
 		return d;
 	}
-
+//	public static Device decodeByteList(byte[] raw) {
+//		Field[] fields = Device.class.getFields();
+//
+//	}
     //***********************************************************************/
     //* the function Convert hex string to bytes
     //*example 0A10 -> bytes[]{0x0A,0x10};

@@ -23,11 +23,14 @@ import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
+
+
     private ExpandableLinearLayout expandableLinearLayout;
     private EditText deveuiEdit;
     private EditText appEUIEdit;
@@ -48,7 +51,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private DataDevice dataDevice;
+    private Device currentDevice;
     private View buttonLayout;
     private View triangleButton;
     private EditText gpsEditLatitude;
@@ -56,7 +59,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("NFC","AddActivity");
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_add_edit);
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
@@ -114,18 +120,31 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         }
         Log.d("GPS", "Activity gps start");
         gpsTracker.OnStartGPS();
+        setDeviceFields(((App)getApplication()).getModel().getCurrentDevice());
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.d("NFC","newintent");
         super.onNewIntent(intent);
         if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())){
             Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            dataDevice = new DataDevice();
-            dataDevice.setCurrentTag(tagFromIntent);
-            Log.d("NFC","newintent");
+            ((App)getApplication()).getModel().getCurrentDev().setCurrentTag(tagFromIntent);
+
+            Model model =((App)getApplication()).getModel();
+            model.readNfcDev();
+            Log.d("NFC","add new tag");
         }
+    }
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        Log.d("NFC","readNFC");
+        Log.d("NFC","post readNFC");
+
     }
 
     @Override
