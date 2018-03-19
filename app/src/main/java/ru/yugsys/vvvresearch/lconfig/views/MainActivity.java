@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         byte[] arr;
         Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         currentDataDevice.setCurrentTag(tagFromIntent);
-
         Log.d("NFC","start AddEditActivity");
         systemInfo=NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent,currentDataDevice);
         Log.d("NFC",Arrays.toString(systemInfo));
@@ -245,130 +244,28 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 Log.d("NFC",stringBuilder.toString());
                 Log.d("NFC",String.valueOf(readMultipleBlockAnswer.length));
                 try {
-                    decodeByteArrayToDevice(readMultipleBlockAnswer); // to this.currentDevice
+                    decode(readMultipleBlockAnswer); // to this.currentDevice
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchFieldException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    public  void decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
-        Device device = new Device();
-        byte[] buf;
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 1; i < 123 ; i++) {
-            stringBuilder.append(String.format("%02x",raw[i]));
-        }
-        Field[] fields = Device.class.getFields();
-        for (Field field:fields){
-            if(field.getName().equals("type")) {
-                buf = new byte[5];
-                System.arraycopy(raw,1,buf,0,5);
-                field.set(device, new String(buf, StandardCharsets.UTF_8));
-            }
-            if(field.getName().equals("isOTTA")) {
-                buf = new byte[1];
-                System.arraycopy(raw,6,buf,0,1);
-                field.set(device, buf[0]);
-            }
-            if(field.getName().equals("eui")) {
-                buf = new byte[8];
-                stringBuilder = new StringBuilder();
-                System.arraycopy(raw,7,buf,0,8);
-                for(Byte b: buf){
-                    stringBuilder.append(String.format("%02x ",b));
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("appeui")) {
-                buf = new byte[8];
-                stringBuilder = new StringBuilder();
-                System.arraycopy(raw,15,buf,0,8);
-                for(Byte b: buf){
-                    stringBuilder.append(String.format("%02x",b));
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("appkey")) {
-                buf = new byte[16];
-                stringBuilder = new StringBuilder();
-                System.arraycopy(raw,23,buf,0,16);
-                for(Byte b: buf){
-                    stringBuilder.append(String.format("%02x",b));
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("nwkid")) {
-                buf = new byte[8];
-                System.arraycopy(raw,39,buf,4,4);
-                field.set(device, String.valueOf(ByteBuffer.wrap(buf).getLong()));
-            }
-            if(field.getName().equals("devadr")) {
-                buf = new byte[8];
-                System.arraycopy(raw,43,buf,4,4);
-                field.set(device, String.valueOf(ByteBuffer.wrap(buf).getLong()));
-            }
-            if(field.getName().equals("nwkskey")) {
-                buf = new byte[16];
-                System.arraycopy(raw,47,buf,0,16);
-                stringBuilder = new StringBuilder();
-                for(Byte b: buf){
-                    stringBuilder.append(String.format("%02x",b));
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("appskey")) {
-                buf = new byte[16];
-                System.arraycopy(raw,63,buf,0,16);
-                stringBuilder = new StringBuilder();
-                for(Byte b: buf){
-                    stringBuilder.append(String.format("%02x",b));
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("Latitude")) {
-                buf = new byte[8];
-                System.arraycopy(raw,79,buf,4,4);
-                field.set(device, ByteBuffer.wrap(buf).getDouble());
-            }
-            if(field.getName().equals("Longitude")) {
-                buf = new byte[8];
-                System.arraycopy(raw,83,buf,4,4);
-                field.set(device, ByteBuffer.wrap(buf).getDouble());
-            }
-            if(field.getName().equals("outType")) {
-                buf = new byte[5];
-                System.arraycopy(raw,87,buf,0,5);
-                field.set(device, new String(buf, StandardCharsets.UTF_8));
-            }
-            if(field.getName().equals("kV")) {
-                buf = new byte[28];
-                stringBuilder = new StringBuilder();
-                System.arraycopy(raw,92,buf,0,28);
-                for (int i = 0; i <buf.length ; i+=2) {
-                    stringBuilder.append(ByteBuffer.wrap(new byte[]{0,0,buf[i],buf[i+1]}).getInt()+"; ");
-                }
-                field.set(device, stringBuilder.toString());
-            }
-            if(field.getName().equals("kI")) {
-                buf = new byte[2];
-                stringBuilder = new StringBuilder();
-                System.arraycopy(raw,120,buf,0,2);
-                stringBuilder.append(ByteBuffer.wrap(new byte[]{0,0,buf[0],buf[1]}).getInt()+"; ");
-                field.set(device, stringBuilder.toString());
-            }
-        }
-        byte[] buf1 = new byte[122];
-        System.arraycopy(raw,1,buf1,0,122);
-        //byte[] tmp =Helper.Object2ByteArray(device); // доделать
-        Log.d("NFC",Arrays.toString(buf1));
-        //Log.d("NFC",Arrays.toString(tmp));
-        currentDevice =device; /*decodeByteList(stringBuilder.toString());*/
-        ((App)getApplication()).getModel().setCurrentDevice(currentDevice);
+    public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
 
+        currentDevice =Helper.decodeByteArrayToDevice(raw);
+        ((App)getApplication()).getModel().setCurrentDevice(currentDevice);
+        byte[] b=Helper.Object2ByteArray(currentDevice);
+        StringBuilder sb = new StringBuilder();
+        for(Byte a:b){
+            sb.append(String.format("0x%02x",a)+"; ");
+        }
+        Log.d("fileds",sb.toString());
         Intent addActivity = new Intent(this,AddEditActivity.class);
         startActivity(addActivity);
     }
