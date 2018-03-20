@@ -83,9 +83,9 @@ public class CRC16 {
 
     }
 
-    public int CRC16ArrayGet(int beginCRC, char[] buffer) {
+    public int CRC16ArrayGet(int beginCRC, byte[] buffer) {
         char j;
-        for (char b : buffer) {
+        for (byte b : buffer) {
             beginCRC = CRC16Get(beginCRC, b);
         }
         return (~beginCRC);

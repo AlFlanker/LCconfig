@@ -26,7 +26,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Type = new Property(1, String.class, "type", false, "TYPE");
-        public final static Property IsOTTA = new Property(2, byte.class, "isOTTA", false, "IS_OTTA");
+        public final static Property IsOTTA = new Property(2, boolean.class, "isOTTA", false, "IS_OTTA");
         public final static Property Eui = new Property(3, String.class, "eui", false, "EUI");
         public final static Property Appeui = new Property(4, String.class, "appeui", false, "APPEUI");
         public final static Property Appkey = new Property(5, String.class, "appkey", false, "APPKEY");
@@ -89,7 +89,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA());
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
         stmt.bindString(4, entity.getEui());
         stmt.bindString(5, entity.getAppeui());
         stmt.bindString(6, entity.getAppkey());
@@ -113,7 +113,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA());
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
         stmt.bindString(4, entity.getEui());
         stmt.bindString(5, entity.getAppeui());
         stmt.bindString(6, entity.getAppkey());
@@ -144,7 +144,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         Device entity = new Device( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getString(offset + 1), // type
-            (byte) cursor.getShort(offset + 2), // isOTTA
+                cursor.getShort(offset + 2) != 0, // isOTTA
             cursor.getString(offset + 3), // eui
             cursor.getString(offset + 4), // appeui
             cursor.getString(offset + 5), // appkey
@@ -165,7 +165,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
     public void readEntity(Cursor cursor, Device entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setType(cursor.getString(offset + 1));
-        entity.setIsOTTA((byte) cursor.getShort(offset + 2));
+        entity.setIsOTTA(cursor.getShort(offset + 2) != 0);
         entity.setEui(cursor.getString(offset + 3));
         entity.setAppeui(cursor.getString(offset + 4));
         entity.setAppkey(cursor.getString(offset + 5));

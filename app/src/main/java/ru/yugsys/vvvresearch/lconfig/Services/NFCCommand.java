@@ -1282,11 +1282,9 @@ public class NFCCommand {
 		 {
 			 byte[] response = new byte[] {(byte) 0x01}; 
 			 long cpt = 0;
-			 			 
 			 int NBByteToWrite = DataToWrite.length;
 			 while (NBByteToWrite % 4 !=0)
 				 NBByteToWrite ++;
-			 
 			 byte[] fullByteArrayToWrite = new byte[NBByteToWrite];
 			 for(int j=0;j<NBByteToWrite;j++)
 			 {
@@ -1299,18 +1297,11 @@ public class NFCCommand {
 					 fullByteArrayToWrite[j] = (byte)0xFF;
 				 }
 			 }
-			
-			 
 			int intAddress2Write = Helper.Convert2bytesHexaFormatToInt(StartAddress);
 			byte[] bytAddress = Helper.ConvertIntTo2bytesHexaFormat(intAddress2Write);
 			
 			for(int i =0;i<NBByteToWrite; i = i+4)
 			{
-				
-				
-				//int incrementAddressStart0 = (StartAddress[0]+i/256)  ;								//Most Important Byte
-				//int incrementAddressStart1 = (StartAddress[1]+i/4) - (incrementAddressStart0*255);	//Less Important Byte				
-				
 				int incrementAddressStart0 = bytAddress[0];
 				int incrementAddressStart1 = bytAddress[1];
 				intAddress2Write++;

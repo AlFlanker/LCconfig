@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.Services.Helper;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
@@ -186,14 +188,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
      * возвращает данные через @see EventManager#EventManager()
      */
     private class StartReadTask extends AsyncTask<Void, Void, Void> {
-
+        final ProgressDialog dialog;
 
         private StartReadTask() {
-
+            this.dialog = new ProgressDialog(MainActivity.this);
         }
 
         protected void onPreExecute() {
-
+            this.dialog.setMessage("Чтение данных");
+            this.dialog.show();
             int cpt = 0;
             if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 addressStart = new byte[8];
@@ -245,6 +248,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 Log.d("NFC",String.valueOf(readMultipleBlockAnswer.length));
                 try {
                     decode(readMultipleBlockAnswer); // to this.currentDevice
+                    if (this.dialog.isShowing()) {
+                        this.dialog.dismiss();
+                    }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -257,17 +263,29 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     }
 
     public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
-
-        currentDevice =Helper.decodeByteArrayToDevice(raw);
-        ((App)getApplication()).getModel().setCurrentDevice(currentDevice);
-        byte[] b=Helper.Object2ByteArray(currentDevice);
-        StringBuilder sb = new StringBuilder();
-        for(Byte a:b){
-            sb.append(String.format("0x%02x",a)+"; ");
+        CRC16 crc16 = new CRC16();
+        byte[] crc = new byte[121];
+        System.arraycopy(raw, 1, crc, 0, 121);
+        int res = crc16.CRC16ArrayGet(0, crc) & 0x0000FFFF;
+        res = Integer.reverseBytes(res);
+        res >>= 16;
+        res &= 0x0000FFFF;
+        Log.d("crc", Integer.toHexString(res));
+        Log.d("crc", String.valueOf(res));
+        Log.d("crc", String.format("0x%02x", raw[122]));
+        Log.d("crc", String.format("0x%02x", raw[123]));
+        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[122], raw[123]}).getInt() == res) {
+            currentDevice = Helper.decodeByteArrayToDevice(raw);
+            ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
+            byte[] b = Helper.Object2ByteArray(currentDevice);
+            StringBuilder sb = new StringBuilder();
+            for (Byte a : b) {
+                sb.append(String.format("0x%02x", a) + "; ");
+            }
+            Log.d("fileds", sb.toString());
+            Intent addActivity = new Intent(this, AddEditActivity.class);
+            startActivity(addActivity);
         }
-        Log.d("fileds",sb.toString());
-        Intent addActivity = new Intent(this,AddEditActivity.class);
-        startActivity(addActivity);
     }
 
 
