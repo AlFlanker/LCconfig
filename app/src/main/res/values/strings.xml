@@ -17,8 +17,8 @@
     <string name="prompt_devEUI">Device EUI</string>
     <string name="prompt_appEUI">Application EUI</string>
     <string name="prompt_outType">Type output</string>
-    <string name="prompt_gps_latitude">Latitude</string>
-    <string name="prompt_gps_longitude">Longitude</string>
+    <string name="prompt_gps_latitude">  Latitude</string>
+    <string name="prompt_gps_longitude">   Longitude</string>
     <string name="prompt_appSKey">Application session key</string>
     <string name="prompt_nwkSKey">Network session key</string>
     <string name="prompt_devAdr">device local address</string>
@@ -99,13 +99,14 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="action_addedit">Add</string>
     <string name="prompt_isotaa">Over the Air Activation</string>
-    <string name="label_isotaa">Over the Air Activation</string>
+    <string name="label_isotaa">OTAA</string>
     <string name="prompt_typeServer">Type of server</string>
     <string name="more">More</string>
     <string name="type_device_is">Type is </string>
     <string name="out_type_device_is">Out type is </string>
     <string name="label_latitude">Latitude</string>
-    <string name="label_longitude">Longitude</string>
+    <string name="label_degree_comma">\u00B0,</string>
+    <string name="label_degree">\u00B0</string>
 
     <string-array name="controller_type_list">
         <item>LC501E</item>

@@ -27,15 +27,14 @@
         >
             <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
                     app:srcCompat="@mipmap/lc503"
-                    app:layout_gravity="fill"
+                    android:layout_height="96dp"
+                    android:layout_width="96dp"
                     app:layout_column="0"
                     app:layout_columnSpan="3"
                     app:layout_row="0"
-                    app:layout_rowSpan="4"
-
+                    app:layout_rowSpan="5"
+                    app:layout_gravity="center_vertical"
             />
 
             <TextView
@@ -51,32 +50,60 @@
 
             <TextView
                     android:id="@+id/lc5_gps_latitude"
-                    app:layout_gravity="fill"
+                    app:layout_gravity="center_vertical|left"
                     app:layout_column="3"
-                    app:layout_columnSpan="2"
+                    app:layout_columnSpan="1"
                     app:layout_row="1"
                     app:layout_rowSpan="1"
                     android:text="33.1565"
                     android:maxLines="1"
             />
-
+            <TextView
+                    android:text="@string/label_degree_comma"
+                    app:layout_column="4"
+                    app:layout_columnSpan="1"
+                    app:layout_row="1"
+                    app:layout_rowSpan="1"
+                    app:layout_gravity="center_vertical|left"
+                    style="@style/TextAppearance.AppCompat.Headline"
+            />
             <TextView
                     android:id="@+id/lc5_gps_longitude"
-                    app:layout_gravity="fill"
-                    app:layout_column="5"
-                    app:layout_columnSpan="2"
-                    app:layout_row="1"
+                    app:layout_gravity="center_vertical|left"
+                    app:layout_column="3"
+                    app:layout_columnSpan="1"
+                    app:layout_row="2"
                     app:layout_rowSpan="1"
                     android:text="179.1565"
                     android:maxLines="1"
+
             />
 
+            <TextView
+                    android:text="@string/label_degree"
+                    app:layout_column="4"
+                    app:layout_columnSpan="1"
+                    app:layout_row="2"
+                    app:layout_rowSpan="1"
+                    app:layout_gravity="center_vertical|left"
+                    style="@style/TextAppearance.AppCompat.Headline"
+            />
+            <ImageButton
+                    android:gravity="right"
+                    android:src="@drawable/ic_location_on_black_48dp"
+                    app:layout_column="7"
+                    app:layout_columnSpan="1"
+                    app:layout_row="1"
+                    app:layout_rowSpan="2"
+                    android:background="#00000000"
+                    app:layout_gravity="center_vertical|left"
+            />
             <TextView
                     android:id="@+id/lc5_isOTAA"
                     app:layout_gravity="fill"
                     app:layout_column="3"
                     app:layout_columnSpan="5"
-                    app:layout_row="2"
+                    app:layout_row="3"
                     app:layout_rowSpan="1"
 
                     android:hint="@string/prompt_isotaa"
@@ -88,7 +115,7 @@
                     app:layout_gravity="fill"
                     app:layout_column="3"
                     app:layout_columnSpan="5"
-                    app:layout_row="3"
+                    app:layout_row="4"
                     app:layout_rowSpan="1"
                     android:hint="@string/prompt_outType"
                     android:maxLines="1"
@@ -100,7 +127,7 @@
                     android:gravity="fill"
                     app:layout_column="3"
                     app:layout_columnSpan="1"
-                    app:layout_row="4"
+                    app:layout_row="5"
                     app:layout_rowSpan="1"
 
             >
@@ -137,7 +164,7 @@
                     android:gravity="fill"
                     app:layout_column="3"
                     app:layout_columnSpan="5"
-                    app:layout_row="5"
+                    app:layout_row="6"
                     app:layout_rowSpan="1"
             >
                 <TextView

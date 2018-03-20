@@ -10,7 +10,7 @@
         android:focusableInTouchMode="true"
         tools:context="ru.yugsys.vvvresearch.lconfig.views.AddEditActivity">
     <android.support.v7.widget.CardView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/marginCard"
             android:layout_centerHorizontal="true"
@@ -24,17 +24,17 @@
 
             <android.support.v7.widget.GridLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     app:columnCount="5"
                     app:orientation="horizontal"
             >
 
                 <TextView
-                        android:text = "@string/type_device_is"
+                        android:text="@string/type_device_is"
                         app:layout_column="0"
                         app:layout_columnSpan="4"
-                        style="@style/TextAppearance.AppCompat.Headline"
+
                 />
                 <Spinner
                         android:id="@+id/lc5_spinner_type"
@@ -46,10 +46,10 @@
                         app:layout_gravity="end"
                 />
                 <TextView
-                        android:text = "@string/out_type_device_is"
+                        android:text="@string/out_type_device_is"
                         app:layout_column="0"
                         app:layout_columnSpan="4"
-                        style="@style/TextAppearance.AppCompat.Headline"
+
                 />
                 <Spinner
                         android:id="@+id/lc5_spinner_out_type"
@@ -61,10 +61,10 @@
                         app:layout_gravity="end"
                 />
                 <TextView
-                        android:text = "@string/label_isotaa"
+                        android:text="@string/label_isotaa"
                         app:layout_column="0"
                         app:layout_columnSpan="4"
-                        style="@style/TextAppearance.AppCompat.Headline"
+
                 />
                 <Switch
                         android:id="@+id/lc5_switch_isOTAA"
@@ -75,40 +75,47 @@
                         app:layout_gravity="end"
                 />
 
-                <TextView
-                        android:text = "@string/label_latitude"
-                        app:layout_column="0"
-                        app:layout_columnSpan="1"
-                        style="@style/TextAppearance.AppCompat.Headline"
-                />
 
                 <EditText
                         android:id="@+id/lc5_edit_gps_latitude"
                         android:hint="@string/prompt_gps_latitude"
                         android:maxLines="1"
-                        app:layout_column="1"
-                        app:layout_columnSpan="1"
+                        app:layout_column="0"
+                        app:layout_columnSpan="3"
+                        android:padding="4dp"
+                        android:inputType="numberDecimal"
                 />
                 <TextView
-                        android:text = "@string/label_longitude"
-                        app:layout_column="2"
+                        android:text="@string/label_degree_comma"
+                        app:layout_column="3"
                         app:layout_columnSpan="1"
-                        style="@style/TextAppearance.AppCompat.Headline"
+
+                />
+                <ImageButton
+                        android:gravity="fill"
+                        android:src="@drawable/ic_add_location_black_48dp"
+                        app:layout_column="4"
+                        app:layout_columnSpan="1"
+                        app:layout_rowSpan="2"
+                        android:background="#00000000"
+                        app:layout_gravity="start|center_vertical"
                 />
                 <EditText
                         android:id="@+id/lc5_edit_gps_longitude"
                         android:hint="@string/prompt_gps_longitude"
                         android:maxLines="1"
+                        app:layout_column="0"
+                        app:layout_columnSpan="3"
+                        android:padding="4dp"
+                        android:inputType="numberDecimal"
+                />
+                <TextView
+                        android:text="@string/label_degree"
                         app:layout_column="3"
                         app:layout_columnSpan="1"
+
                 />
-                <ImageButton
-                        android:src="@drawable/ic_add_location_black_24dp"
-                        app:layout_column="4"
-                        app:layout_columnSpan="1"
-                        android:background="#00000000"
-                        app:layout_gravity="end"
-                />
+
                 <RelativeLayout
                         android:id="@+id/buttonExpand"
                         android:gravity="fill"
@@ -156,6 +163,9 @@
                             android:layout_height="wrap_content"
                             android:hint="@string/prompt_devEUI"
                             android:maxLines="1"
+                            android:digits="1234567890ABCDE"
+
+                            android:inputType="text"
                     />
 
                     <EditText

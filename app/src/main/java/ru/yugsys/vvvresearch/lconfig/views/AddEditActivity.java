@@ -58,8 +58,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
-        presenter = new AddEditPresenter(((App) getApplication()).getModel());
-        presenter.bind(this);
+
         typeSpinner = findViewById(R.id.lc5_spinner_type);
         out_typeSpinner = findViewById(R.id.lc5_spinner_out_type);
         appEUIEdit = findViewById(R.id.lc5_edit_appEUI);
@@ -114,7 +113,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         }
         Log.d("GPS", "Activity gps start");
         gpsTracker.OnStartGPS();
-
+        presenter = new AddEditPresenter(((App) getApplication()).getModel());
+        presenter.bind(this);
     }
 
     @Override
@@ -166,9 +166,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setDevadr(devAdrEdit.getText().toString());
         device.setNwkskey(nwkSKeyEdit.getText().toString());
         device.setAppskey(appSKeyEdit.getText().toString());
-        device.setKI("gdfg");
-        device.setKV("gdfg");
-        //TODO: Fill device field
+        //default constants of the LC5 firmware
+        device.setKI("7321");
+        device.setKV("1004,974,976,993,995,1028,1038,2489,2412,2254,2063,1908,1702,1541");
+        //TODO: Fill isOTAA device field
         //isOTAAEdit.setText(device.get
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
@@ -182,4 +183,3 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         finish();
     }
 }
-;
