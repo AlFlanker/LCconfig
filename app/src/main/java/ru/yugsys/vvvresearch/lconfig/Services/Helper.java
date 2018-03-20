@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -654,7 +655,11 @@ public class Helper {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
 		field = Device.class.getField("type");
-		byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+		String s = field.get(dev).toString();
+		while (s.length() < 5) {
+			s += " ";
+		}
+		byteArrayOutputStream.write(s.getBytes());
 		field = Device.class.getField("isOTTA");
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
 		field = Device.class.getField("eui");
@@ -672,15 +677,23 @@ public class Helper {
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		field = Device.class.getField("appskey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+
 		field = Device.class.getField("Latitude");
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
-		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).array());
-		byte b[] = ByteBuffer.allocate(4).putFloat(f).array();
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).order((ByteOrder.LITTLE_ENDIAN)).array());
+
+
 		field = Device.class.getField("Longitude");
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
-		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).array());
+		;
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).order((ByteOrder.LITTLE_ENDIAN)).array());
+
 		field = Device.class.getField("outType");
-		byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+		s = field.get(dev).toString();
+		while (s.length() < 5) {
+			s += " ";
+		}
+		byteArrayOutputStream.write(s.getBytes());
 		field = Device.class.getField("kV");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		field = Device.class.getField("kI");
@@ -815,6 +828,7 @@ public class Helper {
 				buf = new byte[4];
 				System.arraycopy(raw, 79, buf, 0, 4);
 				field.set(device, ByteBuffer.wrap(buf).getFloat());
+				//order(ByteOrder.LITTLE_ENDIAN)
 			}
 			if (field.getName().equals("Longitude")) {
 				buf = new byte[4];
@@ -864,4 +878,21 @@ public class Helper {
         return data;
 
     }
+
+	public static int ConvertStringToInt(String nbOfBlocks) {
+
+		String msb;
+		int count;
+		if (nbOfBlocks.length() > 2) {
+			msb = nbOfBlocks.substring(0, 2);
+			String lsb = nbOfBlocks.substring(2, 4);
+			count = Integer.parseInt(lsb, 16);
+			count += Integer.parseInt(msb, 16) * 256;
+		} else {
+			msb = nbOfBlocks.substring(0, 2);
+			count = Integer.parseInt(msb, 16);
+		}
+
+		return count;
+	}
 }

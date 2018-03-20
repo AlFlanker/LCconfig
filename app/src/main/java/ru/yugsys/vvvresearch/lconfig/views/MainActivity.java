@@ -244,11 +244,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         protected void onPostExecute(Void unused) {
 
             if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for(Byte b: readMultipleBlockAnswer)
-                    stringBuilder.append(String.format("0x%02x",b)+"; ");
-                Log.d("NFC",stringBuilder.toString());
-                Log.d("NFC",String.valueOf(readMultipleBlockAnswer.length));
                 try {
                     decode(readMultipleBlockAnswer); // to this.currentDevice
                     if (this.dialog.isShowing()) {
@@ -273,11 +268,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         res = Integer.reverseBytes(res);
         res >>= 16;
         res &= 0x0000FFFF;
-        Log.d("crc", Integer.toHexString(res));
-        Log.d("crc", String.valueOf(res));
-        Log.d("crc", String.format("0x%02x", raw[122]));
-        Log.d("crc", String.format("0x%02x", raw[123]));
-        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[122], raw[123]}).getInt() == res) {
+
+        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[122], raw[123]}).getInt() != res) {
             currentDevice = Helper.decodeByteArrayToDevice(raw);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
             byte[] b = Helper.Object2ByteArray(currentDevice);
