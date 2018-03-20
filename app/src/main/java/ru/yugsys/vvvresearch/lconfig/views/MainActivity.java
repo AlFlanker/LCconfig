@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.Services.Helper;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
@@ -257,15 +258,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     }
 
     public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
-
         currentDevice =Helper.decodeByteArrayToDevice(raw);
         ((App)getApplication()).getModel().setCurrentDevice(currentDevice);
-        byte[] b=Helper.Object2ByteArray(currentDevice);
-        StringBuilder sb = new StringBuilder();
-        for(Byte a:b){
-            sb.append(String.format("0x%02x",a)+"; ");
-        }
-        Log.d("fileds",sb.toString());
         Intent addActivity = new Intent(this,AddEditActivity.class);
         startActivity(addActivity);
     }

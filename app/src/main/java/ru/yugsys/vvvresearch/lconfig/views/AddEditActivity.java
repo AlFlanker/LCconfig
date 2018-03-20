@@ -1,6 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,12 +23,17 @@ import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.Helper;
+import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
 
@@ -55,7 +62,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private View buttonLayout;
     private View triangleButton;
     private EditText gpsEditLatitude;
-
+    private byte[] systemInfo;
+    private DataDevice currentDev;
+    private byte[] addressStart = null;
+    private HashMap<Integer, byte[]> memory = new HashMap<>(40);
+    private int cpt;
+    private byte[] WriteSingleBlockAnswer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +132,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         }
         Log.d("GPS", "Activity gps start");
         gpsTracker.OnStartGPS();
-        setDeviceFields(((App)getApplication()).getModel().getCurrentDevice());
+        currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
+        setDeviceFields(currentDevice);
 
     }
 
@@ -128,23 +141,16 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     protected void onNewIntent(Intent intent) {
         Log.d("NFC","newintent");
         super.onNewIntent(intent);
-        if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())){
-            Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            ((App)getApplication()).getModel().getCurrentDev().setCurrentTag(tagFromIntent);
+        Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        currentDev = ((App) getApplication()).getModel().getCurrentDev();
+        currentDev.setCurrentTag(tagFromIntent);
 
-            Model model =((App)getApplication()).getModel();
-            model.readNfcDev();
-            Log.d("NFC","add new tag");
-        }
     }
     @Override
     protected void onPostResume() {
         super.onPostResume();
         mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
-        Log.d("NFC","readNFC");
-        Log.d("NFC","post readNFC");
-
     }
 
     @Override
@@ -186,8 +192,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setDevadr(devAdrEdit.getText().toString());
         device.setNwkskey(nwkSKeyEdit.getText().toString());
         device.setAppskey(appSKeyEdit.getText().toString());
-        device.setKI("gdfg");
-        device.setKV("gdfg");
+        device.setKI("991C");
+        device.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
         //TODO: Fill device field
         //isOTAAEdit.setText(device.get
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
@@ -201,5 +207,76 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter.fireNewDevice(fieldToDevice());
         finish();
     }
+    //**************************************************************
+
+    private class StartWriteTask extends AsyncTask<Void, Void, Void> {
+        private final ProgressDialog dialog;
+
+        private StartWriteTask() {
+            this.dialog = new ProgressDialog(AddEditActivity.this);
+        }
+
+        protected void onPreExecute() {
+            this.dialog.setMessage("Please, place your phone near the card");
+            this.dialog.show();
+            byte[] valueBlocksWrite = new byte[123];
+            try {
+                byte[] raw = Helper.Object2ByteArray(currentDevice);
+                systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(currentDev.getCurrentTag(), currentDev);
+                if (Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev) != null) {
+                    addressStart = new byte[]{0x00, 0x00, 0x00, 0x00};
+                    System.arraycopy(raw, 0, valueBlocksWrite, 1, raw.length);
+                    valueBlocksWrite[0] = 1;
+                    byte[] valueBlockWrite = new byte[4];
+                    System.arraycopy(valueBlocksWrite, 0, valueBlockWrite, 0, 4);
+                    memory.put(0, valueBlockWrite);
+                    for (int i = 1; i < 32; i++) {
+                        valueBlockWrite = new byte[4];
+                        System.arraycopy(valueBlocksWrite, i * 4, valueBlockWrite, 0, 4);
+                        memory.put(0, valueBlockWrite);
+                    }
+                }
+
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        }
+
+        protected Void doInBackground(Void... params) {
+            cpt = 0;
+            DataDevice dataDevice = currentDev;
+            WriteSingleBlockAnswer = null;
+//            if (Helper.DecodeGetSystemInfoResponse(systemInfo,currentDev)!=null) {
+//                while((WriteSingleBlockAnswer == null || WriteSingleBlockAnswer[0] == 1) && cpt <= 10) {
+//                    WriteSingleBlockAnswer = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), BasicWrite.this.addressStart, BasicWrite.this.dataToWrite, dataDevice);
+//                    cpt++;
+//                }
+//            }
+
+            return null;
+        }
+
+        protected void onPostExecute(Void unused) {
+//            if (this.dialog.isShowing()) {
+//                this.dialog.dismiss();
+//            }
+//
+//            if (BasicWrite.this.WriteSingleBlockAnswer == null) {
+//                Toast.makeText(BasicWrite.this.getApplicationContext(), "ERROR Write (No tag answer) ", 0).show();
+//            } else if (BasicWrite.this.WriteSingleBlockAnswer[0] == 1) {
+//                Toast.makeText(BasicWrite.this.getApplicationContext(), "ERROR Write ", 0).show();
+//            } else if (BasicWrite.this.WriteSingleBlockAnswer[0] == -1) {
+//                Toast.makeText(BasicWrite.this.getApplicationContext(), "ERROR Write ", 0).show();
+//            } else if (BasicWrite.this.WriteSingleBlockAnswer[0] == 0) {
+//                Toast.makeText(BasicWrite.this.getApplicationContext(), "Write Sucessfull ", 0).show();
+//            } else {
+//                Toast.makeText(BasicWrite.this.getApplicationContext(), "Write ERROR ", 0).show();
+//            }
+
+        }
+    }
 }
-;
