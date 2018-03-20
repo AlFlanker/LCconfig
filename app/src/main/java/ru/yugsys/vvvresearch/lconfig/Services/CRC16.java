@@ -77,8 +77,8 @@ public class CRC16 {
         tmp = ((beginCRC >> 8) ^ (bt & (0x00ff)));
         beginCRC = ((beginCRC & 0x000000ff) | ((CRCTablHigh[tmp] ^ beginCRC & 0x0000FFFF) << 8));
         beginCRC = ((beginCRC & 0x0000ff00) | CRCTablLow[tmp]);
-        tmp = beginCRC & 0x0000FFFF;
-        return beginCRC;
+
+        return beginCRC& 0x0000FFFF;
 
 
     }

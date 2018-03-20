@@ -262,18 +262,33 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
     public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
         CRC16 crc16 = new CRC16();
+        StringBuilder sb;
         byte[] crc = new byte[121];
         System.arraycopy(raw, 1, crc, 0, 121);
         int res = crc16.CRC16ArrayGet(0, crc) & 0x0000FFFF;
         res = Integer.reverseBytes(res);
         res >>= 16;
         res &= 0x0000FFFF;
-
-        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[122], raw[123]}).getInt() != res) {
+        sb = new StringBuilder();
+        for(Byte b:ByteBuffer.allocate(4).putInt(res).array()){
+            sb.append(String.format("%02x ",b));
+        }
+        Log.d("NFCdata1","crc: "+sb.toString());
+        sb = new StringBuilder();
+        for(Byte b:crc){
+            sb.append(String.format("%02x ",b));
+        }
+        Log.d("NFCdata1","crc arr:"+sb.toString());
+        sb = new StringBuilder();
+        for(Byte b:raw){
+            sb.append(String.format("%02x ",b));
+        }
+        Log.d("NFCdata1",sb.toString());
+        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[122], raw[123]}).getInt() == res) {
             currentDevice = Helper.decodeByteArrayToDevice(raw);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
             byte[] b = Helper.Object2ByteArray(currentDevice);
-            StringBuilder sb = new StringBuilder();
+             sb = new StringBuilder();
             for (Byte a : b) {
                 sb.append(String.format("0x%02x", a) + "; ");
             }

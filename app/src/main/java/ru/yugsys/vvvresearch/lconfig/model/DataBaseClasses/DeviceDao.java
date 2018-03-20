@@ -89,7 +89,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L: 0L);
         stmt.bindString(4, entity.getEui());
         stmt.bindString(5, entity.getAppeui());
         stmt.bindString(6, entity.getAppkey());
@@ -113,7 +113,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L: 0L);
         stmt.bindString(4, entity.getEui());
         stmt.bindString(5, entity.getAppeui());
         stmt.bindString(6, entity.getAppkey());
@@ -144,7 +144,7 @@ public class DeviceDao extends AbstractDao<Device, Long> {
         Device entity = new Device( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getString(offset + 1), // type
-                cursor.getShort(offset + 2) != 0, // isOTTA
+            cursor.getShort(offset + 2) != 0, // isOTTA
             cursor.getString(offset + 3), // eui
             cursor.getString(offset + 4), // appeui
             cursor.getString(offset + 5), // appkey
