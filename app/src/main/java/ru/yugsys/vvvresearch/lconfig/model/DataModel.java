@@ -52,10 +52,10 @@ public class DataModel implements Model, GPScallback<Location> {
         eventManager.notifyOnGPS(mCurrentLocation);
     }
 
-    public EventManager eventManager = new EventManager();
+    private EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
-    public DataDevice currentDataDevice = new DataDevice();
-    public Device currentDevice;
+    private DataDevice currentDataDevice = new DataDevice();
+    private Device currentDevice;
 
     /*------------------------------------------------------------------------*/
     /* Methods and Classes block*/

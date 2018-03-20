@@ -109,9 +109,9 @@
     <string name="label_degree">\u00B0</string>
 
     <string-array name="controller_type_list">
-        <item>LC501E</item>
-        <item>LC502E</item>
-        <item>LC503E</item>
+        <item>LC501</item>
+        <item>LC502</item>
+        <item>LC503</item>
     </string-array>
     <string-array name="out_type_list">
         <item>PWM</item>

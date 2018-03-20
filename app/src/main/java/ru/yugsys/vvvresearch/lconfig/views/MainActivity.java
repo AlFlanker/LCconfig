@@ -51,7 +51,7 @@ import java.util.TimerTask;
 
 import static ru.yugsys.vvvresearch.lconfig.Services.Helper.decodeByteList;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener,ModelListener.OnNFCConnected {
+public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected {
 
 
     private NfcAdapter mAdapter;
@@ -61,11 +61,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private Device currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
-    byte[] readMultipleBlockAnswer = null;
-    byte[] numberOfBlockToRead = null;
-    byte[] addressStart;
+    private byte[] readMultipleBlockAnswer = null;
+    private byte[] numberOfBlockToRead = null;
+    private byte[] addressStart;
     int cpt;
-
 
 
     private MainContentAdapter adapter;
@@ -76,22 +75,25 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     @Override
     protected void onPause() {
         super.onPause();
-        mAdapter.disableForegroundDispatch(this);
+        if (mAdapter != null) {
+            mAdapter.disableForegroundDispatch(this);
+        }
+
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("NFC","NFC");
-         currentDataDevice = new DataDevice();
+        Log.d("NFC", "NFC");
+        currentDataDevice = new DataDevice();
         super.onNewIntent(intent);
         byte[] arr;
         Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         currentDataDevice.setCurrentTag(tagFromIntent);
-        Log.d("NFC","start AddEditActivity");
-        systemInfo=NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent,currentDataDevice);
-        Log.d("NFC",Arrays.toString(systemInfo));
+        Log.d("NFC", "start AddEditActivity");
+        systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDataDevice);
+        Log.d("NFC", Arrays.toString(systemInfo));
         new StartReadTask().execute(new Void[0]);
-        Log.d("NFC","In Main");
+        Log.d("NFC", "In Main");
 
 
     }
@@ -115,19 +117,22 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         mainPresenter.fireUpdateDataForView();
         //getPremissionGPS();
         mAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(mAdapter.isEnabled()){
-            mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        if (mAdapter != null && mAdapter.isEnabled()) {
+            mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
             IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-            mFilters = new IntentFilter[] {ndef,};
-            mTechLists = new String[][] { new String[] { android.nfc.tech.NfcV.class.getName() } };
+            mFilters = new IntentFilter[]{ndef,};
+            mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        if (mAdapter != null) {
+            mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        }
+
         getPremissionGPS();
         mainPresenter.fireUpdateDataForView();
     }
@@ -198,8 +203,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             int cpt = 0;
             if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 addressStart = new byte[8];
-                Arrays.fill(addressStart,(byte)0x00);
-                numberOfBlockToRead = new byte[]{(byte)0x00,(byte)0x20}; // 32 блока на 4 байта
+                Arrays.fill(addressStart, (byte) 0x00);
+                numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x20}; // 32 блока на 4 байта
             }
         }
 
@@ -219,11 +224,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                             cpt++;
                         }
 
-                        cpt =0;
+                        cpt = 0;
                     }
 
-                }
-                else {
+                } else {
                     while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
                         readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
                         cpt++;
@@ -240,10 +244,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
             if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 StringBuilder stringBuilder = new StringBuilder();
-                for(Byte b: readMultipleBlockAnswer)
-                    stringBuilder.append(String.format("0x%02x",b)+"; ");
-                Log.d("NFC",stringBuilder.toString());
-                Log.d("NFC",String.valueOf(readMultipleBlockAnswer.length));
+                for (Byte b : readMultipleBlockAnswer)
+                    stringBuilder.append(String.format("0x%02x", b) + "; ");
+                Log.d("NFC", stringBuilder.toString());
+                Log.d("NFC", String.valueOf(readMultipleBlockAnswer.length));
                 try {
                     decode(readMultipleBlockAnswer); // to this.currentDevice
                 } catch (IllegalAccessException e) {
@@ -257,10 +261,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
     }
 
-    public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
-        currentDevice =Helper.decodeByteArrayToDevice(raw);
-        ((App)getApplication()).getModel().setCurrentDevice(currentDevice);
-        Intent addActivity = new Intent(this,AddEditActivity.class);
+    public void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
+        currentDevice = Helper.decodeByteArrayToDevice(raw);
+        ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
+        Intent addActivity = new Intent(this, AddEditActivity.class);
         startActivity(addActivity);
     }
 

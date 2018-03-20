@@ -66,6 +66,7 @@
                         app:layout_columnSpan="4"
 
                 />
+
                 <Switch
                         android:id="@+id/lc5_switch_isOTAA"
                         android:switchPadding="@dimen/marginCard"

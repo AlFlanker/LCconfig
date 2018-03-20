@@ -1,18 +1,14 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,16 +19,11 @@ import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
@@ -129,30 +120,36 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
         currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
-        setDeviceFields(currentDevice);
+        if (currentDevice != null) {
+            setDeviceFields(currentDevice);
+        }
+
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("NFC","newintent");
+        Log.d("NFC", "newintent");
         super.onNewIntent(intent);
         Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         currentDev = ((App) getApplication()).getModel().getCurrentDev();
         currentDev.setCurrentTag(tagFromIntent);
 
     }
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        if (mAdapter != null) {
+            mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+        }
     }
 
     @Override
     public void setDeviceFields(Device device) {
         setSpinnerValuePosition(device.getType(), typeSpinner);
-        setSpinnerValuePosition(device.getOutType(),out_typeSpinner);
+        setSpinnerValuePosition(device.getOutType(), out_typeSpinner);
         deveuiEdit.setText(device.getEui());
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
@@ -160,8 +157,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         devAdrEdit.setText(device.getDevadr());
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
-        //TODO: change "false" to device field
-        isOTAASwitch.setChecked(false);
+
+        isOTAASwitch.setChecked(device.getIsOTTA() > 0);
         gpsEditLongitude.setText(String.valueOf(device.getLongitude()));
         gpsEditLatitude.setText(String.valueOf(device.getLatitude()));
     }
@@ -191,11 +188,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         //default constants of the LC5 firmware
 //        device.setKI("7321");
 //        device.setKV("1004,974,976,993,995,1028,1038,2489,2412,2254,2063,1908,1702,1541");
-        //TODO: Fill isOTAA device field
+        //default constants of the LC5 firmware in HEX
         device.setKI("991C");
         device.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
-        //TODO: Fill device field
-        //isOTAAEdit.setText(device.get
+        //TODO: Fill isOTAA device field
+        device.setIsOTTA((byte) (isOTAASwitch.isChecked() ? 1 : 0));
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
         device.setOutType(out_typeSpinner.getSelectedItem().toString());
