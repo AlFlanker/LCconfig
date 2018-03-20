@@ -101,7 +101,7 @@ public class Device {
      * @ordered
      */
     @NotNull
-    public byte isOTTA;
+    public boolean isOTTA;
     @NotNull
     public String eui;
 
@@ -216,8 +216,8 @@ public class Device {
     @Generated(hash = 371273952)
     private transient DeviceDao myDao;
 
-    @Generated(hash = 1895241310)
-    public Device(Long id, @NotNull String type, byte isOTTA, @NotNull String eui,
+    @Generated(hash = 1254751111)
+    public Device(Long id, @NotNull String type, boolean isOTTA, @NotNull String eui,
             @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
             @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
             double Latitude, double Longitude, @NotNull String outType, @NotNull String kV,
@@ -400,13 +400,15 @@ public class Device {
         myDao = daoSession != null ? daoSession.getDeviceDao() : null;
     }
 
-    public byte getIsOTTA() {
+    public boolean getIsOTTA() {
         return this.isOTTA;
     }
 
-    public void setIsOTTA(byte isOTTA) {
+    public void setIsOTTA(boolean isOTTA) {
         this.isOTTA = isOTTA;
     }
+
+
 
 
 }

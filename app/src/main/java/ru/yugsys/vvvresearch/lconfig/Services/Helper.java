@@ -295,80 +295,7 @@ public class Helper {
 	}
 	
 	
-	 //***********************************************************************/
-	 //* the function verify and convert the NbBlock from the EditText (HEXA)
-	 //* in order to not read out of memory range and code String on 4chars.
-	 //* Example : FormatStringAddressStart ("0F") -> returns "000F"
-	 //* Example : FormatStringAddressStart ("FFFF") -> returns "07FF"
-	 //***********************************************************************/
-	public static String FormatStringNbBlock (String stringToformat, String sAddressStart, DataDevice ma)
-	{
-		String sNbBlockToRead = stringToformat;
-		sNbBlockToRead = StringForceDigit(sNbBlockToRead,4);
-		
-		if (sNbBlockToRead.length() > 4)
-		{
-			sNbBlockToRead = ma.getMemorySize().replace(" ", "");
-		}
-		
-		int iNbBlockToRead = ConvertStringToInt(sNbBlockToRead);
-		int iAddressStart = ConvertStringToInt(sAddressStart);
-		int iAddresStartMax = ConvertStringToInt(StringForceDigit(ma.getMemorySize(),4));
 
-		if(iAddressStart + iNbBlockToRead > iAddresStartMax)
-		{
-			iNbBlockToRead = iAddresStartMax - iAddressStart +1;
-		}
-		/*
-		else if(iNbBlockToRead > iAddresStartMax)
-		{
-			iNbBlockToRead = iAddresStartMax +1;
-		}
-		*/
-			
-		sNbBlockToRead = ConvertIntToHexFormatString(iNbBlockToRead);
-		sNbBlockToRead = StringForceDigit(sNbBlockToRead,4);
-		
-		return sNbBlockToRead;
-	}
-
-		//***********************************************************************/
-		 //* the function verify and convert the NbBlock from the EditText (DECIMAL)
-		 //* in order to not read out of memory range and code String on 4chars.
-		 //* Example : FormatStringAddressStart ("01") -> returns "0001"
-		 //* Example : FormatStringAddressStart ("9999") -> returns "2048"
-		 //***********************************************************************/
-		public static String FormatStringNbBlockInteger (String stringToformat, String sAddressStart, DataDevice ma)
-		{
-			String sNbBlockToRead = stringToformat;
-			sNbBlockToRead = StringForceDigit(sNbBlockToRead,4);
-			
-			if (sNbBlockToRead.length() > 4)
-			{
-				sNbBlockToRead = ma.getMemorySize().replace(" ", "");
-			}
-			
-			int iNbBlockToRead = Integer.parseInt(sNbBlockToRead);
-			int iAddressStart = ConvertStringToInt(sAddressStart);
-			int iAddresStartMax = ConvertStringToInt(StringForceDigit(ma.getMemorySize(),4));
-
-			if(iAddressStart + iNbBlockToRead > iAddresStartMax + 1)
-			{
-				iNbBlockToRead = iAddresStartMax - iAddressStart +1;
-			}
-			/*
-			else if(iNbBlockToRead > iAddresStartMax)
-			{
-				iNbBlockToRead = iAddresStartMax +1;
-			}
-			*/
-				
-			sNbBlockToRead = Integer.toString(iNbBlockToRead, 10);
-			sNbBlockToRead = StringForceDigit(sNbBlockToRead,4);
-			
-			return sNbBlockToRead;
-		}
-		
 	//***********************************************************************/
 	//* the function Convert a "4-char String" to a two bytes format
 	//* Example : "0F43" -> { 0X0F ; 0X43 }
@@ -500,60 +427,7 @@ public class Helper {
 		 return ConvertedNumber;
 	 }
 	
-	//***********************************************************************/
-	//* the function Convert String to an Int value
-	//***********************************************************************/
-	public static int ConvertStringToInt (String nbOfBlocks) {
 
-        return Integer.parseInt(nbOfBlocks, 16);
-	}
-	
-
-	public static String[] buildArrayBlocks(byte[] addressStart, int length)
-	{
-		String array[] = new String[length];
-		
-		int add = (int)addressStart[1];
-		
-		if((int)addressStart[1]<0)
-			add = ((int)addressStart[1]+256);
-		
-		if((int)addressStart[0]<0)
-			add += (256*((int)addressStart[0]+256));
-		else
-			add += (256*(int)addressStart[0]);
-		
-		for (int i = 0; i < length; i++)
-		{
-			if(i == 14)
-			{
-				i =14;
-			}
-			array[i] = "Block  " + ConvertIntToHexFormatString(i + add).toUpperCase();
-		}
-		
-		return array;
-	}
-	
-	public static String[] buildArrayValueBlocks(byte[]ReadMultipleBlockAnswer, int length)
-	{
-		String array[] = new String[length];
-		int sup = 1;
-		
-		for (int i = 0; i < length; i++)
-		{
-			array[i] = "";
-			array[i] += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[sup]).toUpperCase();
-			array[i] += " ";
-			array[i] += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[sup + 1]).toUpperCase();
-			array[i] += " ";
-			array[i] += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[sup + 2]).toUpperCase();
-			array[i] += " ";
-			array[i] += Helper.ConvertHexByteToString(ReadMultipleBlockAnswer[sup + 3]).toUpperCase();
-			sup += 4;
-		}
-		return array;
-	}
 
 	public static DataDevice DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse, DataDevice dataDevice) {
 		DataDevice ma = dataDevice;
@@ -782,7 +656,7 @@ public class Helper {
 		field = Device.class.getField("type");
 		byteArrayOutputStream.write(field.get(dev).toString().getBytes());
 		field = Device.class.getField("isOTTA");
-		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
+		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
 		field = Device.class.getField("eui");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		field = Device.class.getField("appeui");
@@ -857,9 +731,6 @@ public class Helper {
 		Device device = new Device();
 		byte[] buf;
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 1; i < 123; i++) {
-			stringBuilder.append(String.format("%02x", raw[i]));
-		}
 		Field[] fields = Device.class.getFields();
 		for (Field field : fields) {
 			if (field.getName().equals("type")) {
@@ -869,8 +740,13 @@ public class Helper {
 			}
 			if (field.getName().equals("isOTTA")) {
 				buf = new byte[1];
+				boolean isotta;
 				System.arraycopy(raw, 6, buf, 0, 1);
-				field.set(device, buf[0]);
+				if (buf[0] > 0) {
+					isotta = true;
+				} else isotta = false;
+				field.set(device, isotta);
+
 			}
 			if (field.getName().equals("eui")) {
 				buf = new byte[8];
