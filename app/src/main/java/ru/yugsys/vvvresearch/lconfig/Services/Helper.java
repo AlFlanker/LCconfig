@@ -10,13 +10,17 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 
 
 
+import android.util.Log;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 
 public class Helper {
@@ -766,22 +770,48 @@ public class Helper {
 			return null;
 
 	}
-	//***********************************************************************/
+
+    //***********************************************************************/
 	//* the function Convert Fields of Object to byte array
 	// Alex Flanker
 	//***********************************************************************/
-    public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException {
-        Field[] fields = Device.class.getFields();
+	public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException, NoSuchFieldException {
+		Field field;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        for (Field field : fields) {
-            if (field.getType() == String.class) {
-                byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-            } else if ((field.getType() == Float.class) || (field.getType() == float.class)) {
-                byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat((float) field.get(dev)).array());
-            } else if (field.getType() == char.class) {
-                byteArrayOutputStream.write((char) field.get(dev));
-            }
-		}
+		byte[] raw=new byte[8];
+		field = Device.class.getField("type");
+		byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+		field = Device.class.getField("isOTTA");
+		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
+		field = Device.class.getField("eui");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("appeui");
+		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("appkey");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("nwkid");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("devadr");
+		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
+		field = Device.class.getField("nwkskey");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("appskey");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("Latitude");
+		float f = Float.parseFloat(String.valueOf(field.get(dev)));
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).array());
+		byte b[] = ByteBuffer.allocate(4).putFloat(f).array();
+		field = Device.class.getField("Longitude");
+		f = Float.parseFloat(String.valueOf(field.get(dev)));
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).array());
+		field = Device.class.getField("outType");
+		byteArrayOutputStream.write(field.get(dev).toString().getBytes());
+		field = Device.class.getField("kV");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = Device.class.getField("kI");
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+
 		return byteArrayOutputStream.toByteArray();
 	}
 
@@ -819,7 +849,130 @@ public class Helper {
 		d.kI = srt.substring(238,242);
 		return d;
 	}
+	//***********************************************************************/
+	//* the function Convert raw byte[] to Device
+	// Alex Flanker
+	//***********************************************************************/
+	public static Device decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
+		Device device = new Device();
+		byte[] buf;
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 1; i < 123; i++) {
+			stringBuilder.append(String.format("%02x", raw[i]));
+		}
+		Field[] fields = Device.class.getFields();
+		for (Field field : fields) {
+			if (field.getName().equals("type")) {
+				buf = new byte[5];
+				System.arraycopy(raw, 1, buf, 0, 5);
+				field.set(device, new String(buf, StandardCharsets.UTF_8));
+			}
+			if (field.getName().equals("isOTTA")) {
+				buf = new byte[1];
+				System.arraycopy(raw, 6, buf, 0, 1);
+				field.set(device, buf[0]);
+			}
+			if (field.getName().equals("eui")) {
+				buf = new byte[8];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 7, buf, 0, 8);
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("appeui")) {
+				buf = new byte[8];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 15, buf, 0, 8);
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("appkey")) {
+				buf = new byte[16];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 23, buf, 0, 16);
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("nwkid")) {
+				buf = new byte[4];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 39, buf, 0, 4);
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("devadr")) {
+				buf = new byte[8];
+				System.arraycopy(raw, 43, buf, 4, 4);
+				stringBuilder = new StringBuilder();
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("nwkskey")) {
+				buf = new byte[16];
+				System.arraycopy(raw, 47, buf, 0, 16);
+				stringBuilder = new StringBuilder();
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("appskey")) {
+				buf = new byte[16];
+				System.arraycopy(raw, 63, buf, 0, 16);
+				stringBuilder = new StringBuilder();
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("Latitude")) {
+				buf = new byte[4];
+				System.arraycopy(raw, 79, buf, 0, 4);
+				field.set(device, ByteBuffer.wrap(buf).getFloat());
+			}
+			if (field.getName().equals("Longitude")) {
+				buf = new byte[4];
+				System.arraycopy(raw, 83, buf, 0, 4);
+				field.set(device, ByteBuffer.wrap(buf).getFloat());
+			}
+			if (field.getName().equals("outType")) {
+				buf = new byte[5];
+				System.arraycopy(raw, 87, buf, 0, 5);
+				field.set(device, new String(buf, StandardCharsets.UTF_8));
+			}
+			if (field.getName().equals("kV")) {
+				buf = new byte[28];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 92, buf, 0, 28);
+				stringBuilder = new StringBuilder();
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+			if (field.getName().equals("kI")) {
+				buf = new byte[2];
+				stringBuilder = new StringBuilder();
+				System.arraycopy(raw, 120, buf, 0, 2);
+				for (Byte b : buf) {
+					stringBuilder.append(String.format("%02x", b));
+				}
+				field.set(device, stringBuilder.toString());
+			}
+		}
+		return device;
 
+	}
     //***********************************************************************/
     //* the function Convert hex string to bytes
     //*example 0A10 -> bytes[]{0x0A,0x10};

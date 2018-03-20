@@ -1,6 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,11 +23,17 @@ import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.Helper;
+import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
     private ExpandableLinearLayout expandableLinearLayout;
@@ -48,11 +56,16 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private DataDevice dataDevice;
+    private Device currentDevice;
     private View buttonLayout;
     private View triangleButton;
     private EditText gpsEditLatitude;
-
+    private byte[] systemInfo;
+    private DataDevice currentDev;
+    private byte[] addressStart = null;
+    private HashMap<Integer, byte[]> memory = new HashMap<>(40);
+    private int cpt;
+    private byte[] WriteSingleBlockAnswer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,16 +128,25 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         gpsTracker.OnStartGPS();
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
+        currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
+        setDeviceFields(currentDevice);
+
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.d("NFC","newintent");
         super.onNewIntent(intent);
-        if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())){
-            Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            dataDevice = new DataDevice();
-            dataDevice.setCurrentTag(tagFromIntent);
-        }
+        Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        currentDev = ((App) getApplication()).getModel().getCurrentDev();
+        currentDev.setCurrentTag(tagFromIntent);
+
+    }
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
     }
 
     @Override
@@ -167,9 +189,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setNwkskey(nwkSKeyEdit.getText().toString());
         device.setAppskey(appSKeyEdit.getText().toString());
         //default constants of the LC5 firmware
-        device.setKI("7321");
-        device.setKV("1004,974,976,993,995,1028,1038,2489,2412,2254,2063,1908,1702,1541");
+//        device.setKI("7321");
+//        device.setKV("1004,974,976,993,995,1028,1038,2489,2412,2254,2063,1908,1702,1541");
         //TODO: Fill isOTAA device field
+        device.setKI("991C");
+        device.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
+        //TODO: Fill device field
         //isOTAAEdit.setText(device.get
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
@@ -183,3 +208,4 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         finish();
     }
 }
+;

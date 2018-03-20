@@ -8,6 +8,14 @@ import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 
 public interface Model {
+    DataDevice getCurrentDev();
+
+    void setCurrentDev(DataDevice dev);
+
+    void setCurrentDevice(Device dev);
+
+    Device getCurrentDevice();
+
     void setSession(DaoSession s);
 
     void loadAllDeviceData();

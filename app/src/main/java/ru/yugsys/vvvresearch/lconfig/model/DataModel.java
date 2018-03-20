@@ -18,12 +18,20 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 
+import java.nio.ByteBuffer;
 import java.util.*;
 
 
 public class DataModel implements Model, GPScallback<Location> {
+    @Override
+    public void setCurrentDevice(Device dev) {
+        this.currentDevice = dev;
+    }
 
-
+    @Override
+    public Device getCurrentDevice() {
+        return this.currentDevice;
+    }
 
     /*-----------------------------------------------------------------------*/
     public DaoSession daoSession;
@@ -46,33 +54,14 @@ public class DataModel implements Model, GPScallback<Location> {
 
     public EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
-    private DataDevice currentDataDevice;
-    Device dev;
-
-
-    /*-----------------------------------------------------------------------*/
-    /*-----------------------------------------------------------------------*/
-    /*                            NFC varible                                */
-    byte[] getSystemInfoAnswer = null;
-    byte[] readMultipleBlockAnswer = null;
-    byte[] numberOfBlockToRead = null;
-    private long cpt = 0L;
-    List<DataRead> listOfData = null;
-    String[] catBlocks = null;
-    String[] catValueBlocks = null;
-    private DataModel dataModel;
-    String startAddressString;
-    byte[] addressStart = null;
-    String sNbOfBlock = null;
-    int nbblocks = 0;
-    StringBuilder sb = new StringBuilder();
-    DataDevice getCurrentDataDevice;
+    public DataDevice currentDataDevice = new DataDevice();
+    public Device currentDevice;
 
     /*------------------------------------------------------------------------*/
     /* Methods and Classes block*/
     @Override
     public void readNfcDev() {
-        new StartReadTask().execute(new Void[0]);
+//        new StartReadTask().execute(new Void[0]);
 
     }
 
@@ -110,6 +99,16 @@ public class DataModel implements Model, GPScallback<Location> {
 
 
     @Override
+    public DataDevice getCurrentDev() {
+        return currentDataDevice;
+    }
+
+    @Override
+    public void setCurrentDev(DataDevice dev) {
+        this.currentDataDevice = dev;
+    }
+
+    @Override
     public void setSession(DaoSession s) {
         this.daoSession = s;
         Log.d("GPS","inside");
@@ -132,92 +131,9 @@ public class DataModel implements Model, GPScallback<Location> {
 //        eventManager.notifyOnGPS(mCurrentLocation);
     }
 
-    /**
-     * класс чтения данных NFC
-     * возвращает данные через @see EventManager#EventManager()
-     */
-    private class StartReadTask extends AsyncTask<Void, Void, Void> {
 
 
-        private StartReadTask() {
 
-        }
-
-        protected void onPreExecute() {
-            DataDevice dataDevice = currentDataDevice;
-            getSystemInfoAnswer = NFCCommand.SendGetSystemInfoCommandCustom(dataDevice.getCurrentTag(), dataDevice);
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(getSystemInfoAnswer, dataDevice)) != null) {
-                startAddressString = "0";
-                startAddressString = Helper.castHexKeyboard(startAddressString);
-                startAddressString = Helper.FormatStringAddressStart(startAddressString, dataDevice);
-                addressStart = Helper.ConvertStringToHexBytes(startAddressString);
-                sNbOfBlock = "128";
-                sNbOfBlock = Helper.FormatStringNbBlockInteger(sNbOfBlock, startAddressString, dataDevice);
-                numberOfBlockToRead = Helper.ConvertIntTo2bytesHexaFormat(Integer.parseInt(sNbOfBlock));
-            }
-        }
-
-        protected Void doInBackground(Void... params) {
-
-            readMultipleBlockAnswer = null;
-            cpt = 0L;
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(getSystemInfoAnswer, currentDataDevice)) != null) {
-                if (currentDataDevice.isMultipleReadSupported() && Helper.Convert2bytesHexaFormatToInt(numberOfBlockToRead) > 1) {
-                    if (Helper.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
-                        while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10L) {
-                            readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead[1], currentDataDevice);
-                            cpt = cpt + 1L;
-                        }
-
-                        cpt = 0L;
-                    } else {
-                        while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10L) {
-                            readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
-                            cpt = cpt + 1L;
-                        }
-
-                        cpt = 0L;
-                    }
-                } else {
-                    while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10L) {
-                        readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
-                        cpt = cpt + 1L;
-                    }
-
-                    cpt = 0L;
-                }
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-            Log.d("NFC", "Button Read CLICKED **** On Post Execute ");
-
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(getSystemInfoAnswer, currentDataDevice)) != null) {
-                nbblocks = Integer.parseInt(sNbOfBlock);
-                if (readMultipleBlockAnswer != null && readMultipleBlockAnswer.length - 1 > 0) {
-                    if (readMultipleBlockAnswer[0] == 0) {
-                        catBlocks = Helper.buildArrayBlocks(addressStart, nbblocks);
-                        catValueBlocks = Helper.buildArrayValueBlocks(readMultipleBlockAnswer, nbblocks);
-                        listOfData = new ArrayList();
-
-                        for (int i = 0; i < nbblocks; ++i) {
-                            DataRead dataRead = new DataRead(catBlocks[i], catValueBlocks[i]);
-                            sb.append(catValueBlocks[i]);
-                            listOfData.add(dataRead);
-
-                        }
-                        Log.d("NFC", sb.toString());
-                        dev = decodeByteList(sb.toString());
-                        eventManager.notifyOnNFC(dev);
-
-                    }
-                }
-            }
-
-        }
-    }
 
     public static long parseUnsignedHex(String text) {
         if (text.length() == 16) {
