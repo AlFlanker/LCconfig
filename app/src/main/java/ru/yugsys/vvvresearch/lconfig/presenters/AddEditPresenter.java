@@ -40,6 +40,11 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
         model.saveDevice(device);
     }
 
+    @Override
+    public void fireGetNewGPSData() {
+        model.getGPSLocation();
+    }
+
 
     @Override
     public void OnGPSdata(Location location) {
