@@ -93,6 +93,7 @@
 
                 />
                 <ImageButton
+                        android:id="@+id/add_gps_device_location"
                         android:gravity="fill"
                         android:src="@drawable/ic_add_location_black_48dp"
                         app:layout_column="4"

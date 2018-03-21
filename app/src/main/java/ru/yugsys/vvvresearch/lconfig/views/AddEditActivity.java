@@ -72,10 +72,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private byte[] valueBlocksWrite;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("NFC","AddActivity");
+        Log.d("NFC", "AddActivity");
 
         super.onCreate(savedInstanceState);
 
@@ -145,35 +144,40 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     }
 
+
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("NFC","newintent");
+        Log.d("NFC", "newintent");
         super.onNewIntent(intent);
-        if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())){
+        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction().toString())) {
             Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            ((App)getApplication()).getModel().getCurrentDev().setCurrentTag(tagFromIntent);
+            ((App) getApplication()).getModel().getCurrentDev().setCurrentTag(tagFromIntent);
             currentDev = ((App) getApplication()).getModel().getCurrentDev();
             // Model model =((App)getApplication()).getModel();
             //  model.readNfcDev();
             currentDevice.isOTTA = Boolean.FALSE;
             new StartWriteTask().execute(new Void[0]);
-            Log.d("NFC","add new tag");
+            Log.d("NFC", "add new tag");
         }
     }
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
-        Log.d("NFC","readNFC");
-        Log.d("NFC","post readNFC");
-
+        if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
+            presenter.fireGetNewGPSData();
+        } else {
+            mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+            mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+            Log.d("NFC", "readNFC");
+            Log.d("NFC", "post readNFC");
+        }
     }
 
     @Override
     public void setDeviceFields(Device device) {
         setSpinnerValuePosition(device.getType(), typeSpinner);
-        setSpinnerValuePosition(device.getOutType(),out_typeSpinner);
+        setSpinnerValuePosition(device.getOutType(), out_typeSpinner);
         deveuiEdit.setText(device.getEui());
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
@@ -231,6 +235,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     //************************************
     //**************************************************************
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.unBind();
+    }
+
     private class StartWriteTask extends AsyncTask<Void, Void, Void> {
         private final ProgressDialog dialog;
 
@@ -280,7 +291,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             DataDevice dataDevice = currentDev;
             WriteSingleBlockAnswer = null;
             if (Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev) != null) {
-                WriteSingleBlockAnswer = NFCCommand.SendWriteMultipleBlockCommand(dataDevice.getCurrentTag(), addressStart, valueBlocksWrite, dataDevice);
+                WriteSingleBlockAnswer = NFCCommand.SendWriteMultipleBlockCommand(dataDevice.getCurrentTag(),
+                        addressStart, valueBlocksWrite, dataDevice);
             }
 
             return null;
@@ -292,8 +304,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 this.dialog.dismiss();
             }
 
+
         }
     }
 
 }
-;

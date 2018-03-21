@@ -1,12 +1,14 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.github.aakira.expandablelayout.ExpandableLayout;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
@@ -18,6 +20,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import java.util.List;
 
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
+    public static final String LOGITUDE = "LOGITUDE";
+    public static final String LATITUDE = "LATITUDE";
     List<Device> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
 
@@ -40,20 +44,20 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     }
 
     @Override
-    public void onBindViewHolder( final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         final int finalPosition = holder.getAdapterPosition();
         holder.typeOfLC5.setText(devices.get(finalPosition).type);
-        //holder.isOTAA.setText(devices.get(position).);
-        holder.devEUI.setText(devices.get(finalPosition).getEui());
-        holder.appEUI.setText(devices.get(finalPosition).appeui);
-        holder.appKey.setText(devices.get(finalPosition).appkey);
-        holder.nwkID.setText(devices.get(finalPosition).nwkid);
-        holder.devAdr.setText(devices.get(finalPosition).devadr);
-        holder.nwkSKey.setText(devices.get(finalPosition).nwkskey);
-        holder.appSKey.setText(devices.get(finalPosition).appskey);
-        holder.gps_Longitude.setText(Double.toString(devices.get(finalPosition).Longitude));
-        holder.gps_Latitude.setText(Double.toString(devices.get(finalPosition).Latitude));
-        holder.outType.setText(devices.get(finalPosition).outType);
+        holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
+        holder.devEUI.setText(String.format("%s: %s", context.getText(R.string.prompt_devEUI), devices.get(finalPosition).getEui()));
+        holder.appEUI.setText(String.format("%s: %s", context.getText(R.string.prompt_appEUI), devices.get(finalPosition).appeui));
+        holder.appKey.setText(String.format("%s: %s", context.getText(R.string.prompt_appKey), devices.get(finalPosition).appkey));
+        holder.nwkID.setText(String.format("%s: %s", context.getText(R.string.prompt_nwkID), devices.get(finalPosition).nwkid));
+        holder.devAdr.setText(String.format("%s: %s", context.getText(R.string.prompt_devAdr), devices.get(finalPosition).devadr));
+        holder.nwkSKey.setText(String.format("%s: %s", context.getText(R.string.prompt_nwkSKey), devices.get(finalPosition).nwkskey));
+        holder.appSKey.setText(String.format("%s: %s", context.getText(R.string.prompt_appSKey), devices.get(finalPosition).appskey));
+        holder.gps.setText(Double.toString(devices.get(finalPosition).Longitude) + "\u00B0, " +
+                Double.toString(devices.get(finalPosition).Latitude) + "\u00B0");
+        holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).outType));
         holder.expandableLayout.setInRecyclerView(true);
         //holder.expandableLayout.setBackgroundColor(context.(R.color.colorPrimary));
         holder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));
@@ -80,6 +84,16 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
                 onClickButton(holder.expandableLayout);
             }
         });
+        holder.gpsLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, MapsActivity.class);
+                intent.putExtra(LOGITUDE,devices.get(finalPosition).getLongitude());
+                intent.putExtra(LATITUDE,devices.get(finalPosition).getLatitude());
+                context.startActivity(intent);
+
+            }
+        });
     }
 
     @Override
@@ -92,7 +106,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public RelativeLayout buttonLayout;
+        public LinearLayout buttonLayout;
         public View triangleView;
         public TextView typeOfLC5;
         public TextView isOTAA;
@@ -103,10 +117,10 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView devAdr;
         public TextView nwkSKey;
         public TextView appSKey;
-        public TextView gps_Latitude;
-        public TextView gps_Longitude;
+        public TextView gps;
         public TextView outType;
         public ExpandableLinearLayout expandableLayout;
+        public ImageButton gpsLocation;
 
         public ViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.lc5_item_list, parent, false));
@@ -119,12 +133,12 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             devAdr = itemView.findViewById(R.id.lc5_devAdr);
             nwkSKey = itemView.findViewById(R.id.lc5_nwkSKey);
             appSKey = itemView.findViewById(R.id.lc5_appSKey);
-            gps_Latitude = itemView.findViewById(R.id.lc5_gps_latitude);
-            gps_Longitude = itemView.findViewById(R.id.lc5_gps_longitude);
+            gps = itemView.findViewById(R.id.lc5_gps);
             outType = itemView.findViewById(R.id.lc5_out_type);
-            buttonLayout = (RelativeLayout) itemView.findViewById(R.id.button);
+            buttonLayout = (LinearLayout) itemView.findViewById(R.id.button);
             triangleView = itemView.findViewById(R.id.button_triangle);
             expandableLayout = (ExpandableLinearLayout) itemView.findViewById(R.id.expandableLayout);
+            gpsLocation = itemView.findViewById(R.id.gps_device_location);
         }
     }
 }

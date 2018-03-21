@@ -9,6 +9,7 @@
     <dimen name="marginCardBottom">8dp</dimen>
     <dimen name="marginCardTop">8dp</dimen>
     <dimen name="defaultPadding">4dp</dimen>
+    <dimen name="defaultMargin">4dp</dimen>
 
 
 </resources>

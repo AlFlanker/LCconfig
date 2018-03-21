@@ -15,15 +15,15 @@
     <string name="error_field_required">This field is required</string>
     <string name="prompt_type">Type of device</string>
     <string name="prompt_devEUI">Device EUI</string>
-    <string name="prompt_appEUI">Application EUI</string>
+    <string name="prompt_appEUI">App EUI</string>
     <string name="prompt_outType">Type output</string>
-    <string name="prompt_gps_latitude">  Latitude</string>
-    <string name="prompt_gps_longitude">   Longitude</string>
-    <string name="prompt_appSKey">Application session key</string>
-    <string name="prompt_nwkSKey">Network session key</string>
-    <string name="prompt_devAdr">device local address</string>
-    <string name="prompt_nwkID">Network identification</string>
-    <string name="prompt_appKey">Application security code</string>
+    <string name="prompt_gps_latitude">Latitude</string>
+    <string name="prompt_gps_longitude">Longitude</string>
+    <string name="prompt_appSKey">App session key</string>
+    <string name="prompt_nwkSKey">Net session key</string>
+    <string name="prompt_devAdr">Local address</string>
+    <string name="prompt_nwkID">Network ID</string>
+    <string name="prompt_appKey">App code</string>
     <string name="title_activity_add_edit">AddEdit</string>
 
     <!-- Strings related to Settings -->
@@ -101,12 +101,17 @@
     <string name="prompt_isotaa">Over the Air Activation</string>
     <string name="label_isotaa">OTAA</string>
     <string name="prompt_typeServer">Type of server</string>
-    <string name="more">More</string>
-    <string name="type_device_is">Type is </string>
-    <string name="out_type_device_is">Out type is </string>
+    <string name="more">More fields</string>
+    <string name="type_device_is">Type is</string>
+    <string name="out_type_device_is">Out type is</string>
     <string name="label_latitude">Latitude</string>
     <string name="label_degree_comma">\u00B0,</string>
     <string name="label_degree">\u00B0</string>
+    <string name="nootaa">OTAA isn\'t on</string>
+    <string name="yesotta">OTAA is on</string>
+    <string name="identification">Identification</string>
+    <string name="network_label">Network</string>
+    <string name="security_label">Security</string>
 
     <string-array name="controller_type_list">
         <item>LC501</item>
@@ -118,5 +123,6 @@
         <item>DALI</item>
         <item>0-10V</item>
     </string-array>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
