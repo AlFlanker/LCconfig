@@ -8,9 +8,9 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
 
-
-
+import android.location.Location;
 import android.util.Log;
+import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
@@ -23,10 +23,12 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import static android.provider.Settings.System.getString;
+
 
 public class Helper {
 
-	
+
 	//***********************************************************************/
 	//* the function cast a String to hexa character only
 	//* when a character is not hexa it's replaced by '0'
@@ -652,14 +654,16 @@ public class Helper {
 	//***********************************************************************/
 	public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException, NoSuchFieldException {
 		Field field;
+		StringBuilder sb = new StringBuilder();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
 		field = Device.class.getField("type");
 		String s = field.get(dev).toString();
-		while (s.length() < 5) {
-			s += " ";
+		sb.append(s);
+		while (sb.length() < 5) {
+			sb.append((char) 0x00);
 		}
-		byteArrayOutputStream.write(s.getBytes());
+		byteArrayOutputStream.write(sb.toString().getBytes());
 		field = Device.class.getField("isOTTA");
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
 		field = Device.class.getField("eui");
@@ -680,20 +684,23 @@ public class Helper {
 
 		field = Device.class.getField("Latitude");
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
-		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).order((ByteOrder.LITTLE_ENDIAN)).array());
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
+
 
 
 		field = Device.class.getField("Longitude");
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
 		;
-		byteArrayOutputStream.write(ByteBuffer.allocate(4).putFloat(f).order((ByteOrder.LITTLE_ENDIAN)).array());
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 		field = Device.class.getField("outType");
 		s = field.get(dev).toString();
-		while (s.length() < 5) {
-			s += " ";
+		sb = new StringBuilder();
+		sb.append(s);
+		while (sb.length() < 5) {
+			sb.append((char) 0x00);
 		}
-		byteArrayOutputStream.write(s.getBytes());
+		byteArrayOutputStream.write(sb.toString().getBytes());
 		field = Device.class.getField("kV");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		field = Device.class.getField("kI");
@@ -748,13 +755,13 @@ public class Helper {
 		for (Field field : fields) {
 			if (field.getName().equals("type")) {
 				buf = new byte[5];
-				System.arraycopy(raw, 1, buf, 0, 5);
+				System.arraycopy(raw, 0, buf, 0, 5);
 				field.set(device, new String(buf, StandardCharsets.UTF_8));
 			}
 			if (field.getName().equals("isOTTA")) {
 				buf = new byte[1];
 				boolean isotta;
-				System.arraycopy(raw, 6, buf, 0, 1);
+				System.arraycopy(raw, 5, buf, 0, 1);
 				if (buf[0] > 0) {
 					isotta = true;
 				} else isotta = false;
@@ -764,7 +771,7 @@ public class Helper {
 			if (field.getName().equals("eui")) {
 				buf = new byte[8];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 7, buf, 0, 8);
+				System.arraycopy(raw, 6, buf, 0, 8);
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
@@ -773,7 +780,7 @@ public class Helper {
 			if (field.getName().equals("appeui")) {
 				buf = new byte[8];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 15, buf, 0, 8);
+				System.arraycopy(raw, 14, buf, 0, 8);
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
@@ -782,7 +789,7 @@ public class Helper {
 			if (field.getName().equals("appkey")) {
 				buf = new byte[16];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 23, buf, 0, 16);
+				System.arraycopy(raw, 22, buf, 0, 16);
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
@@ -791,15 +798,15 @@ public class Helper {
 			if (field.getName().equals("nwkid")) {
 				buf = new byte[4];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 39, buf, 0, 4);
+				System.arraycopy(raw, 38, buf, 0, 4);
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
 				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("devadr")) {
-				buf = new byte[8];
-				System.arraycopy(raw, 43, buf, 4, 4);
+				buf = new byte[4];
+				System.arraycopy(raw, 42, buf, 0, 4);
 				stringBuilder = new StringBuilder();
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
@@ -808,7 +815,7 @@ public class Helper {
 			}
 			if (field.getName().equals("nwkskey")) {
 				buf = new byte[16];
-				System.arraycopy(raw, 47, buf, 0, 16);
+				System.arraycopy(raw, 46, buf, 0, 16);
 				stringBuilder = new StringBuilder();
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
@@ -817,7 +824,7 @@ public class Helper {
 			}
 			if (field.getName().equals("appskey")) {
 				buf = new byte[16];
-				System.arraycopy(raw, 63, buf, 0, 16);
+				System.arraycopy(raw, 62, buf, 0, 16);
 				stringBuilder = new StringBuilder();
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
@@ -826,24 +833,30 @@ public class Helper {
 			}
 			if (field.getName().equals("Latitude")) {
 				buf = new byte[4];
-				System.arraycopy(raw, 79, buf, 0, 4);
-				field.set(device, ByteBuffer.wrap(buf).getFloat());
+				System.arraycopy(raw, 78, buf, 0, 4);
+				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 				//order(ByteOrder.LITTLE_ENDIAN)
 			}
 			if (field.getName().equals("Longitude")) {
 				buf = new byte[4];
-				System.arraycopy(raw, 83, buf, 0, 4);
-				field.set(device, ByteBuffer.wrap(buf).getFloat());
+				System.arraycopy(raw, 82, buf, 0, 4);
+				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 			}
-			if (field.getName().equals("outType")) {
+			if (field.getName().equals("outType")) {    //refactor!
 				buf = new byte[5];
-				System.arraycopy(raw, 87, buf, 0, 5);
-				field.set(device, new String(buf, StandardCharsets.UTF_8));
+				System.arraycopy(raw, 86, buf, 0, 5);
+				stringBuilder = new StringBuilder();
+				for (Byte b : buf) {
+					if (b == 0x00) {
+					} else
+						stringBuilder.append(new String(new byte[]{b}, StandardCharsets.UTF_8));
+				}
+				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("kV")) {
 				buf = new byte[28];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 92, buf, 0, 28);
+				System.arraycopy(raw, 91, buf, 0, 28);
 				stringBuilder = new StringBuilder();
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
@@ -853,7 +866,7 @@ public class Helper {
 			if (field.getName().equals("kI")) {
 				buf = new byte[2];
 				stringBuilder = new StringBuilder();
-				System.arraycopy(raw, 120, buf, 0, 2);
+				System.arraycopy(raw, 119, buf, 0, 2);
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
@@ -894,5 +907,26 @@ public class Helper {
 		}
 
 		return count;
+	}
+
+	public static Device generate(String EUI, Location location) {
+		String s;
+		Device newDev = new Device();
+		newDev.type = "LC503";
+		newDev.isOTTA = Boolean.FALSE;
+		newDev.eui = EUI;
+		newDev.appeui = "0000000000000001";
+		newDev.appkey = "2B7E151628AED2A6ABF7158809CF4F3C";
+		newDev.nwkid = "00000000";
+		newDev.devadr = newDev.eui.substring(8);
+		newDev.nwkskey = "2B7E151628AED2A6ABF7158809CF4F3C";
+		newDev.appskey = "2B7E151628AED2A6ABF7158809CF4F3C";
+		newDev.Latitude = location.getLatitude();
+		newDev.Longitude = location.getLongitude();
+		newDev.outType = "PMW";
+		newDev.kV = "EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506";
+		newDev.kI = "991C";
+		return newDev;
+//		newDev.setEui();
 	}
 }

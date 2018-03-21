@@ -118,5 +118,6 @@
         <item>DALI</item>
         <item>0-10V</item>
     </string-array>
+    <string name="pref_JUG_SYSTEMA">74E14A4F</string>
 
 </resources>
