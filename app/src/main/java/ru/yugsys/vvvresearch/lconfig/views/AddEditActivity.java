@@ -2,10 +2,12 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
@@ -18,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
@@ -30,6 +33,8 @@ import ru.yugsys.vvvresearch.lconfig.Services.Helper;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
+import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
@@ -39,9 +44,9 @@ import java.util.HashMap;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
-
 
     private ExpandableLinearLayout expandableLinearLayout;
     private EditText deveuiEdit;
@@ -75,6 +80,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private int cpt;
     private byte[] valueBlocksWrite;
     private int blocksToWrite = 0;
+    private byte[] buffer;
+    private byte[] dataToWrite;
+    private final byte[] block = new byte[4];
+    private Location mLocation;
+    private LocationManager mLocationManager;
+    private boolean flag;
+
 
 
     @Override
@@ -85,11 +97,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("NFC","AddActivity");
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_add_edit);
-
         typeSpinner = findViewById(R.id.lc5_spinner_type);
         out_typeSpinner = findViewById(R.id.lc5_spinner_out_type);
         appEUIEdit = findViewById(R.id.lc5_edit_appEUI);
@@ -146,10 +155,21 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         gpsTracker.OnStartGPS();
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
-        currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
+
+        flag = (boolean) getIntent().getSerializableExtra("generateDevice");
+        if (flag) {
+            String uid = getString(R.string.pref_JUG_SYSTEMA);
+            mLocation = getLastKnownLocation();
+            currentDevice = Helper.generate(uid + "FFFFFFFF", mLocation);
+            currentDevice.Longitude = mLocation.getLongitude();
+            currentDevice.Latitude = mLocation.getLatitude();
+        } else {
+            currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
+        }
         if (currentDevice != null) {
             setDeviceFields(currentDevice);
         }
+
 
 
     }
@@ -161,24 +181,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         String action = intent.getAction();
         if ("android.nfc.action.TECH_DISCOVERED".equals(action)) {
             Tag tagFromIntent = (Tag) intent.getParcelableExtra("android.nfc.extra.TAG");
-            ((App) getApplication()).getModel().getCurrentDev().setCurrentTag(tagFromIntent);
-            currentDev = ((App) getApplication()).getModel().getCurrentDev();
+            currentDev = new DataDevice();
             currentDev.setCurrentTag(tagFromIntent);
+            Toast.makeText(getApplicationContext(), "Tag detected!", Toast.LENGTH_SHORT).show();
             Log.d("NFC", "add new tag");
-
-            currentDevice = fieldToDevice();
-            new StartWriteTask().execute(new Void[0]);
         }
     }
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        mPendingIntent = PendingIntent.getActivity(this, 0,new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
-        Log.d("NFC","readNFC");
-        Log.d("NFC","post readNFC");
 
-    }
 
     @Override
     public void setDeviceFields(Device device) {
@@ -191,7 +200,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         devAdrEdit.setText(device.getDevadr());
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
-        //TODO: change "false" to device field
         isOTAASwitch.setChecked(false);
         gpsEditLongitude.setText(String.valueOf(device.getLongitude()));
         gpsEditLatitude.setText(String.valueOf(device.getLatitude()));
@@ -225,7 +233,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         //default constants of the LC5 firmware in HEX
         device.setKI("991C");
         device.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
-        //TODO: Fill isOTAA device field
+
         device.setIsOTTA(isOTAASwitch.isChecked());
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
@@ -235,47 +243,59 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void onClick(View view) {
-        presenter.fireNewDevice(fieldToDevice());
+        // presenter.fireNewDevice(fieldToDevice()); // вылетает !
         currentDevice = fieldToDevice();
+//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        //imm.hideSoftInputFromWindow(textLoadFileName.getApplicationWindowToken(), 0);
         new StartWriteTask().execute(new Void[0]);
-        finish();
+        // finish();
     }
     //************************************
     //**************************************************************
 
+
     private class StartWriteTask extends AsyncTask<Void, Void, Void> {
-        private final ProgressDialog dialog;
+        private final ProgressDialog dialog = new ProgressDialog(AddEditActivity.this);
 
-        private StartWriteTask() {
-            this.dialog = new ProgressDialog(AddEditActivity.this);
-        }
-
+        // can use UI thread here
         protected void onPreExecute() {
 
-
+            this.dialog.setMessage("Не убирай телефон от устройства!");
+            this.dialog.show();
             valueBlocksWrite = new byte[123];
+            final DataDevice dataDevice = currentDev;
+
             try {
-                byte[] raw = Helper.Object2ByteArray(currentDevice);
-                StringBuilder sb = new StringBuilder();
+                if (currentDev != null) {
 
-                Log.d("write23", sb.toString());
-                systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(currentDev.getCurrentTag(), currentDev);
-                if (Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev) != null) {
-                    addressStart = new byte[]{0x00, 0x00, 0x00, 0x00};
-                    System.arraycopy(raw, 0, valueBlocksWrite, 1, raw.length);
-                    valueBlocksWrite[0] = 1;
-                    CRC16 crc16 = new CRC16();
-                    int res = crc16.CRC16ArrayGet(0, raw) & 0x0000FFFF;
-                    res = Integer.reverseBytes(res);
-                    res >>= 16;
-                    byte[] crc = ByteBuffer.allocate(4).putInt(res).array();
-                    valueBlocksWrite[121] = crc[2];
-                    valueBlocksWrite[122] = crc[3];
+                    systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(dataDevice.getCurrentTag(), dataDevice);
+                    if (DecodeGetSystemInfoResponse(systemInfo)) {
+                        int MemorySizeBytes = (Helper.ConvertStringToInt((dataDevice.getMemorySize().replace(" ", ""))) + 1) * 4;
+                        buffer = new byte[MemorySizeBytes];
+                        byte[] raw = Helper.Object2ByteArray(currentDevice);
+                        System.arraycopy(raw, 0, valueBlocksWrite, 0, raw.length);
+                        //  valueBlocksWrite[0]=0x00;
+                        CRC16 crc16 = new CRC16();
+                        int res = crc16.CRC16ArrayGet(0, raw);
+                        res = Integer.reverseBytes(res);
+                        res >>= 16;
+                        byte[] crc = ByteBuffer.allocate(4).putInt(res).array();
+                        StringBuilder sb = new StringBuilder();
+                        for (Byte b : crc) {
+                            sb.append(String.format("%02x ", b));
+                        }
+                        Log.d("NFCdata", "crc byte: " + sb.toString());
+                        valueBlocksWrite[121] = crc[3];
+                        valueBlocksWrite[122] = crc[2];
+                        sb = new StringBuilder();
+                        for (Byte b : valueBlocksWrite) {
+                            sb.append(String.format("%02x ", b));
+                        }
+                        Log.d("NFCdata", "result byte: " + sb.toString());
 
-                    this.dialog.setMessage("Please, keep your phone close to the tag");
-                    this.dialog.show();
-
+                    }
                 }
+
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -283,116 +303,93 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
             }
+
+
         }
 
+
+        // automatically done on worker thread (separate from UI thread)
+        @Override
         protected Void doInBackground(Void... params) {
             cpt = 0;
             byte[] block = new byte[4];
             DataDevice dataDevice = currentDev;
             WriteSingleBlockAnswer = null;
-            byte[] dataToWrite;
+            StringBuilder sb = new StringBuilder();
+            if (currentDev != null) {
+                if (DecodeGetSystemInfoResponse(systemInfo)) {
+                    if (valueBlocksWrite.length % 4 != 0) {
+                        int l = 4 - valueBlocksWrite.length % 4;
+                        dataToWrite = new byte[valueBlocksWrite.length + l];
+                        System.arraycopy(valueBlocksWrite, 0, dataToWrite, 0, valueBlocksWrite.length);
+                        Arrays.fill(dataToWrite, valueBlocksWrite.length, valueBlocksWrite.length + 1, (byte) 0xFF);
+                        blocksToWrite = dataToWrite.length / 4;
 
-
-            if (DecodeGetSystemInfoResponse(systemInfo)) {
-                if (valueBlocksWrite.length % 4 != 0) {
-                    int l = 4 - valueBlocksWrite.length % 4;
-                    dataToWrite = new byte[valueBlocksWrite.length + l];
-                    System.arraycopy(valueBlocksWrite, 0, dataToWrite, 0, valueBlocksWrite.length);
-                    Arrays.fill(dataToWrite, valueBlocksWrite.length, valueBlocksWrite.length + 1, (byte) 0xFF);
-                    blocksToWrite = dataToWrite.length / 4;
-                } else {
-                    dataToWrite = new byte[valueBlocksWrite.length];
-                    System.arraycopy(valueBlocksWrite, 0, dataToWrite, 0, valueBlocksWrite.length);
-                    blocksToWrite = dataToWrite.length / 4;
-                }
-                for (int iAddressStart = 0; iAddressStart < blocksToWrite; ++iAddressStart) {
-                    addressStart = Helper.ConvertIntTo2bytesHexaFormat(iAddressStart);
-                    WriteSingleBlockAnswer = null;
-                    block[0] = dataToWrite[iAddressStart * 4];
-                    block[1] = dataToWrite[iAddressStart * 4 + 1];
-                    block[2] = dataToWrite[iAddressStart * 4 + 2];
-                    block[3] = dataToWrite[iAddressStart * 4 + 3];
-                    while ((WriteSingleBlockAnswer == null || WriteSingleBlockAnswer[0] == 1) && cpt <= 10) {
-                        WriteSingleBlockAnswer = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), Helper.ConvertIntTo2bytesHexaFormat(1), block, dataDevice);
-                        cpt++;
+                    } else {
+                        dataToWrite = new byte[valueBlocksWrite.length];
+                        System.arraycopy(valueBlocksWrite, 0, dataToWrite, 0, valueBlocksWrite.length);
+                        blocksToWrite = dataToWrite.length / 4;
                     }
+                    sb = new StringBuilder();
+                    for (Byte b : dataToWrite) {
+                        sb.append(String.format("%02x ", b));
+                    }
+                    Log.d("NFCdata", sb.toString());
+                    int ResultWriteAnswer = 0;
+
+                    for (int iAddressStart = 0; iAddressStart < blocksToWrite; iAddressStart++) {
+                        addressStart = Helper.ConvertIntTo2bytesHexaFormat(iAddressStart);
+                        block = new byte[4];
+                        block[0] = dataToWrite[iAddressStart * 4];
+                        block[1] = dataToWrite[iAddressStart * 4 + 1];
+                        block[2] = dataToWrite[iAddressStart * 4 + 2];
+                        block[3] = dataToWrite[iAddressStart * 4 + 3];
+                        cpt = 0;
+                        WriteSingleBlockAnswer = null;
+                        while ((WriteSingleBlockAnswer == null || WriteSingleBlockAnswer[0] == 1) && cpt <= 10) {
+                            WriteSingleBlockAnswer = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
+                            cpt++;
+                        }
+                        if (WriteSingleBlockAnswer[0] != (byte) 0x00) {
+                            ResultWriteAnswer++;
+                            WriteSingleBlockAnswer[0] = (byte) 0xE1;
+                            return null;
+                        }
+                    }
+                    if (ResultWriteAnswer > 0)
+                        WriteSingleBlockAnswer[0] = (byte) 0xFF;
+                    else
+                        WriteSingleBlockAnswer[0] = (byte) 0x00;
                 }
-
-
             }
             return null;
         }
 
-
-//        protected Void doInBackground(Void... params) {
-//            cpt = 0;
-//            DataDevice dataDevice = currentDev;
-//            byte[] dataToWrite;
-//            WriteSingleBlockAnswer = null;
-//            if (DecodeGetSystemInfoResponse(systemInfo)) {
-//                int ResultWriteAnswer = 0;
-//                byte[] block = new byte[4];
-//                if(valueBlocksWrite.length%4!=0){
-//                    int l = 4 - valueBlocksWrite.length%4 ;
-//                    dataToWrite = new byte[valueBlocksWrite.length+l];
-//                    System.arraycopy(valueBlocksWrite,0,dataToWrite,0,valueBlocksWrite.length);
-//                    Arrays.fill(dataToWrite,valueBlocksWrite.length,valueBlocksWrite.length+1,(byte)0xFF);
-//                    blocksToWrite = dataToWrite.length/4;
-//                    for(int iAddressStart = 0; iAddressStart < blocksToWrite; ++iAddressStart) {
-//                        addressStart = Helper.ConvertIntTo2bytesHexaFormat(iAddressStart);
-//                        WriteSingleBlockAnswer = null;
-//                        block[0]=dataToWrite[iAddressStart*4];
-//                        block[1]=dataToWrite[iAddressStart*4+1];
-//                        block[2]=dataToWrite[iAddressStart*4+2];
-//                        block[3]=dataToWrite[iAddressStart*4+3];
-//                        while((WriteSingleBlockAnswer == null || WriteSingleBlockAnswer[0] == 1) && cpt <= 10) {
-//                            WriteSingleBlockAnswer = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
-//                            cpt++;
-//                        }
-//                        if (WriteSingleBlockAnswer[0] != 0) {
-//
-//                            WriteSingleBlockAnswer[0] = -31;
-//                            return null;
-//                        }
-//                    }
-//                    if (ResultWriteAnswer > 0) {
-//                    WriteSingleBlockAnswer[0] = -1;
-//                    } else {
-//                    WriteSingleBlockAnswer[0] = 0;
-//                    }
-//                }
-////                if (ResultWriteAnswer > 0) {
-////                    WriteSingleBlockAnswer[0] = -1;
-////                } else {
-////                    WriteSingleBlockAnswer[0] = 0;
-////                }
-//            }
-//
-//
-//
-//            return null;
-//        }
-
-
-        protected void onPostExecute(Void unused) {
-            if (this.dialog.isShowing()) {
+        // can use UI thread here
+        protected void onPostExecute(final Void unused) {
+            if (this.dialog.isShowing())
                 this.dialog.dismiss();
+
+
+            if (WriteSingleBlockAnswer == null) {
+                Toast.makeText(getApplicationContext(), "ERROR File Transfer (No tag answer) ", Toast.LENGTH_SHORT).show();
+            } else if (WriteSingleBlockAnswer[0] == (byte) 0x01) {
+                Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
+            } else if (WriteSingleBlockAnswer[0] == (byte) 0xFF) {
+                Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
+            } else if (WriteSingleBlockAnswer[0] == (byte) 0xE1) {
+                Toast.makeText(getApplicationContext(), "ERROR File Transfer process stopped", Toast.LENGTH_SHORT).show();
+            } else if (WriteSingleBlockAnswer[0] == (byte) 0x00) {
+                Toast.makeText(getApplicationContext(), "Write Sucessfull ", Toast.LENGTH_SHORT).show();
+                //finish();
+            } else {
+                Toast.makeText(getApplicationContext(), "File Transfer ERROR ", Toast.LENGTH_SHORT).show();
             }
-            Log.d("NFC", "succses");
-//            if (WriteSingleBlockAnswer[0] == 1) {
-//                Log.d("NFC",  "ERROR File Transfer ");
-//            } else if (WriteSingleBlockAnswer[0] == -1) {
-//                Log.d("NFC",   "ERROR File Transfer ");
-//            } else if (WriteSingleBlockAnswer[0] == -31) {
-//                Log.d("NFC",   "ERROR File Transfer process stopped");
-//            } else if (WriteSingleBlockAnswer[0] == 0) {
-//                Log.d("NFC",  "Write Sucessfull ");
-//            } else {
-//                Log.d("NFC",   "File Transfer ERROR ");
-//            }
+
 
         }
     }
+
 
     public boolean DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse) {
         DataDevice ma = currentDev;
@@ -595,5 +592,21 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         } else {
             return false;
         }
+    }
+
+    private Location getLastKnownLocation() {
+        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getProviders(true);
+        Location myLocation = null;
+        for (String provider : providers) {
+            Location l = mLocationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (myLocation == null || l.getAccuracy() < myLocation.getAccuracy()) {
+                myLocation = l;
+            }
+        }
+        return myLocation;
     }
 }
