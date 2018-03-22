@@ -24,5 +24,9 @@ public interface ModelListener {
         void OnCheckedDevData(boolean check);
     }
 
+    interface OnDeviceDeleted {
+        void OnDeviceDeleted(boolean flag);
+    }
+
 
 }
