@@ -12,6 +12,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
@@ -93,11 +94,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.mAdapter.enableForegroundDispatch(this, this.mPendingIntent, this.mFilters, this.mTechLists);
-    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("NFC","AddActivity");
@@ -105,7 +102,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         setContentView(R.layout.activity_add_edit);
         Toolbar toolbar = findViewById(R.id.toolbar_add_edit);
         setSupportActionBar(toolbar);
-
+        FloatingActionButton fab = findViewById(R.id.fab_nfc);
+        fab.setOnClickListener(this);
         typeSpinner = findViewById(R.id.lc5_spinner_type);
         out_typeSpinner = findViewById(R.id.lc5_spinner_out_type);
         appEUIEdit = findViewById(R.id.lc5_edit_appEUI);
@@ -118,8 +116,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         gpsEditLongitude = findViewById(R.id.lc5_edit_gps_longitude);
         gpsEditLatitude = findViewById(R.id.lc5_edit_gps_latitude);
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
-        addEditButton = findViewById(R.id.action_add_edit);
-        addEditButton.setOnClickListener(this);
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
         expandableLinearLayout = findViewById(R.id.expandableLayoutAddEdit);
@@ -649,9 +645,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_add_edit) {
-            return true;
-        }
+
         return super.onOptionsItemSelected(item);
     }
     private Location getLastKnownLocation() {

@@ -17,10 +17,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
+                android:gravity="start|center_vertical"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </android.support.design.widget.AppBarLayout>
     <include layout="@layout/content_add_edit"/>
-
+    <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_nfc"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/ic_nfc_white_48dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
