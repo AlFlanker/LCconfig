@@ -98,6 +98,7 @@ public class EventManager {
     }
 
 
+
     public void notifyOnGPS(Location location) {
 
         for (Object listener : listeners.get(TypeEvent.OnGPSdata)) {

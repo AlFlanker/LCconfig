@@ -205,42 +205,41 @@ public class Helper {
 	 //***********************************************************************/
 	public static String ConvertHexByteToString (byte byteToConvert)
 	 {
-         String ConvertedByte;
+		 StringBuilder ConvertedByte = new StringBuilder();
 		 if (byteToConvert < 0) {
-             ConvertedByte = Integer.toString(byteToConvert + 256, 16)
-					+ " ";
+			 ConvertedByte.append(Integer.toString(byteToConvert + 256, 16)).append(" ");
+
 		} else if (byteToConvert <= 15) {
-             ConvertedByte = "0" + Integer.toString(byteToConvert, 16)
-					+ " ";
+			 ConvertedByte.append("0").append(Integer.toString(byteToConvert, 16)).append(" ");
+
 		} else {
-             ConvertedByte = Integer.toString(byteToConvert, 16) + " ";
-		}		
-		 
-		 return ConvertedByte;
+			 ConvertedByte.append(Integer.toString(byteToConvert, 16)).append(" ");
+		}
+
+		 return ConvertedByte.toString();
 	 }
 	
 	
 	//***********************************************************************/
 	 //* the function Convert byte Array to a "String" Formated with spaces
 	 //* Example : ConvertHexByteArrayToString { 0X0F ; 0X43 } -> returns "0F 43"
+	//* Refactor Alex Flanker
 	 //***********************************************************************/
 	public static String ConvertHexByteArrayToString (byte[] byteArrayToConvert)
 	 {
-		 String ConvertedByte = "";
+		 StringBuilder ConvertedByte = new StringBuilder();
 		 for(int i=0;i<byteArrayToConvert.length;i++)
 		 {
 			 if (byteArrayToConvert[i] < 0) {
-				 ConvertedByte += Integer.toString(byteArrayToConvert[i] + 256, 16)
-						+ " ";
+				 ConvertedByte.append(Integer.toString(byteArrayToConvert[i] + 256, 16));
 			} else if (byteArrayToConvert[i] <= 15) {
-				ConvertedByte += "0" + Integer.toString(byteArrayToConvert[i], 16)
-						+ " ";
+				 ConvertedByte.append("0").append(Integer.toString(byteArrayToConvert[i], 16));
 			} else {
-				ConvertedByte += Integer.toString(byteArrayToConvert[i], 16) + " ";
+				 ConvertedByte.append(Integer.toString(byteArrayToConvert[i], 16));
 			}		
 		 }
 
-		 return ConvertedByte;
+		 return ConvertedByte.toString();
 	 }
 	
 	//***********************************************************************/
@@ -434,16 +433,23 @@ public class Helper {
 
 	public static DataDevice DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse, DataDevice dataDevice) {
 		DataDevice ma = dataDevice;
+		StringBuilder sb = new StringBuilder();
 		//if the tag has returned a good response
 		if (GetSystemInfoResponse[0] == (byte) 0x00 && GetSystemInfoResponse.length >= 12) {
 			//DataDevice ma = (DataDevice)getApplication();
+			for (Byte b : GetSystemInfoResponse) {
+				sb.append(String.format("0x%02x; ", b));
+			}
 			String uidToString = "";
+			sb = new StringBuilder();
 			byte[] uid = new byte[8];
 			// change uid format from byteArray to a String
 			for (int i = 1; i <= 8; i++) {
 				uid[i - 1] = GetSystemInfoResponse[10 - i];
-				uidToString += Helper.ConvertHexByteToString(uid[i - 1]);
+				sb.append(Helper.ConvertHexByteToString(uid[i - 1]));
 			}
+			uidToString = sb.toString();
+			sb = new StringBuilder();
 
 			//***** TECHNO ******
 			ma.setUid(uidToString);
@@ -590,10 +596,10 @@ public class Helper {
 
 				//*** MEMORY SIZE ***
 				if (ma.isBasedOnTwoBytesAddress()) {
-					String temp = new String();
-					temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
-					temp += Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
-					ma.setMemorySize(temp);
+					sb = new StringBuilder();
+					sb.append(Helper.ConvertHexByteToString(GetSystemInfoResponse[13])).
+							append(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+					ma.setMemorySize(sb.toString());
 				} else
 					ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
 
@@ -613,30 +619,22 @@ public class Helper {
 				ma.setBasedOnTwoBytesAddress(false);
 				ma.setMultipleReadSupported(false);
 				ma.setMemoryExceed2048bytesSize(false);
-				//ma.setAfi("00 ");
-				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));                //changed 22-10-2014
-				//ma.setDsfid("00 ");
-				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));                //changed 22-10-2014
-				//ma.setMemorySize("FF ");
-				ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));        //changed 22-10-2014
-				//ma.setBlockSize("03 ");
-				ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));            //changed 22-10-2014
-				//ma.setIcReference("00 ");
-				ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));        //changed 22-10-2014
+				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
+				ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+				ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+				ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
 			}
 
 			return ma;
-		}
-
-		// in case of Inventory OK and Get System Info HS
-		else if (ma.getTechno() == "ISO 15693") {
+		} else if (ma.getTechno().equals("ISO 15693")) {
 			ma.setProductName("Unknown product");
 			ma.setBasedOnTwoBytesAddress(false);
 			ma.setMultipleReadSupported(false);
 			ma.setMemoryExceed2048bytesSize(false);
 			ma.setAfi("00 ");
 			ma.setDsfid("00 ");
-			ma.setMemorySize("3F ");                //changed 22-10-2014
+			ma.setMemorySize("3F ");
 			ma.setBlockSize("03 ");
 			ma.setIcReference("00 ");
 			return ma;
@@ -910,15 +908,18 @@ public class Helper {
 	}
 
 	public static Device generate(String EUI, Location location) {
-		String s;
+		String mEUI;
+		mEUI = EUI.replace(" ", "");
+		mEUI = mEUI.substring(8);
 		Device newDev = new Device();
 		newDev.type = "LC503";
 		newDev.isOTTA = Boolean.FALSE;
-		newDev.eui = EUI;
+		newDev.eui = EUI.replace(" ", "");
+		newDev.eui = EUI.trim();
 		newDev.appeui = "0000000000000001";
 		newDev.appkey = "2B7E151628AED2A6ABF7158809CF4F3C";
 		newDev.nwkid = "00000000";
-		newDev.devadr = newDev.eui.substring(8);
+		newDev.devadr = mEUI;
 		newDev.nwkskey = "2B7E151628AED2A6ABF7158809CF4F3C";
 		newDev.appskey = "2B7E151628AED2A6ABF7158809CF4F3C";
 		newDev.Latitude = location.getLatitude();

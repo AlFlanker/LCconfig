@@ -6,11 +6,21 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
+import java.util.Collections;
+
 
 public interface Model {
-    DataDevice getCurrentDev();
+    enum Properties {
+        Id, Type, isOTTA, EUI, APPEUI, APPKEY, NWKID, DEVADR, NWKSKEY, APPSKEY, OUTTYPE
+    }
 
-    void setCurrentDev(DataDevice dev);
+    enum Direction {
+        Reverse, Straight
+    }
+
+
+
+
 
     void setCurrentDevice(Device dev);
 
@@ -22,9 +32,6 @@ public interface Model {
 
     void saveDevice(Device t);
 
-    void readNfcDev();
-
-    void setCurrentDataDevice(DataDevice d);
 
     void writeAuthData(String login, String password, String server);
 
@@ -33,6 +40,10 @@ public interface Model {
     void getGPSLocation();
 
     EventManager getEventManager();
+
+    void DeleteDevice(long id);
+
+    void loadAllDeviceDataByProperties(Properties property, Direction direction);
     //void stopGPS();
 
 
