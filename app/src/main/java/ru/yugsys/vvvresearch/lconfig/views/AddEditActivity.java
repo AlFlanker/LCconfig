@@ -9,13 +9,13 @@ import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
@@ -31,8 +31,6 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
-
-import java.util.HashMap;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -79,6 +77,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_add_edit);
+        Toolbar toolbar = findViewById(R.id.toolbar_add_edit);
+        setSupportActionBar(toolbar);
 
         typeSpinner = findViewById(R.id.lc5_spinner_type);
         out_typeSpinner = findViewById(R.id.lc5_spinner_out_type);
@@ -308,4 +308,18 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_add_edit, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_add_edit) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
