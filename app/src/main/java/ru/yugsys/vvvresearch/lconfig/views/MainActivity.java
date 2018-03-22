@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             Log.d("fileds", sb.toString());
 
             Intent addActivity = new Intent(this, AddEditActivity.class);
-            addActivity.putExtra("generateDevice", Boolean.FALSE);
+            addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
             currentDataDevice = null;
             startActivity(addActivity);
         }
