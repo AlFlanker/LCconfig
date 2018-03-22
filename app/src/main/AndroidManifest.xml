@@ -46,9 +46,12 @@
         </activity>
         <activity
                 android:name=".views.LoginActivity"
-                android:label="@string/title_activity_login">
+                android:label="@string/title_activity_login"
+                android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".views.AddEditActivity">
+        <activity android:name=".views.AddEditActivity"
+                  android:label="@string/title_activity_add_edit"
+                  android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
 
