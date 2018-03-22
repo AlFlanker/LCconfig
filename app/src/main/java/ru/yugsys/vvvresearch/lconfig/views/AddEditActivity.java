@@ -163,7 +163,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
 
-        flag = (boolean) getIntent().getSerializableExtra("generateDevice");
+        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE,true);
         if (flag) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             mLocation = getLastKnownLocation();
@@ -282,9 +282,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void onClick(View view) {
-        // presenter.fireNewDevice(fieldToDevice()); // вылетает !
+//        presenter.fireNewDevice(fieldToDevice()); // вылетает !
         currentDevice = fieldToDevice();
-        new StartWriteTask().execute(new Void[0]);
+        new StartWriteTask().execute();
 
 
     }
@@ -427,7 +427,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 Toast.makeText(getApplicationContext(), "ERROR File Transfer process stopped", Toast.LENGTH_SHORT).show();
             } else if (WriteSingleBlockAnswer[0] == (byte) 0x00) {
                 Toast.makeText(getApplicationContext(), "Write Sucessfull ", Toast.LENGTH_SHORT).show();
-                //finish();
+                presenter.fireNewDevice(fieldToDevice());
             } else {
                 Toast.makeText(getApplicationContext(), "File Transfer ERROR ", Toast.LENGTH_SHORT).show();
             }
