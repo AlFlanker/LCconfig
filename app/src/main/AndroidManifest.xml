@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- NFC -->
     <uses-permission android:name="android.permission.NFC"/>
+    <!--Vibrate-->
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
 
     <uses-feature
