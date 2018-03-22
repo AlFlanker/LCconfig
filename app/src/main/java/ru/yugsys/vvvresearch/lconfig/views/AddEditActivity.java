@@ -158,9 +158,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
         flag = (boolean) getIntent().getSerializableExtra("generateDevice");
         if (flag) {
-            String uid = getString(R.string.pref_JUG_SYSTEMA);
+            String jperf = getString(R.string.pref_JUG_SYSTEMA);
             mLocation = getLastKnownLocation();
-            currentDevice = Helper.generate(uid + "FFFFFFFF", mLocation);
+            currentDevice = Helper.generate(jperf + "00000000", mLocation);
             currentDevice.Longitude = mLocation.getLongitude();
             currentDevice.Latitude = mLocation.getLatitude();
         } else {
@@ -183,8 +183,28 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Tag tagFromIntent = (Tag) intent.getParcelableExtra("android.nfc.extra.TAG");
             currentDev = new DataDevice();
             currentDev.setCurrentTag(tagFromIntent);
+            systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
+            //  currentDev = Helper.DecodeGetSystemInfoResponse(systemInfo,currentDev);
+
             Toast.makeText(getApplicationContext(), "Tag detected!", Toast.LENGTH_SHORT).show();
             Log.d("NFC", "add new tag");
+            if (flag) {
+                currentDevice = fieldToDevice();
+                String jpref = getString(R.string.pref_JUG_SYSTEMA);
+                String muid = currentDev.getUid().replace(" ", "");
+                muid = muid.substring(8);
+                byte[] b = Helper.hexToBytes(muid);
+
+                for (int i = 0; i < b.length / 2; i++) {
+                    byte temp = b[i];
+                    b[i] = b[b.length - i - 1];
+                    b[b.length - i - 1] = temp;
+                }
+                muid = Helper.ConvertHexByteArrayToString(b);
+                currentDevice.setDevadr(muid);
+                currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString());
+                setDeviceFields(currentDevice);
+            }
         }
     }
 
@@ -245,10 +265,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public void onClick(View view) {
         // presenter.fireNewDevice(fieldToDevice()); // вылетает !
         currentDevice = fieldToDevice();
-//        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        //imm.hideSoftInputFromWindow(textLoadFileName.getApplicationWindowToken(), 0);
         new StartWriteTask().execute(new Void[0]);
-        // finish();
+
+
     }
     //************************************
     //**************************************************************
@@ -264,6 +283,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             this.dialog.show();
             valueBlocksWrite = new byte[123];
             final DataDevice dataDevice = currentDev;
+
 
             try {
                 if (currentDev != null) {
@@ -386,7 +406,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 Toast.makeText(getApplicationContext(), "File Transfer ERROR ", Toast.LENGTH_SHORT).show();
             }
 
-
+            finish();
         }
     }
 

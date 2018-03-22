@@ -302,9 +302,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 sb.append(String.format("0x%02x", a) + "; ");
             }
             Log.d("fileds", sb.toString());
-            currentDataDevice = null;
+
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra("generateDevice", Boolean.FALSE);
+            currentDataDevice = null;
             startActivity(addActivity);
         }
     }
