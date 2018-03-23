@@ -10,7 +10,7 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
 
     private Model model;
     private AddEditViewable addEditView;
-    private Location location;
+
 
     public AddEditPresenter(Model model) {
         this.model = model;
@@ -48,7 +48,6 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
 
     @Override
     public void OnGPSdata(Location location) {
-        this.location = location;
         if (location != null) {
             addEditView.setLocationFields(location);
         }
