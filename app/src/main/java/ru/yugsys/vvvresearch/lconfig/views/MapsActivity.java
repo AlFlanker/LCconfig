@@ -14,6 +14,8 @@ import ru.yugsys.vvvresearch.lconfig.R;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    public static final String LOGITUDE = "LOGITUDE";
+    public static final String LATITUDE = "LATITUDE";
     private GoogleMap mMap;
     private double longitude;
     private double latitude;
@@ -38,8 +40,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPostResume() {
         super.onPostResume();
         Intent intent = getIntent();
-        longitude = intent.getDoubleExtra(MainContentAdapter.LOGITUDE,45.0);
-        latitude = intent.getDoubleExtra(MainContentAdapter.LATITUDE,45.0);
+        longitude = intent.getDoubleExtra(LOGITUDE,45.0);
+        latitude = intent.getDoubleExtra(LATITUDE,45.0);
     }
 
     /**

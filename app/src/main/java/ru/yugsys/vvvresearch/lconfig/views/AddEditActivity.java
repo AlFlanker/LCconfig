@@ -93,15 +93,21 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private boolean flag;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("NFC","AddActivity");
+        Log.d("NFC", "AddActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
         Toolbar toolbar = findViewById(R.id.toolbar_add_edit);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();//
+            }
+        });
         FloatingActionButton fab = findViewById(R.id.fab_nfc);
         fab.setOnClickListener(this);
         typeSpinner = findViewById(R.id.lc5_spinner_type);
@@ -159,7 +165,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
 
-        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE,true);
+        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
         if (flag) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             mLocation = getLastKnownLocation();
@@ -178,7 +184,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("NFC","newintent");
+        Log.d("NFC", "newintent");
         super.onNewIntent(intent);
         String action = intent.getAction();
         if ("android.nfc.action.TECH_DISCOVERED".equals(action)) {
@@ -645,9 +651,17 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
+        switch (id) {
+            case R.id.action_gps:{
+                Intent intent = new Intent(this,MapsActivity.class);
+                intent.putExtra(MapsActivity.LATITUDE,Double.parseDouble(gpsEditLatitude.getText().toString()));
+                intent.putExtra(MapsActivity.LOGITUDE,Double.parseDouble(gpsEditLongitude.getText().toString()));
+                startActivity(intent);
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
+
     private Location getLastKnownLocation() {
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         List<String> providers = mLocationManager.getProviders(true);

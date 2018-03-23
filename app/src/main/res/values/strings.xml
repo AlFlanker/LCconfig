@@ -124,5 +124,7 @@
         <item>0-10V</item>
     </string-array>
     <string name="title_activity_maps">Map</string>
+    <string name="pref_JUG_SYSTEMA">74E14A4F</string>
+    <string name="action_gps">GPS</string>
 
 </resources>

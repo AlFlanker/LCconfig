@@ -225,6 +225,6 @@ public class DataModel implements Model, GPScallback<Location> {
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
         Log.d("GPS", "In Model: " + mCurrentLocation.toString());
-        eventManager.notifyOnGPS(mCurrentLocation);
+        //eventManager.notifyOnGPS(mCurrentLocation);
     }
 }

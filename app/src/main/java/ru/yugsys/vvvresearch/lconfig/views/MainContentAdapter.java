@@ -20,8 +20,6 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import java.util.List;
 
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
-    public static final String LOGITUDE = "LOGITUDE";
-    public static final String LATITUDE = "LATITUDE";
     List<Device> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
 
@@ -88,8 +86,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, MapsActivity.class);
-                intent.putExtra(LOGITUDE,devices.get(finalPosition).getLongitude());
-                intent.putExtra(LATITUDE,devices.get(finalPosition).getLatitude());
+                intent.putExtra(MapsActivity.LOGITUDE,devices.get(finalPosition).getLongitude());
+                intent.putExtra(MapsActivity.LATITUDE,devices.get(finalPosition).getLatitude());
                 context.startActivity(intent);
 
             }
