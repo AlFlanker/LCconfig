@@ -10,6 +10,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.*;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -52,7 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
-
+    private Vibrator vibrator;
     private ExpandableLinearLayout expandableLinearLayout;
     private EditText deveuiEdit;
     private EditText appEUIEdit;
@@ -67,6 +70,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private Spinner typeSpinner;
     private Button addEditButton;
     private AddEditPresentable presenter;
+    private CoordinatorLayout coordLayout;
 
     // new  fields
     private NfcAdapter mAdapter;
@@ -91,11 +95,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private Location mLocation;
     private LocationManager mLocationManager;
     private boolean flag;
+    private boolean readyToWrite = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("NFC", "AddActivity");
+        Log.d("NFC","AddActivity");
+        readyToWrite = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
         Toolbar toolbar = findViewById(R.id.toolbar_add_edit);
@@ -164,8 +170,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         gpsTracker.OnStartGPS();
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
-
-        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE,true);
         if (flag) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             mLocation = getLastKnownLocation();
@@ -212,7 +218,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 currentDevice.setDevadr(muid);
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString());
                 setDeviceFields(currentDevice);
+                flag = false;
             }
+            if (readyToWrite) {
+                currentDevice = fieldToDevice();
+                new StartWriteTask().execute();
+                readyToWrite = false;
+            }
+
         }
 
     }
@@ -285,9 +298,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void onClick(View view) {
-//        presenter.fireNewDevice(fieldToDevice()); // вылетает !
         currentDevice = fieldToDevice();
-        new StartWriteTask().execute();
+        readyToWrite = true;
+        Toast.makeText(getApplicationContext(), "поднеси к устройству!", Toast.LENGTH_SHORT).show();
 
 
     }
@@ -317,7 +330,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 if (currentDev != null) {
 
                     systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(dataDevice.getCurrentTag(), dataDevice);
-                    if (DecodeGetSystemInfoResponse(systemInfo)) {
+                    if ((Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
                         int MemorySizeBytes = (Helper.ConvertStringToInt((dataDevice.getMemorySize().replace(" ", ""))) + 1) * 4;
                         buffer = new byte[MemorySizeBytes];
                         byte[] raw = Helper.Object2ByteArray(currentDevice);
@@ -360,13 +373,15 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         @Override
         protected Void doInBackground(Void... params) {
             cpt = 0;
-            byte[] block = new byte[4];
+            Log.d("NFCdata", "doInBackground 1");
+            byte[] block;
             DataDevice dataDevice = currentDev;
             WriteSingleBlockAnswer = null;
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb;
             if (currentDev != null) {
-                if (DecodeGetSystemInfoResponse(systemInfo)) {
+                if ((Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
                     if (valueBlocksWrite.length % 4 != 0) {
+                        Log.d("NFCdata", "doInBackground init param");
                         int l = 4 - valueBlocksWrite.length % 4;
                         dataToWrite = new byte[valueBlocksWrite.length + l];
                         System.arraycopy(valueBlocksWrite, 0, dataToWrite, 0, valueBlocksWrite.length);
@@ -394,6 +409,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         block[3] = dataToWrite[iAddressStart * 4 + 3];
                         cpt = 0;
                         WriteSingleBlockAnswer = null;
+                        Log.d("NFCdata", "doInBackground pre write");
                         while ((WriteSingleBlockAnswer == null || WriteSingleBlockAnswer[0] == 1) && cpt <= 10) {
                             WriteSingleBlockAnswer = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
                             cpt++;
@@ -409,6 +425,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     else
                         WriteSingleBlockAnswer[0] = (byte) 0x00;
                 }
+                Log.d("NFCdata", "doInBackground post");
             }
 
             return null;
@@ -418,228 +435,46 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         protected void onPostExecute(final Void unused) {
             if (this.dialog.isShowing())
                 this.dialog.dismiss();
-
-
+            Log.d("NFCdata", "onPostExecute post dialog");
             if (WriteSingleBlockAnswer == null) {
+                Log.d("NFCdata", "onPostExecute post dialog in if");
+                Log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer (No tag answer)");
                 Toast.makeText(getApplicationContext(), "ERROR File Transfer (No tag answer) ", Toast.LENGTH_SHORT).show();
             } else if (WriteSingleBlockAnswer[0] == (byte) 0x01) {
+
+                Log.d("NFCdata", "onPostExecute post dialog \n RROR File Transfer 1");
                 Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
             } else if (WriteSingleBlockAnswer[0] == (byte) 0xFF) {
+
+                Log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer 2 ");
                 Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
             } else if (WriteSingleBlockAnswer[0] == (byte) 0xE1) {
+
+                Log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer process stopped ");
                 Toast.makeText(getApplicationContext(), "ERROR File Transfer process stopped", Toast.LENGTH_SHORT).show();
             } else if (WriteSingleBlockAnswer[0] == (byte) 0x00) {
+                Log.d("NFCdata", "onPostExecute post dialog \n EWrite Sucessfull");
                 Toast.makeText(getApplicationContext(), "Write Sucessfull ", Toast.LENGTH_SHORT).show();
                 presenter.fireNewDevice(fieldToDevice());
+                Log.d("NFCdata", "onPostExecute post dialog \n field to device");
+                readyToWrite = false;
+                if (Build.VERSION.SDK_INT == 26) {
+                    Log.d("NFCdata", "onPostExecute post dialog \n vibr api 26");
+                    vibrator.vibrate(VibrationEffect.createOneShot(2000, 100));
+                } else if (Build.VERSION.SDK_INT < 26) {
+                    Log.d("NFCdata", "onPostExecute post dialog \n vibr api <26");
+                    vibrator.vibrate(2000);
+                }
+                Log.d("NFCdata", "onPostExecute post dialog \n finish()");
+                finish();
+
+
             } else {
+                Log.d("NFCdata", "onPostExecute post dialog \n File Transfer ERROR end TASK!");
                 Toast.makeText(getApplicationContext(), "File Transfer ERROR ", Toast.LENGTH_SHORT).show();
             }
 
-            finish();
-        }
-    }
 
-
-    public boolean DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse) {
-        DataDevice ma = currentDev;
-        if (GetSystemInfoResponse[0] == 0 && GetSystemInfoResponse.length >= 12) {
-            String uidToString = "";
-            byte[] uid = new byte[8];
-
-            for (int i = 1; i <= 8; ++i) {
-                uid[i - 1] = GetSystemInfoResponse[10 - i];
-                uidToString = uidToString + Helper.ConvertHexByteToString(uid[i - 1]);
-            }
-
-            ma.setUid(uidToString);
-            if (uid[0] == -32) {
-                ma.setTechno("ISO 15693");
-            } else if (uid[0] == -48) {
-                ma.setTechno("ISO 14443");
-            } else {
-                ma.setTechno("Unknown techno");
-            }
-
-            if (uid[1] == 2) {
-                ma.setManufacturer("STMicroelectronics");
-            } else if (uid[1] == 4) {
-                ma.setManufacturer("NXP");
-            } else if (uid[1] == 7) {
-                ma.setManufacturer("Texas Instruments");
-            } else if (uid[1] == 1) {
-                ma.setManufacturer("Motorola");
-            } else if (uid[1] == 3) {
-                ma.setManufacturer("Hitachi");
-            } else if (uid[1] == 4) {
-                ma.setManufacturer("NXP");
-            } else if (uid[1] == 5) {
-                ma.setManufacturer("Infineon");
-            } else if (uid[1] == 6) {
-                ma.setManufacturer("Cylinc");
-            } else if (uid[1] == 7) {
-                ma.setManufacturer("Texas Instruments");
-            } else if (uid[1] == 8) {
-                ma.setManufacturer("Fujitsu");
-            } else if (uid[1] == 9) {
-                ma.setManufacturer("Matsushita");
-            } else if (uid[1] == 10) {
-                ma.setManufacturer("NEC");
-            } else if (uid[1] == 11) {
-                ma.setManufacturer("Oki");
-            } else if (uid[1] == 12) {
-                ma.setManufacturer("Toshiba");
-            } else if (uid[1] == 13) {
-                ma.setManufacturer("Mitsubishi");
-            } else if (uid[1] == 14) {
-                ma.setManufacturer("Samsung");
-            } else if (uid[1] == 15) {
-                ma.setManufacturer("Hyundai");
-            } else if (uid[1] == 16) {
-                ma.setManufacturer("LG");
-            } else {
-                ma.setManufacturer("Unknown manufacturer");
-            }
-
-            if (uid[1] == 2) {
-                if (uid[2] >= 4 && uid[2] <= 7) {
-                    ma.setProductName("LRI512");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 20 && uid[2] <= 23) {
-                    ma.setProductName("LRI64");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 32 && uid[2] <= 35) {
-                    ma.setProductName("LRI2K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 40 && uid[2] <= 43) {
-                    ma.setProductName("LRIS2K");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 44 && uid[2] <= 47) {
-                    ma.setProductName("M24LR64");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 64 && uid[2] <= 67) {
-                    ma.setProductName("LRI1K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 68 && uid[2] <= 71) {
-                    ma.setProductName("LRIS64K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 72 && uid[2] <= 75) {
-                    ma.setProductName("M24LR01E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 76 && uid[2] <= 79) {
-                    ma.setProductName("M24LR16E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 80 && uid[2] <= 83) {
-                    ma.setProductName("M24LR02E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 84 && uid[2] <= 87) {
-                    ma.setProductName("M24LR32E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 88 && uid[2] <= 91) {
-                    ma.setProductName("M24LR04E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 92 && uid[2] <= 95) {
-                    ma.setProductName("M24LR64E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 96 && uid[2] <= 99) {
-                    ma.setProductName("M24LR08E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 100 && uid[2] <= 103) {
-                    ma.setProductName("M24LR128E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 108 && uid[2] <= 111) {
-                    ma.setProductName("M24LR256E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= -8 && uid[2] <= -5) {
-                    ma.setProductName("detected product");
-                    ma.setBasedOnTwoBytesAddress(true);
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else {
-                    ma.setProductName("Unknown product");
-                    ma.setBasedOnTwoBytesAddress(false);
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                }
-
-                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    String temp = new String();
-                    temp = temp + Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
-                    temp = temp + Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
-                    ma.setMemorySize(temp);
-                } else {
-                    ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-                }
-
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
-                } else {
-                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-                }
-
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
-                } else {
-                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
-                }
-            } else {
-                ma.setProductName("Unknown product");
-                ma.setBasedOnTwoBytesAddress(false);
-                ma.setMultipleReadSupported(false);
-                ma.setMemoryExceed2048bytesSize(false);
-                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-                ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-                ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
-            }
-
-            return true;
-        } else if (ma.getTechno() == "ISO 15693") {
-            ma.setProductName("Unknown product");
-            ma.setBasedOnTwoBytesAddress(false);
-            ma.setMultipleReadSupported(false);
-            ma.setMemoryExceed2048bytesSize(false);
-            ma.setAfi("00 ");
-            ma.setDsfid("00 ");
-            ma.setMemorySize("3F ");
-            ma.setBlockSize("03 ");
-            ma.setIcReference("00 ");
-            return true;
-        } else {
-            return false;
         }
     }
 
