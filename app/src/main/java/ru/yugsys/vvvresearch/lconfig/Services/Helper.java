@@ -922,8 +922,15 @@ public class Helper {
 		newDev.devadr = mEUI;
 		newDev.nwkskey = "2B7E151628AED2A6ABF7158809CF4F3C";
 		newDev.appskey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		newDev.Latitude = location.getLatitude();
-		newDev.Longitude = location.getLongitude();
+		if (location != null) {
+			newDev.Latitude = location.getLatitude();
+			newDev.Longitude = location.getLongitude();
+		}
+		else
+		{
+			newDev.Latitude = 45.071069;
+			newDev.Longitude = 38.997627;
+		}
 		newDev.outType = "PMW";
 		newDev.kV = "EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506";
 		newDev.kI = "991C";

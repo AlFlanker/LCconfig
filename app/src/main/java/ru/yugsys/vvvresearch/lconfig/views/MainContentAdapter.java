@@ -46,15 +46,16 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         final int finalPosition = holder.getAdapterPosition();
         holder.typeOfLC5.setText(devices.get(finalPosition).type);
         holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
-        holder.devEUI.setText(String.format("%s: %s", context.getText(R.string.prompt_devEUI), devices.get(finalPosition).getEui()));
-        holder.appEUI.setText(String.format("%s: %s", context.getText(R.string.prompt_appEUI), devices.get(finalPosition).appeui));
-        holder.appKey.setText(String.format("%s: %s", context.getText(R.string.prompt_appKey), devices.get(finalPosition).appkey));
-        holder.nwkID.setText(String.format("%s: %s", context.getText(R.string.prompt_nwkID), devices.get(finalPosition).nwkid));
-        holder.devAdr.setText(String.format("%s: %s", context.getText(R.string.prompt_devAdr), devices.get(finalPosition).devadr));
-        holder.nwkSKey.setText(String.format("%s: %s", context.getText(R.string.prompt_nwkSKey), devices.get(finalPosition).nwkskey));
-        holder.appSKey.setText(String.format("%s: %s", context.getText(R.string.prompt_appSKey), devices.get(finalPosition).appskey));
-        holder.gps.setText(Double.toString(devices.get(finalPosition).Longitude) + "\u00B0, " +
-                Double.toString(devices.get(finalPosition).Latitude) + "\u00B0");
+        holder.devEUI.setText(devices.get(finalPosition).getEui());
+        holder.appEUI.setText(devices.get(finalPosition).appeui);
+        holder.appKey.setText(devices.get(finalPosition).appkey);
+        holder.nwkID.setText(devices.get(finalPosition).nwkid);
+        holder.devAdr.setText( devices.get(finalPosition).devadr);
+        holder.nwkSKey.setText(devices.get(finalPosition).nwkskey);
+        holder.appSKey.setText(devices.get(finalPosition).appskey);
+        holder.gps.setText(String.format("%.6f°, %.6f°",
+                devices.get(finalPosition).Longitude,
+                devices.get(finalPosition).Latitude));
         holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).outType));
         holder.expandableLayout.setInRecyclerView(true);
         //holder.expandableLayout.setBackgroundColor(context.(R.color.colorPrimary));

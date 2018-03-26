@@ -12,14 +12,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.*;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,7 +20,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
@@ -40,17 +32,12 @@ import ru.yugsys.vvvresearch.lconfig.Services.Helper;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
-import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -100,7 +87,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("NFC","AddActivity");
+        Log.d("NFC", "AddActivity");
         readyToWrite = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
@@ -171,13 +158,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE,true);
+        flag = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
         if (flag) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             mLocation = getLastKnownLocation();
             currentDevice = Helper.generate(jperf + "00000000", mLocation);
-            currentDevice.Longitude = mLocation.getLongitude();
-            currentDevice.Latitude = mLocation.getLatitude();
         } else {
             currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
         }
@@ -190,8 +175,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("NFC", "newintent");
         super.onNewIntent(intent);
+        Log.d("NFC", "newintent");
         String action = intent.getAction();
         if ("android.nfc.action.TECH_DISCOVERED".equals(action)) {
             Tag tagFromIntent = (Tag) intent.getParcelableExtra("android.nfc.extra.TAG");
@@ -236,11 +221,15 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
             presenter.fireGetNewGPSData();
         } else {
+
+        }
+        if (mAdapter != null) {
             mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
             Log.d("NFC", "readNFC");
             Log.d("NFC", "post readNFC");
         }
+
     }
 
     @Override
@@ -719,10 +708,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_gps:{
-                Intent intent = new Intent(this,MapsActivity.class);
-                intent.putExtra(MapsActivity.LATITUDE,Double.parseDouble(gpsEditLatitude.getText().toString()));
-                intent.putExtra(MapsActivity.LOGITUDE,Double.parseDouble(gpsEditLongitude.getText().toString()));
+            case R.id.action_gps: {
+                Intent intent = new Intent(this, MapsActivity.class);
+                intent.putExtra(MapsActivity.LATITUDE, Double.parseDouble(gpsEditLatitude.getText().toString()));
+                intent.putExtra(MapsActivity.LOGITUDE, Double.parseDouble(gpsEditLongitude.getText().toString()));
                 startActivity(intent);
             }
         }
