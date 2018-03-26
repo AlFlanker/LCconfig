@@ -72,7 +72,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private byte[] systemInfo;
     private byte[] addressStart;
     private byte[] writeResult = null;
-    private int cpt;
+    private int countOfAttempt;
     private byte[] valueBlocksWrite;
     private int numberOfBlocks = 0;
     private Location mLocation;
@@ -354,7 +354,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         // automatically done on worker thread (separate from UI thread)
         @Override
         protected Void doInBackground(Void... params) {
-            cpt = 0;
+            countOfAttempt = 0;
             Log.d("NFCdata", "doInBackground 1");
             byte[] block;
             DataDevice dataDevice = currentDev;
@@ -390,12 +390,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         block[1] = dataBuf[startAddres * 4 + 1];
                         block[2] = dataBuf[startAddres * 4 + 2];
                         block[3] = dataBuf[startAddres * 4 + 3];
-                        cpt = 0;
+                        countOfAttempt = 0;
                         writeResult = null;
                         Log.d("NFCdata", "doInBackground pre write");
-                        while ((writeResult == null || writeResult[0] == 1) && cpt <= 10) {
+                        while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
                             writeResult = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
-                            cpt++;
+                            countOfAttempt++;
                         }
                         if (writeResult != null) {
                             if (writeResult[0] != (byte) 0x00) {
