@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             if (!Util.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
-            task = new StartReadTask();
+            task = new StartReadTask(this);
             task.execute(new Void[0]);
         }
 
@@ -122,21 +122,24 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         if (mAdapter != null) {
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
-
-
         mainPresenter.fireUpdateDataForView();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            GPSTracker gpsTracker = GPSTracker.instance();
+            gpsTracker.setContext(this);
+            gpsTracker.OnStartGPS();
+        }
+
     }
 
     private void getPremissionGPS() {
-        GPSTracker gpsTracker = GPSTracker.instance();
-        gpsTracker.setContext(this);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
         Log.d("GPS", "Activity gps start");
-        gpsTracker.OnStartGPS();
+
     }
 
     @Override
@@ -177,56 +180,53 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         Log.d("NFC", dev.type);
     }
 
-
-    /**
-     * класс чтения данных NFC
-     * возвращает данные через @see EventManager#EventManager()
-     */
-    private class StartReadTask extends AsyncTask<Void, Void, Void> {
+    class StartReadTask extends AsyncTask<Void, Void, Void> {
+        private MainActivity mainActivity;
         final ProgressDialog dialog;
 
-        private StartReadTask() {
-            this.dialog = new ProgressDialog(MainActivity.this);
+        StartReadTask(MainActivity mainActivity) {
+            this.mainActivity = mainActivity;
+            this.dialog = new ProgressDialog(mainActivity);
         }
 
         protected void onPreExecute() {
             this.dialog.setMessage("Чтение данных");
             this.dialog.show();
             int cpt = 0;
-            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
-                addressStart = new byte[8];
-                Arrays.fill(addressStart,(byte)0x00);
-                numberOfBlockToRead = new byte[]{(byte)0x00,(byte)0x20}; // 32 блока на 4 байта
+            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
+                mainActivity.addressStart = new byte[8];
+                Arrays.fill(mainActivity.addressStart, (byte) 0x00);
+                mainActivity.numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x20}; // 32 блока на 4 байта
             }
         }
 
         protected Void doInBackground(Void... params) {
-            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
-                if (currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(numberOfBlockToRead).getShort() > 1) {
-                    if (Util.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
-                        while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
-                            readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead[1], currentDataDevice);
-                            cpt++;
+            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
+                if (mainActivity.currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(mainActivity.numberOfBlockToRead).getShort() > 1) {
+                    if (Util.Convert2bytesHexaFormatToInt(mainActivity.numberOfBlockToRead) < 32) {
+                        while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
+                            mainActivity.readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead[1], mainActivity.currentDataDevice);
+                            mainActivity.cpt++;
                         }
 
-                        cpt = 0;
+                        mainActivity.cpt = 0;
                     } else {
-                        while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
-                            readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
-                            cpt++;
+                        while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
+                            mainActivity.readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead, mainActivity.currentDataDevice);
+                            mainActivity.cpt++;
                         }
 
-                        cpt =0;
+                        mainActivity.cpt = 0;
                     }
 
                 }
                 else {
-                    while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
-                        readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
-                        cpt++;
+                    while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
+                        mainActivity.readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead, mainActivity.currentDataDevice);
+                        mainActivity.cpt++;
                     }
 
-                    cpt = 0;
+                    mainActivity.cpt = 0;
                 }
             }
 
@@ -235,13 +235,13 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
         protected void onPostExecute(Void unused) {
 
-            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
+            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
                 try {
-                    decode(readMultipleBlockAnswer); // to this.currentDevice
+                    mainActivity.decode(mainActivity.readMultipleBlockAnswer); // to this.currentDevice
                     if (this.dialog.isShowing()) {
                         this.dialog.dismiss();
                     }
-                    readMultipleBlockAnswer = null;
+                    mainActivity.readMultipleBlockAnswer = null;
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -250,9 +250,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                     e.printStackTrace();
                 }
             }
-            task = null;
+            mainActivity.task = null;
         }
     }
+
 
     public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
         CRC16 crc16 = new CRC16();
