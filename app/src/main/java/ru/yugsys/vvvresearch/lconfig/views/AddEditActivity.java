@@ -29,7 +29,7 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
+import ru.yugsys.vvvresearch.lconfig.Services.Util;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
@@ -43,6 +43,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
+
+
     private Vibrator vibrator;
     private ExpandableLinearLayout expandableLinearLayout;
     private EditText deveuiEdit;
@@ -70,13 +72,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText gpsEditLatitude;
     private DataDevice currentDev;
     private byte[] systemInfo;
-    private byte[] addressStart;
     private byte[] writeResult = null;
-    private int countOfAttempt;
     private byte[] valueBlocksWrite;
-    private int numberOfBlocks = 0;
-    private Location mLocation;
-    private LocationManager mLocationManager;
     private boolean createNewDevice;
     private boolean readyToWriteDevice = false;
 
@@ -157,8 +154,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
         if (createNewDevice) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
-            mLocation = getLastKnownLocation();
-            currentDevice = Helper.generate(jperf + "00000000", mLocation);
+            Location mLocation = getLastKnownLocation();
+            currentDevice = Util.generate(jperf + "00000000", mLocation);
             currentDevice.Longitude = mLocation.getLongitude();
             currentDevice.Latitude = mLocation.getLatitude();
         } else {
@@ -181,7 +178,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             currentDev = new DataDevice();
             currentDev.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
-            //  currentDev = Helper.DecodeGetSystemInfoResponse(systemInfo,currentDev);
+            //  currentDev = Util.DecodeGetSystemInfoResponse(systemInfo,currentDev);
 
             Toast.makeText(getApplicationContext(), "Tag detected!", Toast.LENGTH_SHORT).show();
             Log.d("NFC", "add new tag");
@@ -190,14 +187,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
                 muid = muid.substring(8);
-                byte[] b = Helper.hexToBytes(muid);
+                byte[] b = Util.hexToBytes(muid);
 
                 for (int i = 0; i < b.length / 2; i++) {
                     byte temp = b[i];
                     b[i] = b[b.length - i - 1];
                     b[b.length - i - 1] = temp;
                 }
-                muid = Helper.ConvertHexByteArrayToString(b);
+                muid = Util.ConvertHexByteArrayToString(b);
                 currentDevice.setDevadr(muid);
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString());
                 setDeviceFields(currentDevice);
@@ -224,6 +221,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
             Log.d("NFC", "readNFC");
             Log.d("NFC", "post readNFC");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (NfcAdapter.getDefaultAdapter(this) != null) {
+            NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
         }
     }
 
@@ -313,9 +318,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 if (currentDev != null) {
 
                     systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(dataDevice.getCurrentTag(), dataDevice);
-                    if ((Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
-                        int MemorySizeBytes = (Helper.ConvertStringToInt((dataDevice.getMemorySize().replace(" ", ""))) + 1) * 4;
-                        byte[] raw = Helper.Object2ByteArray(currentDevice);
+                    if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
+                        int MemorySizeBytes = (Util.ConvertStringToInt((dataDevice.getMemorySize().replace(" ", ""))) + 1) * 4;
+                        byte[] raw = Util.Object2ByteArray(currentDevice);
                         System.arraycopy(raw, 0, valueBlocksWrite, 0, raw.length);
                         //  valueBlocksWrite[0]=0x00;
                         CRC16 crc16 = new CRC16();
@@ -354,7 +359,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         // automatically done on worker thread (separate from UI thread)
         @Override
         protected Void doInBackground(Void... params) {
-            countOfAttempt = 0;
+            int countOfAttempt = 0;
             Log.d("NFCdata", "doInBackground 1");
             byte[] block;
             DataDevice dataDevice = currentDev;
@@ -362,7 +367,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             byte[] dataBuf;
             StringBuilder sb;
             if (currentDev != null) {
-                if ((Helper.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
+                if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
+                    int numberOfBlocks = 0;
                     if (valueBlocksWrite.length % 4 != 0) {
                         Log.d("NFCdata", "doInBackground init param");
                         int l = 4 - valueBlocksWrite.length % 4;
@@ -384,7 +390,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     int ResultWriteAnswer = 0;
 
                     for (int startAddres = 0; startAddres < numberOfBlocks; startAddres++) {
-                        addressStart = Helper.ConvertIntTo2bytesHexaFormat(startAddres);
+                        byte[] addressStart = Util.ConvertIntTo2bytesHexaFormat(startAddres);
                         block = new byte[4];
                         block[0] = dataBuf[startAddres * 4];
                         block[1] = dataBuf[startAddres * 4 + 1];
@@ -394,7 +400,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         writeResult = null;
                         Log.d("NFCdata", "doInBackground pre write");
                         while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
-                            writeResult = NFCCommand.SendWriteSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
+                            writeResult = NFCCommand.writeSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
                             countOfAttempt++;
                         }
                         if (writeResult != null) {
@@ -446,10 +452,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 readyToWriteDevice = false;
                 if (Build.VERSION.SDK_INT == 26) {
                     Log.d("NFCdata", "onPostExecute post dialog \n vibr api 26");
-                    vibrator.vibrate(VibrationEffect.createOneShot(2000, 100));
+                    vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
                 } else if (Build.VERSION.SDK_INT < 26) {
                     Log.d("NFCdata", "onPostExecute post dialog \n vibr api <26");
-                    vibrator.vibrate(2000);
+                    vibrator.vibrate(500);
                 }
                 Log.d("NFCdata", "onPostExecute post dialog \n finish()");
                 finish();
@@ -485,7 +491,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     }
 
     private Location getLastKnownLocation() {
-        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         List<String> providers = mLocationManager.getProviders(true);
         Location myLocation = null;
         for (String provider : providers) {

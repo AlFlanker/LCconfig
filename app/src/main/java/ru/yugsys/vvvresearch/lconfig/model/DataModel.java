@@ -3,23 +3,14 @@ package ru.yugsys.vvvresearch.lconfig.model;
 
 
 import android.location.Location;
-import android.os.AsyncTask;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataRead;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
-
-
-import java.nio.ByteBuffer;
-import java.util.*;
 
 
 public class DataModel implements Model, GPScallback<Location> {
