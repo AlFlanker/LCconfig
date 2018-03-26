@@ -1,5 +1,6 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -138,26 +139,32 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
-
-        GPSTracker gpsTracker = GPSTracker.instance();
-        gpsTracker.setContext(this);
+        Location mLocation = new Location("");
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     100);
+        } else {
+
+            GPSTracker gpsTracker = GPSTracker.instance();
+            gpsTracker.setContext(this);
+            gpsTracker.OnStartGPS();
+            mLocation = getLastKnownLocation();
         }
         Log.d("GPS", "Activity gps start");
-        gpsTracker.OnStartGPS();
+
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
         if (createNewDevice) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
-            Location mLocation = getLastKnownLocation();
+            if (mLocation.getProvider().equals("")) {
+                mLocation = new Location("");
+                mLocation.setLongitude(38.997585);
+                mLocation.setLatitude(45.071137);
+            }
             currentDevice = Util.generate(jperf + "00000000", mLocation);
-            currentDevice.Longitude = mLocation.getLongitude();
-            currentDevice.Latitude = mLocation.getLatitude();
         } else {
             currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
         }
@@ -216,7 +223,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
-            presenter.fireGetNewGPSData();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                presenter.fireGetNewGPSData();
+            }
         } else {
 
             Log.d("NFC", "readNFC");
