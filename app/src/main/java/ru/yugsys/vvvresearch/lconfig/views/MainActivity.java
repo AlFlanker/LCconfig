@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             tagFromIntent = (Tag) intent.getParcelableExtra("android.nfc.extra.TAG");
             currentDataDevice.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDataDevice);
-            if (!this.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) {
+            if (!Util.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
             task = new StartReadTask();
@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getPremissionGPS();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
 
-        getPremissionGPS();
+
         mainPresenter.fireUpdateDataForView();
     }
 
@@ -294,206 +295,5 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
     }
 
-    public static boolean DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse, DataDevice dataDevice) {
-        DataDevice ma = dataDevice;
-        if (GetSystemInfoResponse[0] == 0 && GetSystemInfoResponse.length >= 12) {
-            String uidToString = "";
-            byte[] uid = new byte[8];
 
-            for (int i = 1; i <= 8; ++i) {
-                uid[i - 1] = GetSystemInfoResponse[10 - i];
-                uidToString = uidToString + Util.ConvertHexByteToString(uid[i - 1]);
-            }
-
-            ma.setUid(uidToString);
-            if (uid[0] == -32) {
-                ma.setTechno("ISO 15693");
-            } else if (uid[0] == -48) {
-                ma.setTechno("ISO 14443");
-            } else {
-                ma.setTechno("Unknown techno");
-            }
-
-            if (uid[1] == 2) {
-                ma.setManufacturer("STMicroelectronics");
-            } else if (uid[1] == 4) {
-                ma.setManufacturer("NXP");
-            } else if (uid[1] == 7) {
-                ma.setManufacturer("Texas Instruments");
-            } else if (uid[1] == 1) {
-                ma.setManufacturer("Motorola");
-            } else if (uid[1] == 3) {
-                ma.setManufacturer("Hitachi");
-            } else if (uid[1] == 4) {
-                ma.setManufacturer("NXP");
-            } else if (uid[1] == 5) {
-                ma.setManufacturer("Infineon");
-            } else if (uid[1] == 6) {
-                ma.setManufacturer("Cylinc");
-            } else if (uid[1] == 7) {
-                ma.setManufacturer("Texas Instruments");
-            } else if (uid[1] == 8) {
-                ma.setManufacturer("Fujitsu");
-            } else if (uid[1] == 9) {
-                ma.setManufacturer("Matsushita");
-            } else if (uid[1] == 10) {
-                ma.setManufacturer("NEC");
-            } else if (uid[1] == 11) {
-                ma.setManufacturer("Oki");
-            } else if (uid[1] == 12) {
-                ma.setManufacturer("Toshiba");
-            } else if (uid[1] == 13) {
-                ma.setManufacturer("Mitsubishi");
-            } else if (uid[1] == 14) {
-                ma.setManufacturer("Samsung");
-            } else if (uid[1] == 15) {
-                ma.setManufacturer("Hyundai");
-            } else if (uid[1] == 16) {
-                ma.setManufacturer("LG");
-            } else {
-                ma.setManufacturer("Unknown manufacturer");
-            }
-
-            if (uid[1] == 2) {
-                if (uid[2] >= 4 && uid[2] <= 7) {
-                    ma.setProductName("LRI512");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 20 && uid[2] <= 23) {
-                    ma.setProductName("LRI64");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 32 && uid[2] <= 35) {
-                    ma.setProductName("LRI2K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 40 && uid[2] <= 43) {
-                    ma.setProductName("LRIS2K");
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 44 && uid[2] <= 47) {
-                    ma.setProductName("M24LR64");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 64 && uid[2] <= 67) {
-                    ma.setProductName("LRI1K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 68 && uid[2] <= 71) {
-                    ma.setProductName("LRIS64K");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 72 && uid[2] <= 75) {
-                    ma.setProductName("M24LR01E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 76 && uid[2] <= 79) {
-                    ma.setProductName("M24LR16E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 80 && uid[2] <= 83) {
-                    ma.setProductName("M24LR02E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(false);
-                } else if (uid[2] >= 84 && uid[2] <= 87) {
-                    ma.setProductName("M24LR32E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 88 && uid[2] <= 91) {
-                    ma.setProductName("M24LR04E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 92 && uid[2] <= 95) {
-                    ma.setProductName("M24LR64E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 96 && uid[2] <= 99) {
-                    ma.setProductName("M24LR08E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else if (uid[2] >= 100 && uid[2] <= 103) {
-                    ma.setProductName("M24LR128E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= 108 && uid[2] <= 111) {
-                    ma.setProductName("M24LR256E");
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                    if (!ma.isBasedOnTwoBytesAddress()) {
-                        return false;
-                    }
-                } else if (uid[2] >= -8 && uid[2] <= -5) {
-                    ma.setProductName("detected product");
-                    ma.setBasedOnTwoBytesAddress(true);
-                    ma.setMultipleReadSupported(true);
-                    ma.setMemoryExceed2048bytesSize(true);
-                } else {
-                    ma.setProductName("Unknown product");
-                    ma.setBasedOnTwoBytesAddress(false);
-                    ma.setMultipleReadSupported(false);
-                    ma.setMemoryExceed2048bytesSize(false);
-                }
-
-                ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    String temp = new String();
-                    temp = temp + Util.ConvertHexByteToString(GetSystemInfoResponse[13]);
-                    temp = temp + Util.ConvertHexByteToString(GetSystemInfoResponse[12]);
-                    ma.setMemorySize(temp);
-                } else {
-                    ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
-                }
-
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
-                } else {
-                    ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
-                }
-
-                if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[15]));
-                } else {
-                    ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
-                }
-            } else {
-                ma.setProductName("Unknown product");
-                ma.setBasedOnTwoBytesAddress(false);
-                ma.setMultipleReadSupported(false);
-                ma.setMemoryExceed2048bytesSize(false);
-                ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
-                ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
-                ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
-                ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
-            }
-
-            return true;
-        } else if (ma.getTechno() == "ISO 15693") {
-            ma.setProductName("Unknown product");
-            ma.setBasedOnTwoBytesAddress(false);
-            ma.setMultipleReadSupported(false);
-            ma.setMemoryExceed2048bytesSize(false);
-            ma.setAfi("00 ");
-            ma.setDsfid("00 ");
-            ma.setMemorySize("3F ");
-            ma.setBlockSize("03 ");
-            ma.setIcReference("00 ");
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
