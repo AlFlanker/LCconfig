@@ -35,8 +35,8 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
     @Override
     public void fireUpdateDataForView() {
 
-        model.loadAllDeviceData();
-        //   model.loadAllDeviceDataByProperties(Model.Properties.APPEUI, Model.Direction.Straight);
+        // model.loadAllDeviceData();
+        model.loadAllDeviceDataByProperties(Model.Properties.APPEUI, Model.Direction.Straight);
     }
 
 
