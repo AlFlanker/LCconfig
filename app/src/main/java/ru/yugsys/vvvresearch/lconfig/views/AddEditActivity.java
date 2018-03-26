@@ -84,7 +84,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("NFC","AddActivity");
+        Log.d("NFC", "AddActivity");
         readyToWriteDevice = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
@@ -256,8 +256,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(false);
-        gpsEditLongitude.setText(String.format(Locale.ENGLISH,"%.6f",device.getLongitude()));
-        gpsEditLatitude.setText(String.format(Locale.ENGLISH,"%.6f",device.getLatitude()));
+        gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
+        gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
     }
 
     @Override
@@ -337,8 +337,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         //  valueBlocksWrite[0]=0x00;
                         CRC16 crc16 = new CRC16();
                         int res = crc16.CRC16ArrayGet(0, raw);
-                        res = Integer.reverseBytes(res);
-                        res >>= 16;
+
+                        res &= 0x0000ffff;
                         byte[] crc = ByteBuffer.allocate(4).putInt(res).array();
                         StringBuilder sb = new StringBuilder();
                         for (Byte b : crc) {

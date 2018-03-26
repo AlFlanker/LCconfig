@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 return;
             }
             task = new StartReadTask(this);
-            task.execute(new Void[0]);
+            task.execute();
         }
 
     }
@@ -261,8 +261,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         byte[] crc = new byte[121];
         System.arraycopy(raw, 1, crc, 0, 121);
         int res = crc16.CRC16ArrayGet(0, crc) & 0x0000FFFF;
-        res = Integer.reverseBytes(res);
-        res >>= 16;
+
         res &= 0x0000FFFF;
         sb = new StringBuilder();
         for (Byte b : ByteBuffer.allocate(4).putInt(res).array()) {
