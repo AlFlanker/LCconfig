@@ -6,14 +6,9 @@
 // OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
 
 package ru.yugsys.vvvresearch.lconfig.Services;
-
-
 import android.location.Location;
-import android.util.Log;
-import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,12 +16,9 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import static android.provider.Settings.System.getString;
 
 
-public class Helper {
+public class Util {
 
 
 	//***********************************************************************/
@@ -446,7 +438,7 @@ public class Helper {
 			// change uid format from byteArray to a String
 			for (int i = 1; i <= 8; i++) {
 				uid[i - 1] = GetSystemInfoResponse[10 - i];
-				sb.append(Helper.ConvertHexByteToString(uid[i - 1]));
+				sb.append(Util.ConvertHexByteToString(uid[i - 1]));
 			}
 			uidToString = sb.toString();
 			sb = new StringBuilder();
@@ -589,41 +581,41 @@ public class Helper {
 				}
 
 				//*** DSFID ***
-				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
+				ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
 
 				//*** AFI ***
-				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+				ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
 
 				//*** MEMORY SIZE ***
 				if (ma.isBasedOnTwoBytesAddress()) {
 					sb = new StringBuilder();
-					sb.append(Helper.ConvertHexByteToString(GetSystemInfoResponse[13])).
-							append(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+					sb.append(Util.ConvertHexByteToString(GetSystemInfoResponse[13])).
+							append(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
 					ma.setMemorySize(sb.toString());
 				} else
-					ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+					ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
 
 				//*** BLOCK SIZE ***
 				if (ma.isBasedOnTwoBytesAddress())
-					ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+					ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 				else
-					ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+					ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
 
 				//*** IC REFERENCE ***
 				if (ma.isBasedOnTwoBytesAddress())
-					ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
+					ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[15]));
 				else
-					ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+					ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 			} else {
 				ma.setProductName("Unknown product");
 				ma.setBasedOnTwoBytesAddress(false);
 				ma.setMultipleReadSupported(false);
 				ma.setMemoryExceed2048bytesSize(false);
-				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-				ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-				ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-				ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+				ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
+				ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
+				ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
+				ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
+				ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 			}
 
 			return ma;

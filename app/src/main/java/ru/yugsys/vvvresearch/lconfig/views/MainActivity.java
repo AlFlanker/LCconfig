@@ -1,21 +1,15 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.tech.NfcV;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,26 +22,18 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
+import ru.yugsys.vvvresearch.lconfig.Services.Util;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static ru.yugsys.vvvresearch.lconfig.Services.Helper.decodeByteList;
 
 public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected {
 
@@ -206,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             this.dialog.setMessage("Чтение данных");
             this.dialog.show();
             int cpt = 0;
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
+            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 addressStart = new byte[8];
                 Arrays.fill(addressStart,(byte)0x00);
                 numberOfBlockToRead = new byte[]{(byte)0x00,(byte)0x20}; // 32 блока на 4 байта
@@ -214,9 +200,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
 
         protected Void doInBackground(Void... params) {
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
+            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 if (currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(numberOfBlockToRead).getShort() > 1) {
-                    if (Helper.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
+                    if (Util.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
                         while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
                             readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead[1], currentDataDevice);
                             cpt++;
@@ -248,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
         protected void onPostExecute(Void unused) {
 
-            if ((currentDataDevice = Helper.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
+            if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
                 try {
                     decode(readMultipleBlockAnswer); // to this.currentDevice
                     if (this.dialog.isShowing()) {
@@ -292,9 +278,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
         Log.d("NFCdata", sb.toString());
         if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt() == res) {
-            currentDevice = Helper.decodeByteArrayToDevice(crc);
+            currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
-            byte[] b = Helper.Object2ByteArray(currentDevice);
+            byte[] b = Util.Object2ByteArray(currentDevice);
             sb = new StringBuilder();
             for (Byte a : b) {
                 sb.append(String.format("0x%02x", a) + "; ");
@@ -316,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
             for (int i = 1; i <= 8; ++i) {
                 uid[i - 1] = GetSystemInfoResponse[10 - i];
-                uidToString = uidToString + Helper.ConvertHexByteToString(uid[i - 1]);
+                uidToString = uidToString + Util.ConvertHexByteToString(uid[i - 1]);
             }
 
             ma.setUid(uidToString);
@@ -460,38 +446,38 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                     ma.setMemoryExceed2048bytesSize(false);
                 }
 
-                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+                ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
+                ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
                 if (ma.isBasedOnTwoBytesAddress()) {
                     String temp = new String();
-                    temp = temp + Helper.ConvertHexByteToString(GetSystemInfoResponse[13]);
-                    temp = temp + Helper.ConvertHexByteToString(GetSystemInfoResponse[12]);
+                    temp = temp + Util.ConvertHexByteToString(GetSystemInfoResponse[13]);
+                    temp = temp + Util.ConvertHexByteToString(GetSystemInfoResponse[12]);
                     ma.setMemorySize(temp);
                 } else {
-                    ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+                    ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
                 }
 
                 if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+                    ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
                 } else {
-                    ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+                    ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
                 }
 
                 if (ma.isBasedOnTwoBytesAddress()) {
-                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
+                    ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[15]));
                 } else {
-                    ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+                    ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
                 }
             } else {
                 ma.setProductName("Unknown product");
                 ma.setBasedOnTwoBytesAddress(false);
                 ma.setMultipleReadSupported(false);
                 ma.setMemoryExceed2048bytesSize(false);
-                ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-                ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-                ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-                ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-                ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+                ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
+                ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
+                ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
+                ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
+                ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
             }
 
             return true;
