@@ -125,15 +125,20 @@
                     app:layout_column="0"
                     app:layout_columnSpan="3"
             >
-
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/identification"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Caption.Expandable"
+                />
 
                 <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_appEUI"
-                        android:text="@string/identification"
-                        android:maxLines="1"
-                        style="@style/BaseTextView.Caption"
+                        android:text="@string/prompt_devEUI"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
 
                 <TextView
@@ -141,15 +146,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_devEUI"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_appEUI"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_appEUI"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_appEUI"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
 
@@ -158,23 +170,37 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_appEUI"
                         android:text="@string/network_label"
-                        android:maxLines="1"
-                        style="@style/BaseTextView.Caption"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Caption.Expandable"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_nwkID"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_nwkID"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_nwkID"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_devAdr"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_devAdr"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_devAdr"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
                 <TextView
@@ -182,38 +208,55 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_appEUI"
                         android:text="@string/security_label"
-                        android:maxLines="1"
-                        style="@style/BaseTextView.Caption"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Caption.Expandable"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_appKey"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_appKey"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_appKey"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_nwkSKey"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_nwkSKey"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_nwkSKey"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_appSKey"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_appSKey"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_appSKey"
-                        android:maxLines="1"
+                        android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
-
-
             </com.github.aakira.expandablelayout.ExpandableLinearLayout>
-
-
         </android.support.v7.widget.GridLayout>
     </android.support.v7.widget.CardView>
 
