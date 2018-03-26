@@ -74,14 +74,26 @@ public class DataModel implements Model, GPScallback<Location> {
         Log.d("BD","datamodel -> saveDevice ->" + device.type);
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Log.d("BD","device.type = "+device.type);
-        try {
-            dataDao.insert(device);
+        Device devFromDB;
+        devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.appeui)).build().unique();
+        if (devFromDB != null) {
+            try {
+                device.setId(devFromDB.getId());
+                dataDao.update(device);
+            } catch (Exception e) {
+                Log.d("BD", "exception: ", e);
+            }
+            Log.d("BD", "update BD");
+            eventManager.notifyOnDevDataChecked(true);
+        } else {
+            try {
+                dataDao.insert(device);
+            } catch (Exception e) {
+                Log.d("BD", "exception: ", e);
+            }
+            Log.d("BD", "Save into");
+            eventManager.notifyOnDevDataChecked(true);
         }
-        catch (Exception e){
-           Log.d("BD","exception: ",e);
-        }
-        Log.d("BD","Save into");
-        eventManager.notifyOnDevDataChecked(true);
     }
 
 
