@@ -83,7 +83,7 @@ public class DataModel implements Model, GPScallback<Location> {
             } catch (Exception e) {
                 Log.d("BD", "exception: ", e);
             }
-            Log.d("BD", "update BD");
+
             eventManager.notifyOnDevDataChecked(true);
         } else {
             try {
