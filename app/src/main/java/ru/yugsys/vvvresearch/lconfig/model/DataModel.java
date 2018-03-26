@@ -3,23 +3,14 @@ package ru.yugsys.vvvresearch.lconfig.model;
 
 
 import android.location.Location;
-import android.os.AsyncTask;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
-import ru.yugsys.vvvresearch.lconfig.Services.Helper;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataRead;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
-
-
-import java.nio.ByteBuffer;
-import java.util.*;
 
 
 public class DataModel implements Model, GPScallback<Location> {
@@ -74,14 +65,26 @@ public class DataModel implements Model, GPScallback<Location> {
         Log.d("BD","datamodel -> saveDevice ->" + device.type);
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Log.d("BD","device.type = "+device.type);
-        try {
-            dataDao.insert(device);
+        Device devFromDB;
+        devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.appeui)).build().unique();
+        if (devFromDB != null) {
+            try {
+                device.setId(devFromDB.getId());
+                dataDao.update(device);
+            } catch (Exception e) {
+                Log.d("BD", "exception: ", e);
+            }
+
+            eventManager.notifyOnDevDataChecked(true);
+        } else {
+            try {
+                dataDao.insert(device);
+            } catch (Exception e) {
+                Log.d("BD", "exception: ", e);
+            }
+            Log.d("BD", "Save into");
+            eventManager.notifyOnDevDataChecked(true);
         }
-        catch (Exception e){
-           Log.d("BD","exception: ",e);
-        }
-        Log.d("BD","Save into");
-        eventManager.notifyOnDevDataChecked(true);
     }
 
 
