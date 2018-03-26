@@ -18,6 +18,7 @@ import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 
 import java.util.List;
+import java.util.Locale;
 
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
     List<Device> devices;
@@ -53,7 +54,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.devAdr.setText( devices.get(finalPosition).devadr);
         holder.nwkSKey.setText(devices.get(finalPosition).nwkskey);
         holder.appSKey.setText(devices.get(finalPosition).appskey);
-        holder.gps.setText(String.format("%.6f°, %.6f°",
+        holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",
                 devices.get(finalPosition).Longitude,
                 devices.get(finalPosition).Latitude));
         holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).outType));
