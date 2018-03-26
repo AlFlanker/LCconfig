@@ -40,13 +40,11 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
-import java.util.Arrays;
+import java.util.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
 
@@ -258,8 +256,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(false);
-        gpsEditLongitude.setText(String.valueOf(device.getLongitude()));
-        gpsEditLatitude.setText(String.valueOf(device.getLatitude()));
+        gpsEditLongitude.setText(String.format(Locale.ENGLISH,"%.6f",device.getLongitude()));
+        gpsEditLatitude.setText(String.format(Locale.ENGLISH,"%.6f",device.getLatitude()));
     }
 
     @Override
