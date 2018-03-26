@@ -220,11 +220,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
             presenter.fireGetNewGPSData();
         } else {
-            mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-            mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
+
             Log.d("NFC", "readNFC");
             Log.d("NFC", "post readNFC");
         }
