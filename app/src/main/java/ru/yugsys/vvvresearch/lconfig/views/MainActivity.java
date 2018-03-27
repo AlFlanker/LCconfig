@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
 import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private byte[] addressStart;
     private StartReadTask task;
     int cpt;
+    Logger log = Logger.getInstance();
 
 
     private MainContentAdapter adapter;
@@ -138,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
-        Log.d("GPS", "Activity gps start");
+        log.d("GPS", "Activity gps start");
 
     }
 
@@ -177,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
     @Override
     public void OnNFCConnected(Device dev) {
-        Log.d("NFC", dev.type);
+        log.d("NFC", dev.type);
     }
 
     class StartReadTask extends AsyncTask<Void, Void, Void> {
@@ -190,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
 
         protected void onPreExecute() {
-            this.dialog.setMessage("Чтение данных");
+            this.dialog.setMessage(getString(R.string.reads_data));
             this.dialog.show();
             int cpt = 0;
             if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
@@ -267,17 +269,17 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         for (Byte b : ByteBuffer.allocate(4).putInt(res).array()) {
             sb.append(String.format("%02x ", b));
         }
-        Log.d("NFCdata", "crc: " + sb.toString());
+        log.d("NFCdata", "crc: " + sb.toString());
         sb = new StringBuilder();
         for (Byte b : crc) {
             sb.append(String.format("%02x ", b));
         }
-        Log.d("NFCdata", "crc arr:" + sb.toString());
+        log.d("NFCdata", "crc arr:" + sb.toString());
         sb = new StringBuilder();
         for (Byte b : raw) {
             sb.append(String.format("%02x ", b));
         }
-        Log.d("NFCdata", sb.toString());
+        log.d("NFCdata", sb.toString());
         if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt() == res) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             for (Byte a : b) {
                 sb.append(String.format("0x%02x", a) + "; ");
             }
-            Log.d("fileds", sb.toString());
+            log.d("fileds", sb.toString());
 
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
