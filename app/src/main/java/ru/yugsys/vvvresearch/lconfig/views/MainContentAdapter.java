@@ -51,7 +51,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.appEUI.setText(devices.get(finalPosition).appeui);
         holder.appKey.setText(devices.get(finalPosition).appkey);
         holder.nwkID.setText(devices.get(finalPosition).nwkid);
-        holder.devAdr.setText( devices.get(finalPosition).devadr);
+        holder.devAdr.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+        holder.devAdrExp.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
         holder.nwkSKey.setText(devices.get(finalPosition).nwkskey);
         holder.appSKey.setText(devices.get(finalPosition).appskey);
         holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",
@@ -106,6 +107,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final TextView devAdrExp;
         public LinearLayout buttonLayout;
         public View triangleView;
         public TextView typeOfLC5;
@@ -131,6 +133,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             appKey = itemView.findViewById(R.id.lc5_appKey);
             nwkID = itemView.findViewById(R.id.lc5_nwkID);
             devAdr = itemView.findViewById(R.id.lc5_devAdr);
+            devAdrExp = itemView.findViewById(R.id.lc5_devAdrExp);
             nwkSKey = itemView.findViewById(R.id.lc5_nwkSKey);
             appSKey = itemView.findViewById(R.id.lc5_appSKey);
             gps = itemView.findViewById(R.id.lc5_gps);

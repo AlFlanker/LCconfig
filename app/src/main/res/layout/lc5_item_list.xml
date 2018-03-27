@@ -31,16 +31,15 @@
                     android:layout_height="96dp"
                     android:layout_width="96dp"
                     app:layout_gravity="center_vertical"
-                    app:layout_rowSpan="4"
+                    app:layout_rowSpan="5"
 
             />
 
-
             <TextView
-                    android:id="@+id/lc5_type"
+                    android:id="@+id/lc5_devAdr"
                     app:layout_gravity="fill"
-                    android:hint="@string/prompt_type"
-                    android:maxLines="1"
+                    android:hint="@string/prompt_devAdr"
+                    android:maxLines="2"
                     style="@style/BaseTextView.Headline"
             />
             <ImageButton
@@ -51,6 +50,14 @@
                     app:layout_rowSpan="4"
                     app:layout_gravity="center_vertical|end"
             />
+            <TextView
+                    android:id="@+id/lc5_type"
+                    app:layout_gravity="fill"
+                    android:hint="@string/prompt_type"
+                    android:maxLines="1"
+                    style="@style/BaseTextView.SubHead"
+            />
+
 
             <TextView
                     android:id="@+id/lc5_gps"
@@ -196,7 +203,7 @@
                         style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
-                        android:id="@+id/lc5_devAdr"
+                        android:id="@+id/lc5_devAdrExp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_devAdr"

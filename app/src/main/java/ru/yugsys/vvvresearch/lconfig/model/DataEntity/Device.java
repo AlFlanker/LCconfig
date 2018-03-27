@@ -67,17 +67,17 @@ public class Device {
     public int hashCode() {
         final int tmp = 37;
         int result = 1;
-        result = result*tmp + this.type.hashCode();
-        result = result*tmp + this.eui.hashCode();
-        result = result*tmp + this.appeui.hashCode();
-        result = result*tmp + this.appkey.hashCode();
-        result = result*tmp + this.nwkid.hashCode();
-        result = result*tmp + this.devadr.hashCode();
-        result = result*tmp + this.nwkskey.hashCode();
-        result = result*tmp + this.appskey.hashCode();
-        result = result*tmp + this.outType.hashCode();
-        result = result*tmp + + this.kV.hashCode();
-        result = result*tmp + this.kI.hashCode();
+        result = result * tmp + this.type.hashCode();
+        result = result * tmp + this.eui.hashCode();
+        result = result * tmp + this.appeui.hashCode();
+        result = result * tmp + this.appkey.hashCode();
+        result = result * tmp + this.nwkid.hashCode();
+        result = result * tmp + this.devadr.hashCode();
+        result = result * tmp + this.nwkskey.hashCode();
+        result = result * tmp + this.appskey.hashCode();
+        result = result * tmp + this.outType.hashCode();
+        result = result * tmp + +this.kV.hashCode();
+        result = result * tmp + this.kI.hashCode();
         return result;
     }
 
@@ -218,10 +218,10 @@ public class Device {
 
     @Generated(hash = 1254751111)
     public Device(Long id, @NotNull String type, boolean isOTTA, @NotNull String eui,
-            @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-            @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
-            double Latitude, double Longitude, @NotNull String outType, @NotNull String kV,
-            @NotNull String kI) {
+                  @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
+                  @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
+                  double Latitude, double Longitude, @NotNull String outType, @NotNull String kV,
+                  @NotNull String kI) {
         this.id = id;
         this.type = type;
         this.isOTTA = isOTTA;
@@ -292,11 +292,32 @@ public class Device {
     }
 
     public String getDevadr() {
-        return this.devadr;
+        return devadr;
     }
 
     public void setDevadr(String devadr) {
         this.devadr = devadr;
+    }
+
+    public String getDevadrMSBtoLSB() {
+        if (devadr != null) {
+            StringBuilder devText = new StringBuilder();
+            int length = devadr.length();
+            for (int i = 0; i < length; i += 2) {
+                devText = devText.insert(0, devadr.substring(i, i+2));
+            }
+            return devText.toString();
+        } else return null;
+    }
+
+    public void setDevadrMSBtoLSB(String devadr) {
+        if (devadr != null) {
+            StringBuilder devText = new StringBuilder();
+            for (int i = 0; i < devadr.length(); i += 2) {
+                devText.insert(0, devadr.substring(i, i+2));
+                this.devadr = devText.toString();
+            }
+        } else this.devadr = null;
     }
 
     public String getNwkskey() {
@@ -407,8 +428,6 @@ public class Device {
     public void setIsOTTA(boolean isOTTA) {
         this.isOTTA = isOTTA;
     }
-
-
 
 
 }

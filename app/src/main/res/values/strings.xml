@@ -126,5 +126,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="pref_JUG_SYSTEMA">74E14A4F</string>
     <string name="action_gps">GPS</string>
+    <string name="dont_leave_phone">Don\'t leave your phone from device </string>
+    <string name="reads_data">Data is reading</string>
 
 </resources>

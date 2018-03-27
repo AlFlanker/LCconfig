@@ -1,10 +1,10 @@
 package ru.yugsys.vvvresearch.lconfig.model;
 
 
-
 import android.location.Location;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
+import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
@@ -20,6 +20,7 @@ public class DataModel implements Model, GPScallback<Location> {
     private Location mCurrentLocation;
     // private DataDevice currentDataDevice = new DataDevice();
     private Device currentDevice;
+    private Logger log = Logger.getInstance();
 
 
     /*------------------------------------------------------------------------*/
@@ -31,6 +32,7 @@ public class DataModel implements Model, GPScallback<Location> {
             eventManager.notifyOnDevDataChecked(true);
         } else eventManager.notifyOnDevDataChecked(false);
     }
+
     @Override
     public void setCurrentDevice(Device dev) {
         this.currentDevice = dev;
@@ -62,9 +64,9 @@ public class DataModel implements Model, GPScallback<Location> {
 
     @Override
     public void saveDevice(Device device) {
-        Log.d("BD","datamodel -> saveDevice ->" + device.type);
+        Log.d("BD", "datamodel -> saveDevice ->" + device.type);
         DeviceDao dataDao = this.daoSession.getDeviceDao();
-        Log.d("BD","device.type = "+device.type);
+        Log.d("BD", "device.type = " + device.type);
         Device devFromDB;
         devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.appeui)).build().unique();
         if (devFromDB != null) {
@@ -72,7 +74,7 @@ public class DataModel implements Model, GPScallback<Location> {
                 device.setId(devFromDB.getId());
                 dataDao.update(device);
             } catch (Exception e) {
-                Log.d("BD", "exception: ", e);
+                log.d("BD", "exception: " + e.getMessage());
             }
 
             eventManager.notifyOnDevDataChecked(true);
@@ -80,9 +82,9 @@ public class DataModel implements Model, GPScallback<Location> {
             try {
                 dataDao.insert(device);
             } catch (Exception e) {
-                Log.d("BD", "exception: ", e);
+                log.d("BD", "exception: " + e.getMessage());
             }
-            Log.d("BD", "Save into");
+            log.d("BD", "Save into");
             eventManager.notifyOnDevDataChecked(true);
         }
     }
@@ -92,8 +94,6 @@ public class DataModel implements Model, GPScallback<Location> {
         this.daoSession = daoSession;
 
     }
-
-
 
 
     @Override
@@ -227,7 +227,7 @@ public class DataModel implements Model, GPScallback<Location> {
     @Override
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
-        Log.d("GPS", "In Model: " + mCurrentLocation.toString());
+        log.d("GPS", "In Model: " + mCurrentLocation.toString());
         //eventManager.notifyOnGPS(mCurrentLocation);
     }
 }
