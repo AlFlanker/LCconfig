@@ -12,6 +12,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
+import java.util.List;
+
 
 public class DataModel implements Model, GPScallback<Location> {
 
@@ -67,18 +69,20 @@ public class DataModel implements Model, GPScallback<Location> {
         Log.d("BD", "datamodel -> saveDevice ->" + device.type);
         DeviceDao dataDao = this.daoSession.getDeviceDao();
         Log.d("BD", "device.type = " + device.type);
-        Device devFromDB;
-        devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.appeui)).build().unique();
+        List<Device> devFromDB;
+        devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.appeui)).build().list();
         if (devFromDB != null) {
-            try {
-                device.setId(devFromDB.getId());
-                dataDao.update(device);
-            } catch (Exception e) {
-                log.d("BD", "exception: " + e.getMessage());
-            }
+            if (devFromDB.size() != 0) {
+                try {
+                    //  device.setId(devFromDB.getId());
+                    dataDao.update(device);
+                } catch (Exception e) {
+                    log.d("BD", "exception: " + e.getMessage());
+                }
 
-            eventManager.notifyOnDevDataChecked(true);
-        } else {
+                eventManager.notifyOnDevDataChecked(true);
+            }
+        } else if (devFromDB.size() == 0) {
             try {
                 dataDao.insert(device);
             } catch (Exception e) {
@@ -87,6 +91,7 @@ public class DataModel implements Model, GPScallback<Location> {
             log.d("BD", "Save into");
             eventManager.notifyOnDevDataChecked(true);
         }
+    }
     }
 
 
