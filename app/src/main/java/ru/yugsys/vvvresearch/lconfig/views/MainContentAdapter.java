@@ -16,12 +16,13 @@ import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 
 import java.util.List;
 import java.util.Locale;
 
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
-    List<Device> devices;
+    List<MDevice> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
 
     private Context context;
@@ -30,7 +31,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         this.context = context;
     }
 
-    public void setDevices(List<Device> devices) {
+    public void setDevices(List<MDevice> devices) {
         this.devices = devices;
         for (int i = 0; i < devices.size(); i++) {
             expandState.append(i, false);
@@ -45,20 +46,20 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final int finalPosition = holder.getAdapterPosition();
-        holder.typeOfLC5.setText(devices.get(finalPosition).type);
+        holder.typeOfLC5.setText(devices.get(finalPosition).getType());
         holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
         holder.devEUI.setText(devices.get(finalPosition).getEui());
-        holder.appEUI.setText(devices.get(finalPosition).appeui);
-        holder.appKey.setText(devices.get(finalPosition).appkey);
-        holder.nwkID.setText(devices.get(finalPosition).nwkid);
+        holder.appEUI.setText(devices.get(finalPosition).getAppeui());
+        holder.appKey.setText(devices.get(finalPosition).getAppkey());
+        holder.nwkID.setText(devices.get(finalPosition).getNwkid());
         holder.devAdr.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
         holder.devAdrExp.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-        holder.nwkSKey.setText(devices.get(finalPosition).nwkskey);
-        holder.appSKey.setText(devices.get(finalPosition).appskey);
+        holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
+        holder.appSKey.setText(devices.get(finalPosition).getAppskey());
         holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",
-                devices.get(finalPosition).Longitude,
-                devices.get(finalPosition).Latitude));
-        holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).outType));
+                devices.get(finalPosition).getLongitude(),
+                devices.get(finalPosition).getLatitude()));
+        holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
         holder.expandableLayout.setInRecyclerView(true);
         //holder.expandableLayout.setBackgroundColor(context.(R.color.colorPrimary));
         holder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));

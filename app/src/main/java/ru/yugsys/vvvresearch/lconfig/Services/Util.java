@@ -9,6 +9,8 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -843,48 +845,47 @@ public class Util {
 	//* the function Convert Fields of Object to byte array
 	// Alex Flanker
 	//***********************************************************************/
-	public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException, NoSuchFieldException {
+    public static byte[] Object2ByteArray(MDevice dev) throws IllegalAccessException, IOException, NoSuchFieldException {
 		Field field;
 		StringBuilder sb = new StringBuilder();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
-		field = Device.class.getField("type");
+        field = MDevice.class.getField("type");
 		String s = field.get(dev).toString();
 		sb.append(s);
 		while (sb.length() < 5) {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = Device.class.getField("isOTTA");
+        field = MDevice.class.getField("isOTTA");
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
-		field = Device.class.getField("eui");
+        field = MDevice.class.getField("eui");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appeui");
+        field = MDevice.class.getField("appeui");
 		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appkey");
+        field = MDevice.class.getField("appkey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("nwkid");
+        field = MDevice.class.getField("nwkid");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("devadr");
+        field = MDevice.class.getField("devadr");
 		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
-		field = Device.class.getField("nwkskey");
+        field = MDevice.class.getField("nwkskey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appskey");
+        field = MDevice.class.getField("appskey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
-		field = Device.class.getField("Latitude");
+        field = MDevice.class.getField("Latitude");
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 
-
-		field = Device.class.getField("Longitude");
+        field = MDevice.class.getField("Longitude");
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
 		;
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
-		field = Device.class.getField("outType");
+        field = MDevice.class.getField("outType");
 		s = field.get(dev).toString();
 		sb = new StringBuilder();
 		sb.append(s);
@@ -892,9 +893,9 @@ public class Util {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = Device.class.getField("kV");
+        field = MDevice.class.getField("kV");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("kI");
+        field = MDevice.class.getField("kI");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
 		return byteArrayOutputStream.toByteArray();
@@ -938,11 +939,11 @@ public class Util {
 	//* the function Convert raw byte[] to Device
 	// Alex Flanker
 	//***********************************************************************/
-	public static Device decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
-		Device device = new Device();
+    public static MDevice decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
+        MDevice device = new MDevice();
 		byte[] buf;
 		StringBuilder stringBuilder = new StringBuilder();
-		Field[] fields = Device.class.getFields();
+        Field[] fields = MDevice.class.getFields();
 		for (Field field : fields) {
 			if (field.getName().equals("type")) {
 				buf = new byte[5];
@@ -1100,27 +1101,27 @@ public class Util {
 		return count;
 	}
 
-	public static Device generate(String EUI, Location location) {
+    public static MDevice generate(String EUI, Location location) {
 		String mEUI;
 		mEUI = EUI.replace(" ", "");
 		mEUI = mEUI.substring(8);
-		Device newDev = new Device();
-		newDev.type = "LC503";
-		newDev.isOTTA = Boolean.FALSE;
-		newDev.eui = EUI.replace(" ", "");
-		newDev.eui = EUI.trim();
-		newDev.appeui = "0000000000000001";
-		newDev.appkey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		newDev.nwkid = "00000000";
-		newDev.devadr = mEUI;
-		newDev.nwkskey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		newDev.appskey = "2B7E151628AED2A6ABF7158809CF4F3C";
-        newDev.Latitude = location != null ? location.getLatitude() : 0.0d;
-        newDev.Longitude = location != null ? location.getLongitude() : 0.0d;
-		newDev.outType = "PMW";
-		newDev.kV = "EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506";
-		newDev.kI = "991C";
+        MDevice newDev = new MDevice();
+        newDev.setType("LC503");
+        newDev.setIsOTTA(Boolean.FALSE);
+        newDev.setEui(EUI.replace(" ", "").trim());
+        newDev.setAppeui("0000000000000001");
+        newDev.setAppkey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setNwkid("00000000");
+        newDev.setDevadr(mEUI);
+        newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setAppskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setLatitude(location != null ? location.getLatitude() : 0.0d);
+        newDev.setLongitude(location != null ? location.getLongitude() : 0.0d);
+        newDev.setOutType("PMW");
+        newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
+        newDev.setKI("991C");
 		return newDev;
 //		newDev.setEui();
 	}
+
 }
