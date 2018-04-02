@@ -32,6 +32,7 @@ import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.Services.Util;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MainDevice;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
@@ -65,7 +66,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private Device currentDevice;
+    private MainDevice currentDevice;
     private View buttonLayout;
     private View triangleButton;
     private EditText gpsEditLatitude;
@@ -240,7 +241,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     }
 
     @Override
-    public void setDeviceFields(Device device) {
+    public void setDeviceFields(MainDevice device) {
         setSpinnerValuePosition(device.getType(), typeSpinner);
         setSpinnerValuePosition(device.getOutType(), out_typeSpinner);
         deveuiEdit.setText(device.getEui());
@@ -267,8 +268,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         this.typeSpinner.setSelection(i);
     }
 
-    private Device fieldToDevice() {
-        Device device = new Device();
+    private MainDevice fieldToDevice() {
+        MainDevice device = new MainDevice();
         device.setType(typeSpinner.getSelectedItem().toString());
         device.setEui(deveuiEdit.getText().toString());
         device.setAppeui(appEUIEdit.getText().toString());

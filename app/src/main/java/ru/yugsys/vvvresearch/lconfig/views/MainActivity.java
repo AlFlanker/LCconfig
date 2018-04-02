@@ -27,6 +27,7 @@ import ru.yugsys.vvvresearch.lconfig.Services.Util;
 import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MainDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private Device currentDevice;
+    private MainDevice currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
     private byte[] readMultipleBlockAnswer = null;
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     }
 
     @Override
-    public void setContentForView(List<Device> devices) {
+    public void setContentForView(List<MainDevice> devices) {
         adapter.setDevices(devices);
         adapter.notifyDataSetChanged();
     }
@@ -178,8 +179,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
 
     @Override
-    public void OnNFCConnected(Device dev) {
-        log.d("NFC", dev.type);
+    public void OnNFCConnected(MainDevice dev) {
+        log.d("NFC", dev.getType());
     }
 
     class StartReadTask extends AsyncTask<Void, Void, Void> {

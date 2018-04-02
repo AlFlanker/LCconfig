@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.model.Manager;
 
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MainDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.*;
@@ -106,13 +107,13 @@ public class EventManager {
         }
     }
 
-    public void notifyOnNFC(Device dev) {
+    public void notifyOnNFC(MainDevice dev) {
         for (Object listener : listeners.get(TypeEvent.OnNFCconnected)) {
             ((ModelListener.OnNFCConnected) listener).OnNFCConnected(dev);
         }
     }
 
-    public void notifyOnDataReceive(List<Device> devList) {
+    public void notifyOnDataReceive(List<MainDevice> devList) {
         for (Object listener : listeners.get(TypeEvent.OnDataReceive)) {
             ((ModelListener.OnDataRecived) listener).OnDataRecived(devList);
         }

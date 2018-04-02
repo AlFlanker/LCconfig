@@ -4,6 +4,7 @@ package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MainDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 import java.util.Collections;
@@ -19,18 +20,15 @@ public interface Model {
     }
 
 
+    void setCurrentDevice(MainDevice dev);
 
-
-
-    void setCurrentDevice(Device dev);
-
-    Device getCurrentDevice();
+    MainDevice getCurrentDevice();
 
     void setSession(DaoSession s);
 
     void loadAllDeviceData();
 
-    void saveDevice(Device t);
+    void saveDevice(MainDevice t);
 
 
     void writeAuthData(String login, String password, String server);
