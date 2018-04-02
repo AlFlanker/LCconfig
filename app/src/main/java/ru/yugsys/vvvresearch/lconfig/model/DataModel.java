@@ -8,7 +8,9 @@ import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.MDeviceDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
@@ -19,7 +21,7 @@ public class DataModel implements Model, GPScallback<Location> {
     private EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
     // private DataDevice currentDataDevice = new DataDevice();
-    private Device currentDevice;
+    private MDevice currentDevice;
     private Logger log = Logger.getInstance();
 
 
@@ -34,12 +36,12 @@ public class DataModel implements Model, GPScallback<Location> {
     }
 
     @Override
-    public void setCurrentDevice(Device dev) {
+    public void setCurrentDevice(MDevice dev) {
         this.currentDevice = dev;
     }
 
     @Override
-    public Device getCurrentDevice() {
+    public MDevice getCurrentDevice() {
         return this.currentDevice;
     }
 
@@ -63,31 +65,23 @@ public class DataModel implements Model, GPScallback<Location> {
     }
 
     @Override
-    public void saveDevice(Device device) {
-        Log.d("BD", "datamodel -> saveDevice ->" + device.type);
-        DeviceDao dataDao = this.daoSession.getDeviceDao();
-        Log.d("BD", "device.type = " + device.type);
-        Device devFromDB;
-        devFromDB = dataDao.queryBuilder().where(DeviceDao.Properties.Appeui.eq(device.eui)).build().unique();
-        if (devFromDB != null) {
-            try {
-                device.setId(devFromDB.getId());
-                dataDao.update(device);
-            } catch (Exception e) {
-                log.d("BD", "exception: " + e.getMessage());
-            }
-
+    public void saveDevice(MDevice device) {
+        Log.d("BD", "datamodel -> saveDevice ->" + device.getType());
+        MDeviceDao dataDao = this.daoSession.getMDeviceDao();
+        Log.d("BD", "device.type = " + device.getType());
+        MDevice devFromDB;
+        devFromDB = dataDao.queryBuilder().where(MDeviceDao.Properties.Eui.eq(device.getEui())).build().unique();
+        if (devFromDB == null) {
+            dataDao.insert(device);
             eventManager.notifyOnDevDataChecked(true);
         } else {
-            try {
-                dataDao.insert(device);
-            } catch (Exception e) {
-                log.d("BD", "exception: " + e.getMessage());
-            }
-            log.d("BD", "Save into");
+//            devFromDB.copyFields(device);
+            device.setId(devFromDB.getId());
+            dataDao.update(device);
             eventManager.notifyOnDevDataChecked(true);
         }
     }
+
 
 
     public DataModel(DaoSession daoSession) {
@@ -112,111 +106,111 @@ public class DataModel implements Model, GPScallback<Location> {
      */
     @Override
     public void loadAllDeviceData() {
-        DeviceDao dataDao = this.daoSession.getDeviceDao();
-        Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Id).build();
+        MDeviceDao dataDao = this.daoSession.getMDeviceDao();
+        Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Id).build();
         eventManager.notifyOnDataReceive(queue.list());
     }
 
     @Override
     public void loadAllDeviceDataByProperties(Properties property, Direction direction) {
-        DeviceDao dataDao = this.daoSession.getDeviceDao();
+        MDeviceDao dataDao = this.daoSession.getMDeviceDao();
         switch (property) {
             case Id:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Id).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Id).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Id).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Id).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case Type:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Type).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Type).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Type).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Type).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case isOTTA:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.IsOTTA).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.IsOTTA).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.IsOTTA).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.IsOTTA).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case EUI:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Eui).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Eui).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Eui).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Eui).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case APPEUI:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Appeui).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Appeui).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Appeui).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Appeui).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case APPKEY:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Appkey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Appkey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Appkey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Appkey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case NWKID:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Nwkid).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Nwkid).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Nwkid).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Nwkid).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case DEVADR:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Devadr).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Devadr).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Devadr).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Devadr).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case NWKSKEY:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Nwkskey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Nwkskey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Nwkskey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Nwkskey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case APPSKEY:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.Appskey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.Appskey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.Appskey).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.Appskey).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
             case OUTTYPE:
                 if (direction == Direction.Straight) {
-                    Query<Device> queue = dataDao.queryBuilder().orderAsc(DeviceDao.Properties.OutType).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.OutType).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
-                    Query<Device> queue = dataDao.queryBuilder().orderDesc(DeviceDao.Properties.OutType).build();
+                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.OutType).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;

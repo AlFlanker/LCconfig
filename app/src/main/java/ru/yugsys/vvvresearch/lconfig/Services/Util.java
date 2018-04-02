@@ -6,13 +6,10 @@
 // OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
 
 package ru.yugsys.vvvresearch.lconfig.Services;
-
-
 import android.location.Location;
-import android.util.Log;
-import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,12 +18,9 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import static android.provider.Settings.System.getString;
 
 
-public class Helper {
+public class Util {
 
 
 	//***********************************************************************/
@@ -428,7 +422,208 @@ public class Helper {
 		 
 		 return ConvertedNumber;
 	 }
-	
+
+
+    public static boolean DecodeSystemInfoResponse(byte[] systemInfoResponse, DataDevice dataDevice) {
+        DataDevice device = dataDevice;
+        if (systemInfoResponse[0] == 0 && systemInfoResponse.length >= 12) {
+
+            byte[] uid = new byte[8];
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= 8; ++i) {
+                uid[i - 1] = systemInfoResponse[10 - i];
+                sb.append(Util.ConvertHexByteToString(uid[i - 1]));
+            }
+            device.setUid(sb.toString());
+            if (uid[0] == -32) {
+                device.setTechno("ISO 15693");
+            } else if (uid[0] == -48) {
+                device.setTechno("ISO 14443");
+            } else {
+                device.setTechno("Unknown techno");
+            }
+
+            if (uid[1] == 2) {
+                device.setManufacturer("STMicroelectronics");
+            } else if (uid[1] == 4) {
+                device.setManufacturer("NXP");
+            } else if (uid[1] == 7) {
+                device.setManufacturer("Texas Instruments");
+            } else if (uid[1] == 1) {
+                device.setManufacturer("Motorola");
+            } else if (uid[1] == 3) {
+                device.setManufacturer("Hitachi");
+            } else if (uid[1] == 4) {
+                device.setManufacturer("NXP");
+            } else if (uid[1] == 5) {
+                device.setManufacturer("Infineon");
+            } else if (uid[1] == 6) {
+                device.setManufacturer("Cylinc");
+            } else if (uid[1] == 7) {
+                device.setManufacturer("Texas Instruments");
+            } else if (uid[1] == 8) {
+                device.setManufacturer("Fujitsu");
+            } else if (uid[1] == 9) {
+                device.setManufacturer("Matsushita");
+            } else if (uid[1] == 10) {
+                device.setManufacturer("NEC");
+            } else if (uid[1] == 11) {
+                device.setManufacturer("Oki");
+            } else if (uid[1] == 12) {
+                device.setManufacturer("Toshiba");
+            } else if (uid[1] == 13) {
+                device.setManufacturer("Mitsubishi");
+            } else if (uid[1] == 14) {
+                device.setManufacturer("Samsung");
+            } else if (uid[1] == 15) {
+                device.setManufacturer("Hyundai");
+            } else if (uid[1] == 16) {
+                device.setManufacturer("LG");
+            } else {
+                device.setManufacturer("Unknown manufacturer");
+            }
+
+            if (uid[1] == 2) {
+                if (uid[2] >= 4 && uid[2] <= 7) {
+                    device.setProductName("LRI512");
+                    device.setMultipleReadSupported(false);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 20 && uid[2] <= 23) {
+                    device.setProductName("LRI64");
+                    device.setMultipleReadSupported(false);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 32 && uid[2] <= 35) {
+                    device.setProductName("LRI2K");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 40 && uid[2] <= 43) {
+                    device.setProductName("LRIS2K");
+                    device.setMultipleReadSupported(false);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 44 && uid[2] <= 47) {
+                    device.setProductName("M24LR64");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                } else if (uid[2] >= 64 && uid[2] <= 67) {
+                    device.setProductName("LRI1K");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 68 && uid[2] <= 71) {
+                    device.setProductName("LRIS64K");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                } else if (uid[2] >= 72 && uid[2] <= 75) {
+                    device.setProductName("M24LR01E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 76 && uid[2] <= 79) {
+                    device.setProductName("M24LR16E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                    if (!device.isBasedOnTwoBytesAddress()) {
+                        return false;
+                    }
+                } else if (uid[2] >= 80 && uid[2] <= 83) {
+                    device.setProductName("M24LR02E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(false);
+                } else if (uid[2] >= 84 && uid[2] <= 87) {
+                    device.setProductName("M24LR32E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                    if (!device.isBasedOnTwoBytesAddress()) {
+                        return false;
+                    }
+                } else if (uid[2] >= 88 && uid[2] <= 91) {
+                    device.setProductName("M24LR04E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                } else if (uid[2] >= 92 && uid[2] <= 95) {
+                    device.setProductName("M24LR64E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                    if (!device.isBasedOnTwoBytesAddress()) {
+                        return false;
+                    }
+                } else if (uid[2] >= 96 && uid[2] <= 99) {
+                    device.setProductName("M24LR08E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                } else if (uid[2] >= 100 && uid[2] <= 103) {
+                    device.setProductName("M24LR128E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                    if (!device.isBasedOnTwoBytesAddress()) {
+                        return false;
+                    }
+                } else if (uid[2] >= 108 && uid[2] <= 111) {
+                    device.setProductName("M24LR256E");
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                    if (!device.isBasedOnTwoBytesAddress()) {
+                        return false;
+                    }
+                } else if (uid[2] >= -8 && uid[2] <= -5) {
+                    device.setProductName("detected product");
+                    device.setBasedOnTwoBytesAddress(true);
+                    device.setMultipleReadSupported(true);
+                    device.setMemoryExceed2048bytesSize(true);
+                } else {
+                    device.setProductName("Unknown product");
+                    device.setBasedOnTwoBytesAddress(false);
+                    device.setMultipleReadSupported(false);
+                    device.setMemoryExceed2048bytesSize(false);
+                }
+
+                device.setDsfid(Util.ConvertHexByteToString(systemInfoResponse[10]));
+                device.setAfi(Util.ConvertHexByteToString(systemInfoResponse[11]));
+                if (device.isBasedOnTwoBytesAddress()) {
+                    StringBuilder temp = new StringBuilder();
+                    temp.append(systemInfoResponse[13]).append(Util.ConvertHexByteToString(systemInfoResponse[12]));
+                    device.setMemorySize(temp.toString());
+                } else {
+                    device.setMemorySize(Util.ConvertHexByteToString(systemInfoResponse[12]));
+                }
+
+                if (device.isBasedOnTwoBytesAddress()) {
+                    device.setBlockSize(Util.ConvertHexByteToString(systemInfoResponse[14]));
+                } else {
+                    device.setBlockSize(Util.ConvertHexByteToString(systemInfoResponse[13]));
+                }
+
+                if (device.isBasedOnTwoBytesAddress()) {
+                    device.setIcReference(Util.ConvertHexByteToString(systemInfoResponse[15]));
+                } else {
+                    device.setIcReference(Util.ConvertHexByteToString(systemInfoResponse[14]));
+                }
+            } else {
+                device.setProductName("Unknown product");
+                device.setBasedOnTwoBytesAddress(false);
+                device.setMultipleReadSupported(false);
+                device.setMemoryExceed2048bytesSize(false);
+                device.setAfi(Util.ConvertHexByteToString(systemInfoResponse[11]));
+                device.setDsfid(Util.ConvertHexByteToString(systemInfoResponse[10]));
+                device.setMemorySize(Util.ConvertHexByteToString(systemInfoResponse[12]));
+                device.setBlockSize(Util.ConvertHexByteToString(systemInfoResponse[13]));
+                device.setIcReference(Util.ConvertHexByteToString(systemInfoResponse[14]));
+            }
+
+            return true;
+        } else if (device.getTechno() == "ISO 15693") {
+            device.setProductName("Unknown product");
+            device.setBasedOnTwoBytesAddress(false);
+            device.setMultipleReadSupported(false);
+            device.setMemoryExceed2048bytesSize(false);
+            device.setAfi("00 ");
+            device.setDsfid("00 ");
+            device.setMemorySize("3F ");
+            device.setBlockSize("03 ");
+            device.setIcReference("00 ");
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 	public static DataDevice DecodeGetSystemInfoResponse(byte[] GetSystemInfoResponse, DataDevice dataDevice) {
@@ -446,7 +641,7 @@ public class Helper {
 			// change uid format from byteArray to a String
 			for (int i = 1; i <= 8; i++) {
 				uid[i - 1] = GetSystemInfoResponse[10 - i];
-				sb.append(Helper.ConvertHexByteToString(uid[i - 1]));
+				sb.append(Util.ConvertHexByteToString(uid[i - 1]));
 			}
 			uidToString = sb.toString();
 			sb = new StringBuilder();
@@ -589,41 +784,41 @@ public class Helper {
 				}
 
 				//*** DSFID ***
-				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
+				ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
 
 				//*** AFI ***
-				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
+				ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
 
 				//*** MEMORY SIZE ***
 				if (ma.isBasedOnTwoBytesAddress()) {
 					sb = new StringBuilder();
-					sb.append(Helper.ConvertHexByteToString(GetSystemInfoResponse[13])).
-							append(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+					sb.append(Util.ConvertHexByteToString(GetSystemInfoResponse[13])).
+							append(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
 					ma.setMemorySize(sb.toString());
 				} else
-					ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
+					ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
 
 				//*** BLOCK SIZE ***
 				if (ma.isBasedOnTwoBytesAddress())
-					ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+					ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 				else
-					ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
+					ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
 
 				//*** IC REFERENCE ***
 				if (ma.isBasedOnTwoBytesAddress())
-					ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[15]));
+					ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[15]));
 				else
-					ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+					ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 			} else {
 				ma.setProductName("Unknown product");
 				ma.setBasedOnTwoBytesAddress(false);
 				ma.setMultipleReadSupported(false);
 				ma.setMemoryExceed2048bytesSize(false);
-				ma.setAfi(Helper.ConvertHexByteToString(GetSystemInfoResponse[11]));
-				ma.setDsfid(Helper.ConvertHexByteToString(GetSystemInfoResponse[10]));
-				ma.setMemorySize(Helper.ConvertHexByteToString(GetSystemInfoResponse[12]));
-				ma.setBlockSize(Helper.ConvertHexByteToString(GetSystemInfoResponse[13]));
-				ma.setIcReference(Helper.ConvertHexByteToString(GetSystemInfoResponse[14]));
+				ma.setAfi(Util.ConvertHexByteToString(GetSystemInfoResponse[11]));
+				ma.setDsfid(Util.ConvertHexByteToString(GetSystemInfoResponse[10]));
+				ma.setMemorySize(Util.ConvertHexByteToString(GetSystemInfoResponse[12]));
+				ma.setBlockSize(Util.ConvertHexByteToString(GetSystemInfoResponse[13]));
+				ma.setIcReference(Util.ConvertHexByteToString(GetSystemInfoResponse[14]));
 			}
 
 			return ma;
@@ -650,48 +845,47 @@ public class Helper {
 	//* the function Convert Fields of Object to byte array
 	// Alex Flanker
 	//***********************************************************************/
-	public static byte[] Object2ByteArray(Device dev) throws IllegalAccessException, IOException, NoSuchFieldException {
+    public static byte[] Object2ByteArray(MDevice dev) throws IllegalAccessException, IOException, NoSuchFieldException {
 		Field field;
 		StringBuilder sb = new StringBuilder();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
-		field = Device.class.getField("type");
+        field = MDevice.class.getField("type");
 		String s = field.get(dev).toString();
 		sb.append(s);
 		while (sb.length() < 5) {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = Device.class.getField("isOTTA");
+        field = MDevice.class.getField("isOTTA");
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
-		field = Device.class.getField("eui");
+        field = MDevice.class.getField("eui");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appeui");
+        field = MDevice.class.getField("appeui");
 		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appkey");
+        field = MDevice.class.getField("appkey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("nwkid");
+        field = MDevice.class.getField("nwkid");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("devadr");
+        field = MDevice.class.getField("devadr");
 		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
-		field = Device.class.getField("nwkskey");
+        field = MDevice.class.getField("nwkskey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("appskey");
+        field = MDevice.class.getField("appskey");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
-		field = Device.class.getField("Latitude");
+        field = MDevice.class.getField("Latitude");
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 
-
-		field = Device.class.getField("Longitude");
+        field = MDevice.class.getField("Longitude");
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
 		;
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
-		field = Device.class.getField("outType");
+        field = MDevice.class.getField("outType");
 		s = field.get(dev).toString();
 		sb = new StringBuilder();
 		sb.append(s);
@@ -699,9 +893,9 @@ public class Helper {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = Device.class.getField("kV");
+        field = MDevice.class.getField("kV");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = Device.class.getField("kI");
+        field = MDevice.class.getField("kI");
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
 		return byteArrayOutputStream.toByteArray();
@@ -745,11 +939,11 @@ public class Helper {
 	//* the function Convert raw byte[] to Device
 	// Alex Flanker
 	//***********************************************************************/
-	public static Device decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
-		Device device = new Device();
+    public static MDevice decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
+        MDevice device = new MDevice();
 		byte[] buf;
 		StringBuilder stringBuilder = new StringBuilder();
-		Field[] fields = Device.class.getFields();
+        Field[] fields = MDevice.class.getFields();
 		for (Field field : fields) {
 			if (field.getName().equals("type")) {
 				buf = new byte[5];
@@ -907,34 +1101,27 @@ public class Helper {
 		return count;
 	}
 
-	public static Device generate(String EUI, Location location) {
+    public static MDevice generate(String EUI, Location location) {
 		String mEUI;
 		mEUI = EUI.replace(" ", "");
 		mEUI = mEUI.substring(8);
-		Device newDev = new Device();
-		newDev.type = "LC503";
-		newDev.isOTTA = Boolean.FALSE;
-		newDev.eui = EUI.replace(" ", "");
-		newDev.eui = EUI.trim();
-		newDev.appeui = "0000000000000001";
-		newDev.appkey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		newDev.nwkid = "00000000";
-		newDev.devadr = mEUI;
-		newDev.nwkskey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		newDev.appskey = "2B7E151628AED2A6ABF7158809CF4F3C";
-		if (location != null) {
-			newDev.Latitude = location.getLatitude();
-			newDev.Longitude = location.getLongitude();
-		}
-		else
-		{
-			newDev.Latitude = 45.071069;
-			newDev.Longitude = 38.997627;
-		}
-		newDev.outType = "PMW";
-		newDev.kV = "EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506";
-		newDev.kI = "991C";
+        MDevice newDev = new MDevice();
+        newDev.setType("LC503");
+        newDev.setIsOTTA(Boolean.FALSE);
+        newDev.setEui(EUI.replace(" ", "").trim());
+        newDev.setAppeui("0000000000000001");
+        newDev.setAppkey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setNwkid("00000000");
+        newDev.setDevadr(mEUI);
+        newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setAppskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setLatitude(location != null ? location.getLatitude() : 0.0d);
+        newDev.setLongitude(location != null ? location.getLongitude() : 0.0d);
+        newDev.setOutType("PMW");
+        newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
+        newDev.setKI("991C");
 		return newDev;
 //		newDev.setEui();
 	}
+
 }
