@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 
 
@@ -893,7 +894,7 @@ public class Util {
 		field = MDevice.class.getDeclaredField("Longitude");
 		field.setAccessible(true);
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
-		;
+
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 		field = MDevice.class.getDeclaredField("outType");
@@ -911,7 +912,13 @@ public class Util {
 		field = MDevice.class.getDeclaredField("kI");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-
+		CRC16 c = new CRC16();
+		int cr = c.CRC16ArrayGet(0, byteArrayOutputStream.toByteArray());
+		byte[] crb = ByteBuffer.allocate(4).putInt(cr).array();
+		StringBuilder stb = new StringBuilder();
+		for (Byte b : crb) {
+			stb.append(String.format("%02x; ", b));
+		}
 		return byteArrayOutputStream.toByteArray();
 	}
 
@@ -969,7 +976,7 @@ public class Util {
 			if (field.getName().equals("type")) {
 				buf = new byte[5];
 				System.arraycopy(raw, 0, buf, 0, 5);
-				device.setType(new String(buf, StandardCharsets.UTF_8).toUpperCase());
+				device.setType(new String(buf, StandardCharsets.UTF_8).toUpperCase().trim());
 //				field.set(device, new String(buf, StandardCharsets.UTF_8));
 			}
 			if (field.getName().equals("isOTTA")) {

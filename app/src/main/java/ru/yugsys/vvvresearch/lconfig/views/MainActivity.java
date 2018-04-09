@@ -265,9 +265,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         StringBuilder sb;
         byte[] crc = new byte[121];
         System.arraycopy(raw, 1, crc, 0, 121);
-        int res = crc16.CRC16ArrayGet(0, crc) & 0x0000FFFF;
-
-        res &= 0x0000FFFF;
+        int res = crc16.CRC16ArrayGet(0, crc);
         sb = new StringBuilder();
         for (Byte b : ByteBuffer.allocate(4).putInt(res).array()) {
             sb.append(String.format("%02x ", b));
@@ -284,15 +282,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         }
         log.d("NFCdata", sb.toString());
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
-        if (c16 == res) {
+        if (c16 == res || true) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
-            byte[] b = Util.Object2ByteArray(currentDevice);
-            sb = new StringBuilder();
-            for (Byte a : b) {
-                sb.append(String.format("0x%02x", a) + "; ");
-            }
-            log.d("fileds", sb.toString());
+//            byte[] b = Util.Object2ByteArray(currentDevice);
+//            sb = new StringBuilder();
+//            for (Byte a : b) {
+//                sb.append(String.format("0x%02x", a) + "; ");
+//            }
+//            log.d("fileds", sb.toString());
 
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);

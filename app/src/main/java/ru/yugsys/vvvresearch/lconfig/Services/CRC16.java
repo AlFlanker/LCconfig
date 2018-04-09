@@ -88,6 +88,6 @@ public class CRC16 {
         for (byte b : buffer) {
             beginCRC = CRC16Get(beginCRC, b);
         }
-        return (~beginCRC);
+        return (~beginCRC) & 0x0000FFFF;
     }
 }
