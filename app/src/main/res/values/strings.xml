@@ -130,5 +130,11 @@
     <string name="action_gps">GPS</string>
     <string name="dont_leave_phone">Don\'t leave your phone from device </string>
     <string name="reads_data">Data is reading</string>
+    <string name="TagDetected">Обнаружено новое устройство.</string>
+    <string name="TouchToDevice">Поднесите телефон к устройству!</string>
+    <string name="ERRORFileTransfer">Ошибка передачи данных!</string>
+    <string name="TransferStop">Ошибка передачи данных! Отмена передачи.</string>
+    <string name="WriteSucessfull">Данные записанны</string>
+
 
 </resources>

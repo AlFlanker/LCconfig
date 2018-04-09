@@ -81,7 +81,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        log.d("NFC", "AddActivity");
         readyToWriteDevice = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
@@ -151,7 +150,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             gpsTracker.OnStartGPS();
             mLocation = getLastKnownLocation();
         }
-        log.d("GPS", "Activity gps start");
 
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
@@ -177,7 +175,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     protected void onNewIntent(Intent intent) {
-        log.d("NFC", "newintent");
         super.onNewIntent(intent);
         String action = intent.getAction();
         if ("android.nfc.action.TECH_DISCOVERED".equals(action)) {
@@ -187,8 +184,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
             //  currentDev = Util.DecodeGetSystemInfoResponse(systemInfo,currentDev);
 
-            Toast.makeText(getApplicationContext(), "Tag detected!", Toast.LENGTH_SHORT).show();
-            log.d("NFC", "add new tag");
+            Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
             if (createNewDevice) {
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
@@ -227,9 +223,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 presenter.fireGetNewGPSData();
             }
         } else {
-
-            log.d("NFC", "readNFC");
-            log.d("NFC", "post readNFC");
         }
     }
 
@@ -298,7 +291,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public void onClick(View view) {
         //  currentDevice = fieldToDevice(); // In OnNewIntent()
         readyToWriteDevice = true;
-        Toast.makeText(getApplicationContext(), "поднеси к устройству!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), getString(R.string.TouchToDevice), Toast.LENGTH_SHORT).show();
 
 
     }
@@ -370,7 +363,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         @Override
         protected Void doInBackground(Void... params) {
             int countOfAttempt = 0;
-            log.d("NFCdata", "doInBackground 1");
             byte[] block;
             DataDevice dataDevice = currentDev;
             writeResult = null;
@@ -380,7 +372,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
                     int numberOfBlocks = 0;
                     if (valueBlocksWrite.length % 4 != 0) {
-                        log.d("NFCdata", "doInBackground init param");
                         int l = 4 - valueBlocksWrite.length % 4;
                         dataBuf = new byte[valueBlocksWrite.length + l];
                         System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
@@ -396,7 +387,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     for (Byte b : dataBuf) {
                         sb.append(String.format("%02x ", b));
                     }
-                    log.d("NFCdata", sb.toString());
                     int ResultWriteAnswer = 0;
 
                     for (int startAddres = 0; startAddres < numberOfBlocks; startAddres++) {
@@ -408,7 +398,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         block[3] = dataBuf[startAddres * 4 + 3];
                         countOfAttempt = 0;
                         writeResult = null;
-                        log.d("NFCdata", "doInBackground pre write");
                         while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
                             writeResult = NFCCommand.writeSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
                             countOfAttempt++;
@@ -428,7 +417,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                             writeResult[0] = (byte) 0x00;
                     }
                 }
-                log.d("NFCdata", "doInBackground post");
+
             }
 
             return null;
@@ -437,43 +426,27 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         protected void onPostExecute(final Void unused) {
             if (this.dialog.isShowing())
                 this.dialog.dismiss();
-            log.d("NFCdata", "onPostExecute post dialog");
             if (writeResult == null) {
-                log.d("NFCdata", "onPostExecute post dialog in if");
-                log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer (No tag answer)");
-                Toast.makeText(getApplicationContext(), "ERROR File Transfer (No tag answer) ", Toast.LENGTH_SHORT).show();
             } else if (writeResult[0] == (byte) 0x01) {
-
-                log.d("NFCdata", "onPostExecute post dialog \n RROR File Transfer 1");
-                Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
             } else if (writeResult[0] == (byte) 0xFF) {
-
-                log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer 2 ");
-                Toast.makeText(getApplicationContext(), "ERROR File Transfer ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
             } else if (writeResult[0] == (byte) 0xE1) {
-
-                log.d("NFCdata", "onPostExecute post dialog \n ERROR File Transfer process stopped ");
-                Toast.makeText(getApplicationContext(), "ERROR File Transfer process stopped", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
             } else if (writeResult[0] == (byte) 0x00) {
-                log.d("NFCdata", "onPostExecute post dialog \n EWrite Sucessfull");
-                Toast.makeText(getApplicationContext(), "Write Sucessfull ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
                 presenter.fireNewDevice(fieldToDevice());
-                log.d("NFCdata", "onPostExecute post dialog \n field to device");
                 readyToWriteDevice = false;
                 if (Build.VERSION.SDK_INT == 26) {
-                    log.d("NFCdata", "onPostExecute post dialog \n vibr api 26");
                     vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
                 } else if (Build.VERSION.SDK_INT < 26) {
-                    log.d("NFCdata", "onPostExecute post dialog \n vibr api <26");
                     vibrator.vibrate(500);
                 }
-                log.d("NFCdata", "onPostExecute post dialog \n finish()");
                 finish();
 
 
             } else {
-                log.d("NFCdata", "onPostExecute post dialog \n File Transfer ERROR end TASK!");
-                Toast.makeText(getApplicationContext(), "File Transfer ERROR ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
             }
 
 
