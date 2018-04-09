@@ -20,13 +20,19 @@ public class DataModel implements Model, GPScallback<Location> {
 
     private EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
-    // private DataDevice currentDataDevice = new DataDevice();
     private MDevice currentDevice;
     private Logger log = Logger.getInstance();
 
 
     /*------------------------------------------------------------------------*/
     /* Methods and Classes block*/
+
+    @Override
+    public void clearDataBase() {
+        this.daoSession.getMDeviceDao().deleteAll();
+        loadAllDeviceData(); // for update
+    }
+
     @Override
     public void DeleteDevice(long id) {
         if (this.daoSession.getDeviceDao().load(id) != null) {

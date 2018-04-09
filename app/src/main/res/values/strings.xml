@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">LConfig</string>
     <string name="action_settings">Settings</string>
+    <string name="action_ClearBD">ClearBD</string>
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
@@ -117,6 +118,7 @@
         <item>LC501</item>
         <item>LC502</item>
         <item>LC503</item>
+        <item>TEST</item>
     </string-array>
     <string-array name="out_type_list">
         <item>PWM</item>

@@ -156,7 +156,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
         presenter.bind(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true);
+        createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, false);
         if (createNewDevice) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             if (mLocation.getProvider().equals("")) {
@@ -200,9 +200,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     b[i] = b[b.length - i - 1];
                     b[b.length - i - 1] = temp;
                 }
-                muid = Util.ConvertHexByteArrayToString(b);
+                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
                 currentDevice.setDevadrMSBtoLSB(muid);
-                currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString());
+                currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
                 createNewDevice = false;
             }
@@ -249,7 +249,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
         nwkIDEdit.setText(device.getNwkid());
-        devAdrEdit.setText(device.getDevadrMSBtoLSB());
+        devAdrEdit.setText(device.getDevadr());
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(false);

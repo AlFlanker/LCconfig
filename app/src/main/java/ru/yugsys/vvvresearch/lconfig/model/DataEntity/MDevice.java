@@ -152,7 +152,7 @@ public class MDevice {
             StringBuilder devText = new StringBuilder();
             for (int i = 0; i < devadr.length(); i += 2) {
                 devText.insert(0, devadr.substring(i, i + 2));
-                this.devadr = devText.toString();
+                this.devadr = devText.toString().toUpperCase();
             }
         } else this.devadr = null;
     }
@@ -164,7 +164,7 @@ public class MDevice {
             for (int i = 0; i < length; i += 2) {
                 devText = devText.insert(0, devadr.substring(i, i + 2));
             }
-            return devText.toString();
+            return devText.toString().toUpperCase();
         } else return null;
     }
 

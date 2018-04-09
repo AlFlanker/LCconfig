@@ -157,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_clearBD) {
+            ((App) getApplication()).getModel().clearDataBase();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -200,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 Arrays.fill(mainActivity.addressStart, (byte) 0x00);
                 mainActivity.numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x20}; // 32 блока на 4 байта
             }
+
         }
 
         protected Void doInBackground(Void... params) {
@@ -280,7 +283,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             sb.append(String.format("%02x ", b));
         }
         log.d("NFCdata", sb.toString());
-        if (ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt() == res) {
+        int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
+        if (c16 == res) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
             byte[] b = Util.Object2ByteArray(currentDevice);
@@ -294,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
             currentDataDevice = null;
             startActivity(addActivity);
+
         }
     }
 
