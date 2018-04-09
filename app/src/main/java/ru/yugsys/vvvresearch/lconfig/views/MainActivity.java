@@ -140,8 +140,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
-        log.d("GPS", "Activity gps start");
-
     }
 
     @Override
@@ -270,17 +268,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         for (Byte b : ByteBuffer.allocate(4).putInt(res).array()) {
             sb.append(String.format("%02x ", b));
         }
-        log.d("NFCdata", "crc: " + sb.toString());
-        sb = new StringBuilder();
-        for (Byte b : crc) {
-            sb.append(String.format("%02x ", b));
-        }
-        log.d("NFCdata", "crc arr:" + sb.toString());
-        sb = new StringBuilder();
-        for (Byte b : raw) {
-            sb.append(String.format("%02x ", b));
-        }
-        log.d("NFCdata", sb.toString());
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
         if (c16 == res || true) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
