@@ -39,6 +39,7 @@ public interface Model {
 
     void loadAllDeviceDataByProperties(Properties property, Direction direction);
     //void stopGPS();
+    void clearDataBase();
 
 
 }

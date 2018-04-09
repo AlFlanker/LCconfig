@@ -850,42 +850,54 @@ public class Util {
 		StringBuilder sb = new StringBuilder();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
-        field = MDevice.class.getField("type");
+		field = MDevice.class.getDeclaredField("type");
+		field.setAccessible(true);
 		String s = field.get(dev).toString();
 		sb.append(s);
 		while (sb.length() < 5) {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-        field = MDevice.class.getField("isOTTA");
+		field = MDevice.class.getDeclaredField("isOTTA");
+		field.setAccessible(true);
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
-        field = MDevice.class.getField("eui");
+		field = MDevice.class.getDeclaredField("eui");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("appeui");
+		field = MDevice.class.getDeclaredField("appeui");
+		field.setAccessible(true);
 		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("appkey");
+		field = MDevice.class.getDeclaredField("appkey");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("nwkid");
+		field = MDevice.class.getDeclaredField("nwkid");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("devadr");
+		field = MDevice.class.getDeclaredField("devadr");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
-        field = MDevice.class.getField("nwkskey");
+		field = MDevice.class.getDeclaredField("nwkskey");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("appskey");
+		field = MDevice.class.getDeclaredField("appskey");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
-        field = MDevice.class.getField("Latitude");
+		field = MDevice.class.getDeclaredField("Latitude");
+		field.setAccessible(true);
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 
-        field = MDevice.class.getField("Longitude");
+		field = MDevice.class.getDeclaredField("Longitude");
+		field.setAccessible(true);
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
 		;
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
-        field = MDevice.class.getField("outType");
+		field = MDevice.class.getDeclaredField("outType");
+		field.setAccessible(true);
 		s = field.get(dev).toString();
 		sb = new StringBuilder();
 		sb.append(s);
@@ -893,9 +905,11 @@ public class Util {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-        field = MDevice.class.getField("kV");
+		field = MDevice.class.getDeclaredField("kV");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-        field = MDevice.class.getField("kI");
+		field = MDevice.class.getDeclaredField("kI");
+		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
 		return byteArrayOutputStream.toByteArray();
@@ -943,12 +957,20 @@ public class Util {
         MDevice device = new MDevice();
 		byte[] buf;
 		StringBuilder stringBuilder = new StringBuilder();
-        Field[] fields = MDevice.class.getFields();
+		Field[] fields = MDevice.class.getDeclaredFields();
+		String[] names = new String[fields.length];
+		int i = 0;
 		for (Field field : fields) {
+			names[i++] = field.getName();
+		}
+
+		for (Field field : fields) {
+			//name = field.getName();
 			if (field.getName().equals("type")) {
 				buf = new byte[5];
 				System.arraycopy(raw, 0, buf, 0, 5);
-				field.set(device, new String(buf, StandardCharsets.UTF_8));
+				device.setType(new String(buf, StandardCharsets.UTF_8).toUpperCase());
+//				field.set(device, new String(buf, StandardCharsets.UTF_8));
 			}
 			if (field.getName().equals("isOTTA")) {
 				buf = new byte[1];
@@ -957,7 +979,8 @@ public class Util {
 				if (buf[0] > 0) {
 					isotta = true;
 				} else isotta = false;
-				field.set(device, isotta);
+				device.setIsOTTA(isotta);
+				//field.set(device, isotta);
 
 			}
 			if (field.getName().equals("eui")) {
@@ -967,7 +990,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setEui(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("appeui")) {
 				buf = new byte[8];
@@ -976,7 +1000,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setAppeui(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("appkey")) {
 				buf = new byte[16];
@@ -985,7 +1010,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setAppkey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("nwkid")) {
 				buf = new byte[4];
@@ -994,7 +1020,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setNwkid(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("devadr")) {
 				buf = new byte[4];
@@ -1003,7 +1030,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setDevadr(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("nwkskey")) {
 				buf = new byte[16];
@@ -1012,7 +1040,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setNwkskey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("appskey")) {
 				buf = new byte[16];
@@ -1021,18 +1050,21 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setAppskey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("Latitude")) {
 				buf = new byte[4];
 				System.arraycopy(raw, 78, buf, 0, 4);
-				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+//				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+				device.setLatitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 				//order(ByteOrder.LITTLE_ENDIAN)
 			}
 			if (field.getName().equals("Longitude")) {
 				buf = new byte[4];
 				System.arraycopy(raw, 82, buf, 0, 4);
-				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+				device.setLongitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+//				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 			}
 			if (field.getName().equals("outType")) {    //refactor!
 				buf = new byte[5];
@@ -1043,7 +1075,8 @@ public class Util {
 					} else
 						stringBuilder.append(new String(new byte[]{b}, StandardCharsets.UTF_8));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setOutType(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("kV")) {
 				buf = new byte[28];
@@ -1053,7 +1086,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setKV(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 			if (field.getName().equals("kI")) {
 				buf = new byte[2];
@@ -1062,7 +1096,8 @@ public class Util {
 				for (Byte b : buf) {
 					stringBuilder.append(String.format("%02x", b));
 				}
-				field.set(device, stringBuilder.toString());
+				device.setKI(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
 			}
 		}
 		return device;
@@ -1112,6 +1147,8 @@ public class Util {
         newDev.setAppeui("0000000000000001");
         newDev.setAppkey("2B7E151628AED2A6ABF7158809CF4F3C");
         newDev.setNwkid("00000000");
+
+		//ConvertStringToHexBytesArray(String.valueOf(Integer.reverseBytes(Integer.parseInt(mEUI,16))));
         newDev.setDevadr(mEUI);
         newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
         newDev.setAppskey("2B7E151628AED2A6ABF7158809CF4F3C");

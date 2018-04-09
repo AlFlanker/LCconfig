@@ -58,7 +58,7 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
      * Creates the underlying database table.
      */
     public static void createTable(Database db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"MDevicesTable\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"TYPE\" TEXT NOT NULL ," + // 1: type
@@ -77,9 +77,7 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
                 "\"K_I\" TEXT NOT NULL );"); // 14: kI
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(Database db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"MDevicesTable\"";
         db.execSQL(sql);
@@ -88,14 +86,14 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, MDevice entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
-
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L: 0L);
+ 
         String eui = entity.getEui();
         if (eui != null) {
             stmt.bindString(4, eui);
@@ -116,14 +114,14 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, MDevice entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getType());
-        stmt.bindLong(3, entity.getIsOTTA() ? 1L : 0L);
-
+        stmt.bindLong(3, entity.getIsOTTA() ? 1L: 0L);
+ 
         String eui = entity.getEui();
         if (eui != null) {
             stmt.bindString(4, eui);
@@ -150,7 +148,7 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
     @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
-    }
+    }    
 
     @Override
     public MDevice readEntity(Cursor cursor, int offset) {
@@ -173,7 +171,7 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
         );
         return entity;
     }
-
+     
     @Override
     public void readEntity(Cursor cursor, MDevice entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
@@ -191,14 +189,14 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
         entity.setOutType(cursor.getString(offset + 12));
         entity.setKV(cursor.getString(offset + 13));
         entity.setKI(cursor.getString(offset + 14));
-    }
-
+     }
+    
     @Override
     protected final Long updateKeyAfterInsert(MDevice entity, long rowId) {
         entity.setId(rowId);
         return rowId;
     }
-
+    
     @Override
     public Long getKey(MDevice entity) {
         if (entity != null) {
@@ -217,5 +215,5 @@ public class MDeviceDao extends AbstractDao<MDevice, Long> {
     protected final boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }
