@@ -266,12 +266,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private void setSpinnerValuePosition(String value, Spinner spinner) {
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
         int i = adapter.getPosition(value);
-        this.typeSpinner.setSelection(i);
+        if (spinner == typeSpinner) this.typeSpinner.setSelection(i);
+        else if (spinner == out_typeSpinner) this.out_typeSpinner.setSelection(i);
     }
 
     private MDevice fieldToDevice() {
         MDevice device = new MDevice();
-        device.setType(typeSpinner.getSelectedItem().toString());
+        device.setType(typeSpinner.getSelectedItem().toString().trim());
         device.setEui(deveuiEdit.getText().toString());
         device.setAppeui(appEUIEdit.getText().toString());
         device.setAppkey(appKeyEdit.getText().toString());
@@ -295,7 +296,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void onClick(View view) {
-        currentDevice = fieldToDevice();
+        //  currentDevice = fieldToDevice(); // In OnNewIntent()
         readyToWriteDevice = true;
         Toast.makeText(getApplicationContext(), "поднеси к устройству!", Toast.LENGTH_SHORT).show();
 
