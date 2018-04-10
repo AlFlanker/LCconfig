@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
+import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -277,21 +278,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         if (c16 == res) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
-//            byte[] b = Util.Object2ByteArray(currentDevice);
-//            sb = new StringBuilder();
-//            for (Byte a : b) {
-//                sb.append(String.format("0x%02x", a) + "; ");
-//            }
-//            log.d("fileds", sb.toString());
-
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
             currentDataDevice = null;
             startActivity(addActivity);
 
         } else {
+            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
             String er = ((App) getApplication()).out;
-
             Log.d("Er", sb.toString());
         }
     }
