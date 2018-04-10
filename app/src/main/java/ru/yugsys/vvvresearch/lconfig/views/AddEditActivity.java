@@ -16,6 +16,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,10 +29,7 @@ import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
-import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
-import ru.yugsys.vvvresearch.lconfig.Services.Util;
+import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
@@ -110,6 +110,19 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
+        /*Filters*/
+        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
+        appKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+        nwkIDEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
+        devAdrEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
+        nwkSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+        appSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+        deveuiEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
+        gpsEditLatitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        gpsEditLongitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        gpsEditLongitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
+        gpsEditLatitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
+
         expandableLinearLayout = findViewById(R.id.expandableLayoutAddEdit);
         expandableLinearLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));
         expandableLinearLayout.setExpanded(false);
@@ -185,7 +198,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             //  currentDev = Util.DecodeGetSystemInfoResponse(systemInfo,currentDev);
 
             Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
-            if (createNewDevice) {
+            if (createNewDevice && currentDev.getUid() != null) {
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
@@ -202,7 +215,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 setDeviceFields(currentDevice);
                 createNewDevice = false;
             }
-            if (readyToWriteDevice) {
+            if (readyToWriteDevice && currentDev.getUid() != null) {
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
@@ -214,7 +227,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     b[b.length - i - 1] = temp;
                 }
                 muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
-                currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8));
+                currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8).toUpperCase());
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
                 new StartWriteTask().execute();
@@ -260,6 +273,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         isOTAASwitch.setChecked(device.getIsOTTA());
         gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
         gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
+
     }
 
     @Override
@@ -365,8 +379,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
         }
 
-
-        // automatically done on worker thread (separate from UI thread)
         @Override
         protected Void doInBackground(Void... params) {
             int countOfAttempt = 0;
@@ -375,56 +387,62 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             writeResult = null;
             byte[] dataBuf;
             StringBuilder sb;
-            if (currentDev != null) {
-                if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
-                    int numberOfBlocks = 0;
-                    if (valueBlocksWrite.length % 4 != 0) {
-                        int l = 4 - valueBlocksWrite.length % 4;
-                        dataBuf = new byte[valueBlocksWrite.length + l];
-                        System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
-                        Arrays.fill(dataBuf, valueBlocksWrite.length, valueBlocksWrite.length + 1, (byte) 0xFF);
-                        numberOfBlocks = dataBuf.length / 4;
+            try {
 
-                    } else {
-                        dataBuf = new byte[valueBlocksWrite.length];
-                        System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
-                        numberOfBlocks = dataBuf.length / 4;
-                    }
-                    sb = new StringBuilder();
-                    for (Byte b : dataBuf) {
-                        sb.append(String.format("%02x ", b));
-                    }
-                    int ResultWriteAnswer = 0;
+                if (currentDev != null) {
+                    if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
+                        int numberOfBlocks = 0;
+                        if (valueBlocksWrite.length % 4 != 0) {
+                            int l = 4 - valueBlocksWrite.length % 4;
+                            dataBuf = new byte[valueBlocksWrite.length + l];
+                            System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
+                            Arrays.fill(dataBuf, valueBlocksWrite.length, valueBlocksWrite.length + 1, (byte) 0xFF);
+                            numberOfBlocks = dataBuf.length / 4;
 
-                    for (int startAddres = 0; startAddres < numberOfBlocks; startAddres++) {
-                        byte[] addressStart = Util.ConvertIntTo2bytesHexaFormat(startAddres);
-                        block = new byte[4];
-                        block[0] = dataBuf[startAddres * 4];
-                        block[1] = dataBuf[startAddres * 4 + 1];
-                        block[2] = dataBuf[startAddres * 4 + 2];
-                        block[3] = dataBuf[startAddres * 4 + 3];
-                        countOfAttempt = 0;
-                        writeResult = null;
-                        while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
-                            writeResult = NFCCommand.writeSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
-                            countOfAttempt++;
+                        } else {
+                            dataBuf = new byte[valueBlocksWrite.length];
+                            System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
+                            numberOfBlocks = dataBuf.length / 4;
                         }
-                        if (writeResult != null) {
-                            if (writeResult[0] != (byte) 0x00) {
-                                ResultWriteAnswer++;
-                                writeResult[0] = (byte) 0xE1;
-                                return null;
+                        sb = new StringBuilder();
+                        for (Byte b : dataBuf) {
+                            sb.append(String.format("%02x ", b));
+                        }
+                        int ResultWriteAnswer = 0;
+
+                        for (int startAddres = 0; startAddres < numberOfBlocks; startAddres++) {
+                            byte[] addressStart = Util.ConvertIntTo2bytesHexaFormat(startAddres);
+                            block = new byte[4];
+                            block[0] = dataBuf[startAddres * 4];
+                            block[1] = dataBuf[startAddres * 4 + 1];
+                            block[2] = dataBuf[startAddres * 4 + 2];
+                            block[3] = dataBuf[startAddres * 4 + 3];
+                            countOfAttempt = 0;
+                            writeResult = null;
+                            while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
+                                writeResult = NFCCommand.writeSingleBlockCommand(dataDevice.getCurrentTag(), addressStart, block, dataDevice);
+                                countOfAttempt++;
+                            }
+                            if (writeResult != null) {
+                                if (writeResult[0] != (byte) 0x00) {
+                                    ResultWriteAnswer++;
+                                    writeResult[0] = (byte) 0xE1;
+                                    return null;
+                                }
                             }
                         }
+                        if (writeResult != null) {
+                            if (ResultWriteAnswer > 0)
+                                writeResult[0] = (byte) 0xFF;
+                            else
+                                writeResult[0] = (byte) 0x00;
+                        }
                     }
-                    if (writeResult != null) {
-                        if (ResultWriteAnswer > 0)
-                            writeResult[0] = (byte) 0xFF;
-                        else
-                            writeResult[0] = (byte) 0x00;
-                    }
+
                 }
 
+            } catch (Exception e) {
+                Log.d("NFCTEST", e.getMessage() + "\n");
             }
 
             return null;
