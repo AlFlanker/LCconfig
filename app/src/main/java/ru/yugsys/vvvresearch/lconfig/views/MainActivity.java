@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
@@ -265,11 +266,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         System.arraycopy(raw, 1, crc, 0, 121);
         int res = crc16.CRC16ArrayGet(0, crc);
         sb = new StringBuilder();
-        for (Byte b : ByteBuffer.allocate(4).putInt(res).array()) {
+        for (Byte b : Integer.toHexString(res).getBytes()) {
+            sb.append(String.format("%02x ", b));
+        }
+        sb = new StringBuilder();
+        for (Byte b : raw) {
             sb.append(String.format("%02x ", b));
         }
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
-        if (c16 == res || true) {
+        if (c16 == res) {
             currentDevice = Util.decodeByteArrayToDevice(crc);
             ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
 //            byte[] b = Util.Object2ByteArray(currentDevice);
@@ -284,6 +289,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             currentDataDevice = null;
             startActivity(addActivity);
 
+        } else {
+            String er = ((App) getApplication()).out;
+
+            Log.d("Er", sb.toString());
         }
     }
 

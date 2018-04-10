@@ -204,7 +204,19 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             }
             if (readyToWriteDevice) {
                 currentDevice = fieldToDevice();
-                presenter.fireNewDevice(currentDevice);
+                String jpref = getString(R.string.pref_JUG_SYSTEMA);
+                String muid = currentDev.getUid().replace(" ", "");
+                muid = muid.substring(8);
+                byte[] b = Util.hexToBytes(muid);
+                for (int i = 0; i < b.length / 2; i++) {
+                    byte temp = b[i];
+                    b[i] = b[b.length - i - 1];
+                    b[b.length - i - 1] = temp;
+                }
+                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
+                currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8));
+                currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
+                setDeviceFields(currentDevice);
                 new StartWriteTask().execute();
                 readyToWriteDevice = false;
             }
@@ -245,7 +257,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         devAdrEdit.setText(device.getDevadr());
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
-        isOTAASwitch.setChecked(false);
+        isOTAASwitch.setChecked(device.getIsOTTA());
         gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
         gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
     }
@@ -265,25 +277,20 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     private MDevice fieldToDevice() {
         MDevice device = new MDevice();
-        device.setType(typeSpinner.getSelectedItem().toString().trim());
-        device.setEui(deveuiEdit.getText().toString());
-        device.setAppeui(appEUIEdit.getText().toString());
-        device.setAppkey(appKeyEdit.getText().toString());
-        device.setNwkid(nwkIDEdit.getText().toString());
-        device.setDevadrMSBtoLSB(devAdrEdit.getText().toString());
-        device.setNwkskey(nwkSKeyEdit.getText().toString());
-        device.setAppskey(appSKeyEdit.getText().toString());
-        //default constants of the LC5 firmware
-//        device.setKI("7321");
-//        device.setKV("1004,974,976,993,995,1028,1038,2489,2412,2254,2063,1908,1702,1541");
-        //default constants of the LC5 firmware in HEX
+        device.setType(typeSpinner.getSelectedItem().toString().trim().toUpperCase());
+        device.setEui(deveuiEdit.getText().toString().toUpperCase());
+        device.setAppeui(appEUIEdit.getText().toString().toUpperCase());
+        device.setAppkey(appKeyEdit.getText().toString().toUpperCase());
+        device.setNwkid(nwkIDEdit.getText().toString().toUpperCase());
+        device.setDevadr(devAdrEdit.getText().toString().toUpperCase());
+        device.setNwkskey(nwkSKeyEdit.getText().toString().toUpperCase());
+        device.setAppskey(appSKeyEdit.getText().toString().toUpperCase());
         device.setKI("991C");
         device.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
-
         device.setIsOTTA(isOTAASwitch.isChecked());
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
-        device.setOutType(out_typeSpinner.getSelectedItem().toString());
+        device.setOutType(out_typeSpinner.getSelectedItem().toString().toUpperCase());
         return device;
     }
 
@@ -324,6 +331,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     if ((Util.DecodeGetSystemInfoResponse(systemInfo, currentDev)) != null) {
                         int MemorySizeBytes = (Util.ConvertStringToInt((dataDevice.getMemorySize().replace(" ", ""))) + 1) * 4;
                         byte[] raw = Util.Object2ByteArray(currentDevice);
+
                         System.arraycopy(raw, 0, valueBlocksWrite, 0, raw.length);
                         //  valueBlocksWrite[0]=0x00;
                         CRC16 crc16 = new CRC16();
@@ -332,9 +340,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         res &= 0x0000ffff;
                         byte[] crc = ByteBuffer.allocate(4).putInt(res).array();
                         StringBuilder sb = new StringBuilder();
-                        for (Byte b : crc) {
-                            sb.append(String.format("%02x ", b));
-                        }
+
                         log.d("NFCdata", "crc byte: " + sb.toString());
                         valueBlocksWrite[121] = crc[3];
                         valueBlocksWrite[122] = crc[2];
@@ -342,6 +348,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                         for (Byte b : valueBlocksWrite) {
                             sb.append(String.format("%02x ", b));
                         }
+                        ((App) getApplication()).out = sb.toString();
                         log.d("NFCdata", "result byte: " + sb.toString());
 
                     }
@@ -435,7 +442,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
             } else if (writeResult[0] == (byte) 0x00) {
                 Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
-                presenter.fireNewDevice(fieldToDevice());
+                presenter.fireNewDevice(currentDevice);
+//                presenter.fireNewDevice(fieldToDevice());
                 readyToWriteDevice = false;
                 if (Build.VERSION.SDK_INT == 26) {
                     vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
