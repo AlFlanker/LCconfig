@@ -135,6 +135,7 @@
     <string name="ERRORFileTransfer">ERROR File Transfer!</string>
     <string name="TransferStop">ERROR File Transfer! Cansel.</string>
     <string name="WriteSucessfull">successfully recorded</string>
+    <string name="Incorrect">Invalid CRC or a new device</string>
 
 
 </resources>
