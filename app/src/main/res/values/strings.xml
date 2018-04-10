@@ -133,7 +133,7 @@
     <string name="TagDetected">Tag detected.</string>
     <string name="TouchToDevice">apply to device!</string>
     <string name="ERRORFileTransfer">ERROR File Transfer!</string>
-    <string name="TransferStop">ERROR File Transfer! Cansel.</string>
+    <string name="TransferStop">ERROR File Transfer! Cancel.</string>
     <string name="WriteSucessfull">successfully recorded</string>
     <string name="Incorrect">Invalid CRC or a new device</string>
 
