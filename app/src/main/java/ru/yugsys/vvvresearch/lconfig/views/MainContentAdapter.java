@@ -53,7 +53,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.appKey.setText(devices.get(finalPosition).getAppkey());
         holder.nwkID.setText(devices.get(finalPosition).getNwkid());
         holder.devAdr.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-        holder.devAdrExp.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+        holder.devAdrExp.setText(devices.get(finalPosition).getDevadr().toUpperCase());
         holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
         holder.appSKey.setText(devices.get(finalPosition).getAppskey());
         holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",

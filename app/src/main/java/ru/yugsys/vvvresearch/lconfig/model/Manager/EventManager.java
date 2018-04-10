@@ -25,7 +25,7 @@ public class EventManager {
 
 
     public enum TypeEvent {
-        OnDataReceive, OnNFCconnected, OnDevDataChecked, OnGPSdata
+        OnDataReceive, OnNFCconnected, OnDevDataChecked, OnGPSdata, OnLoadDevice, OnDeleted
     }
 
     private EnumMap<TypeEvent, List> listeners = new EnumMap<>(TypeEvent.class);
@@ -41,6 +41,8 @@ public class EventManager {
         listeners.put(TypeEvent.OnGPSdata, new ArrayList<ModelListener.OnGPSdata>());
         listeners.put(TypeEvent.OnNFCconnected, new ArrayList<ModelListener.OnNFCConnected>());
         listeners.put(TypeEvent.OnDevDataChecked, new ArrayList<ModelListener.OnCheckedDevData>());
+        listeners.put(TypeEvent.OnLoadDevice, new ArrayList<ModelListener.OnLoadDevice>());
+        listeners.put(TypeEvent.OnDeleted, new ArrayList<ModelListener.OnDeviceDeleted>());
     }
 
     /**
@@ -81,6 +83,16 @@ public class EventManager {
         listeners.get(TypeEvent.OnDevDataChecked).add(listener);
     }
 
+    @SuppressWarnings("unchecked")
+    public void subscribeOnLoadDevice(ModelListener.OnLoadDevice listener) {
+        listeners.get(TypeEvent.OnLoadDevice).add(listener);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void subscribeOnDeveted(ModelListener.OnDeviceDeleted listener) {
+        listeners.get(TypeEvent.OnDeleted).add(listener);
+    }
+
 
     public void unsubscribeOnGPS(ModelListener.OnGPSdata listener) {
         listeners.get(TypeEvent.OnGPSdata).remove(listener);
@@ -97,6 +109,15 @@ public class EventManager {
     public void unsubscribeOnDevDataChecked(ModelListener.OnCheckedDevData listener) {
         listeners.get(TypeEvent.OnDevDataChecked).remove(listener);
     }
+
+    public void unsubscribeOnLoadDevice(ModelListener.OnLoadDevice listener) {
+        listeners.get(TypeEvent.OnLoadDevice).remove(listener);
+    }
+
+    public void unsubscribeOnDeleted(ModelListener.OnDeviceDeleted listener) {
+        listeners.get(TypeEvent.OnDeleted).remove(listener);
+    }
+
 
 
 
@@ -122,6 +143,18 @@ public class EventManager {
     public void notifyOnDevDataChecked(boolean check) {
         for (Object listener : listeners.get(TypeEvent.OnDevDataChecked)) {
             ((ModelListener.OnCheckedDevData) listener).OnCheckedDevData(check);
+        }
+    }
+
+    public void notifyOnLoadDevice(MDevice dev) {
+        for (Object listener : listeners.get(TypeEvent.OnLoadDevice)) {
+            ((ModelListener.OnLoadDevice) listener).OnLoadDevice(dev);
+        }
+    }
+
+    public void notifyOnDeleted(boolean check) {
+        for (Object listener : listeners.get(TypeEvent.OnDeleted)) {
+            ((ModelListener.OnDeviceDeleted) listener).OnDeviceDeleted(check);
         }
     }
 

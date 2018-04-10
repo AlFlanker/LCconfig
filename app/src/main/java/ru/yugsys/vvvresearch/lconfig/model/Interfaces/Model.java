@@ -26,6 +26,8 @@ public interface Model {
 
     void saveDevice(MDevice t);
 
+    void loadDeviceByEUI(String EUI);
+
 
     void writeAuthData(String login, String password, String server);
 

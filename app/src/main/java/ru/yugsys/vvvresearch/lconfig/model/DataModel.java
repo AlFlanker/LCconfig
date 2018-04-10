@@ -26,6 +26,10 @@ public class DataModel implements Model, GPScallback<Location> {
 
     /*------------------------------------------------------------------------*/
     /* Methods and Classes block*/
+    @Override
+    public void loadDeviceByEUI(String EUI) {
+        MDevice dev = this.daoSession.getMDeviceDao().queryBuilder().where(MDeviceDao.Properties.Eui.eq(EUI)).build().unique();
+    }
 
     @Override
     public void clearDataBase() {

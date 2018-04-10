@@ -29,5 +29,9 @@ public interface ModelListener {
         void OnDeviceDeleted(boolean flag);
     }
 
+    interface OnLoadDevice {
+        void OnLoadDevice(MDevice dev);
+    }
+
 
 }

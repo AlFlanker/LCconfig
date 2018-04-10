@@ -875,9 +875,12 @@ public class Util {
 		field = MDevice.class.getDeclaredField("nwkid");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+
 		field = MDevice.class.getDeclaredField("devadr");
 		field.setAccessible(true);
-		byteArrayOutputStream.write(new BigInteger(field.get(dev).toString(),16).toByteArray());
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		
+
 		field = MDevice.class.getDeclaredField("nwkskey");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));

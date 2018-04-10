@@ -10,7 +10,7 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 
 public class App extends Application {
     private Model model;
-
+    public String out;
     private DaoSession daoSession;
 
     @Override
