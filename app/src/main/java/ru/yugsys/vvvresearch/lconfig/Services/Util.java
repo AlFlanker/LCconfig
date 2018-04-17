@@ -879,9 +879,9 @@ public class Util {
 		field = MDevice.class.getDeclaredField("devadr");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		
 
-		field = MDevice.class.getDeclaredField("nwkskey");
+
+        field = MDevice.class.getDeclaredField("nwkskey");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		field = MDevice.class.getDeclaredField("appskey");

@@ -52,7 +52,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.appEUI.setText(devices.get(finalPosition).getAppeui());
         holder.appKey.setText(devices.get(finalPosition).getAppkey());
         holder.nwkID.setText(devices.get(finalPosition).getNwkid());
-        holder.devAdr.setText( devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+        holder.devAdr.setText(devices.get(finalPosition).getDevadr().toUpperCase());
         holder.devAdrExp.setText(devices.get(finalPosition).getDevadr().toUpperCase());
         holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
         holder.appSKey.setText(devices.get(finalPosition).getAppskey());

@@ -111,13 +111,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
         /*Filters*/
-        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
-        appKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
-        nwkIDEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
-        devAdrEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
-        nwkSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
-        appSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
-        deveuiEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
+//        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
+//        appKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+//        nwkIDEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
+//        devAdrEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
+//        nwkSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+//        appSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
+//        deveuiEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
         gpsEditLatitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         gpsEditLongitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         gpsEditLongitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
@@ -186,6 +186,16 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     }
 
+    public String getDevadrMSBtoLSB(String devadr) {
+        if (devadr != null) {
+            StringBuilder devText = new StringBuilder();
+            int length = devadr.length();
+            for (int i = 0; i < length; i += 2) {
+                devText = devText.insert(0, devadr.substring(i, i + 2));
+            }
+            return devText.toString().toUpperCase();
+        } else return null;
+    }
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -203,14 +213,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
                 muid = muid.substring(8);
-                byte[] b = Util.hexToBytes(muid);
-                for (int i = 0; i < b.length / 2; i++) {
-                    byte temp = b[i];
-                    b[i] = b[b.length - i - 1];
-                    b[b.length - i - 1] = temp;
-                }
-                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
-                currentDevice.setDevadrMSBtoLSB(muid);
+//                byte[] b = Util.hexToBytes(muid);
+//                for (int i = 0; i < b.length / 2; i++) {
+//                    byte temp = b[i];
+//                    b[i] = b[b.length - i - 1];
+//                    b[b.length - i - 1] = temp;
+//                }
+//                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
+                currentDevice.setDevadr(muid.toUpperCase());
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
                 createNewDevice = false;
@@ -220,13 +230,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
                 muid = muid.substring(8);
-                byte[] b = Util.hexToBytes(muid);
-                for (int i = 0; i < b.length / 2; i++) {
-                    byte temp = b[i];
-                    b[i] = b[b.length - i - 1];
-                    b[b.length - i - 1] = temp;
-                }
-                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
+//                byte[] b = Util.hexToBytes(muid);
+//                for (int i = 0; i < b.length / 2; i++) {
+//                    byte temp = b[i];
+//                    b[i] = b[b.length - i - 1];
+//                    b[b.length - i - 1] = temp;
+//                }
+//                muid = Util.ConvertHexByteArrayToString(b).toUpperCase();
                 currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8).toUpperCase());
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
@@ -267,7 +277,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
         nwkIDEdit.setText(device.getNwkid());
-        devAdrEdit.setText(device.getDevadr());
+        devAdrEdit.setText(getDevadrMSBtoLSB(device.getDevadr()));
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(device.getIsOTTA());
@@ -296,7 +306,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setAppeui(appEUIEdit.getText().toString().toUpperCase());
         device.setAppkey(appKeyEdit.getText().toString().toUpperCase());
         device.setNwkid(nwkIDEdit.getText().toString().toUpperCase());
-        device.setDevadr(devAdrEdit.getText().toString().toUpperCase());
+        device.setDevadr(getDevadrMSBtoLSB(devAdrEdit.getText().toString().toUpperCase()));
         device.setNwkskey(nwkSKeyEdit.getText().toString().toUpperCase());
         device.setAppskey(appSKeyEdit.getText().toString().toUpperCase());
         device.setKI("991C");
