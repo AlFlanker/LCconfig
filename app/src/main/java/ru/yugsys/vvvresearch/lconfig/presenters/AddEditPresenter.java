@@ -1,6 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.presenters;
 
 import android.location.Location;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
@@ -30,13 +31,13 @@ public class AddEditPresenter implements AddEditPresentable, ModelListener.OnNFC
     }
 
     @Override
-    public void OnNFCConnected(MDevice device) {
+    public void OnNFCConnected(DeviceEntry device) {
         addEditView.setDeviceFields(device);
 
     }
 
     @Override
-    public void fireNewDevice(MDevice device) {
+    public void fireNewDevice(DeviceEntry device) {
         model.saveDevice(device);
     }
 

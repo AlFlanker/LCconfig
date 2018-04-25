@@ -15,14 +15,12 @@ import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
-
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import java.util.List;
 import java.util.Locale;
 
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
-    List<MDevice> devices;
+    List<DeviceEntry> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
 
     private Context context;
@@ -31,7 +29,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         this.context = context;
     }
 
-    public void setDevices(List<MDevice> devices) {
+    public void setDevices(List<DeviceEntry> devices) {
         this.devices = devices;
         for (int i = 0; i < devices.size(); i++) {
             expandState.append(i, false);

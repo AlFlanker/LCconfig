@@ -9,7 +9,8 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 
 public class Util {
@@ -846,12 +848,12 @@ public class Util {
 	//* the function Convert Fields of Object to byte array
 	// Alex Flanker
 	//***********************************************************************/
-    public static byte[] Object2ByteArray(MDevice dev) throws IllegalAccessException, IOException, NoSuchFieldException {
+    public static byte[] Object2ByteArray(DeviceEntry dev) throws IllegalAccessException, IOException, NoSuchFieldException {
 		Field field;
 		StringBuilder sb = new StringBuilder();
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		byte[] raw=new byte[8];
-		field = MDevice.class.getDeclaredField("type");
+		field = DeviceEntry.class.getDeclaredField("type");
 		field.setAccessible(true);
 		String s = field.get(dev).toString();
 		sb.append(s);
@@ -859,48 +861,48 @@ public class Util {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = MDevice.class.getDeclaredField("isOTTA");
+		field = DeviceEntry.class.getDeclaredField("isOTTA");
 		field.setAccessible(true);
 		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
-		field = MDevice.class.getDeclaredField("eui");
+		field = DeviceEntry.class.getDeclaredField("eui");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = MDevice.class.getDeclaredField("appeui");
+		field = DeviceEntry.class.getDeclaredField("appeui");
 		field.setAccessible(true);
 		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = MDevice.class.getDeclaredField("appkey");
+		field = DeviceEntry.class.getDeclaredField("appkey");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = MDevice.class.getDeclaredField("nwkid");
-		field.setAccessible(true);
-		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-
-		field = MDevice.class.getDeclaredField("devadr");
+		field = DeviceEntry.class.getDeclaredField("nwkid");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
-
-        field = MDevice.class.getDeclaredField("nwkskey");
-		field.setAccessible(true);
-		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = MDevice.class.getDeclaredField("appskey");
+		field = DeviceEntry.class.getDeclaredField("devadr");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 
-		field = MDevice.class.getDeclaredField("Latitude");
+
+        field = DeviceEntry.class.getDeclaredField("nwkskey");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("appskey");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
+
+		field = DeviceEntry.class.getDeclaredField("Latitude");
 		field.setAccessible(true);
 		float f = Float.parseFloat(String.valueOf(field.get(dev)));
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
 
-		field = MDevice.class.getDeclaredField("Longitude");
+		field = DeviceEntry.class.getDeclaredField("Longitude");
 		field.setAccessible(true);
 		f = Float.parseFloat(String.valueOf(field.get(dev)));
 
 		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
 
-		field = MDevice.class.getDeclaredField("outType");
+		field = DeviceEntry.class.getDeclaredField("outType");
 		field.setAccessible(true);
 		s = field.get(dev).toString();
 		sb = new StringBuilder();
@@ -909,10 +911,10 @@ public class Util {
 			sb.append((char) 0x00);
 		}
 		byteArrayOutputStream.write(sb.toString().getBytes());
-		field = MDevice.class.getDeclaredField("kV");
+		field = DeviceEntry.class.getDeclaredField("kV");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
-		field = MDevice.class.getDeclaredField("kI");
+		field = DeviceEntry.class.getDeclaredField("kI");
 		field.setAccessible(true);
 		byteArrayOutputStream.write(hexToBytes(field.get(dev).toString()));
 		CRC16 c = new CRC16();
@@ -963,11 +965,11 @@ public class Util {
 	//* the function Convert raw byte[] to Device
 	// Alex Flanker
 	//***********************************************************************/
-    public static MDevice decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
-        MDevice device = new MDevice();
+    public static DeviceEntry decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
+		DeviceEntry device = new DeviceEntry();
 		byte[] buf;
 		StringBuilder stringBuilder = new StringBuilder();
-		Field[] fields = MDevice.class.getDeclaredFields();
+		Field[] fields = DeviceEntry.class.getDeclaredFields();
 		String[] names = new String[fields.length];
 		int i = 0;
 		for (Field field : fields) {
@@ -1146,11 +1148,11 @@ public class Util {
 		return count;
 	}
 
-    public static MDevice generate(String EUI, Location location) {
+    public static DeviceEntry generate(String EUI, Location location) {
 		String mEUI;
 		mEUI = EUI.replace(" ", "");
 		mEUI = mEUI.substring(8);
-        MDevice newDev = new MDevice();
+		DeviceEntry newDev = new DeviceEntry();
         newDev.setType("LC503");
         newDev.setIsOTTA(Boolean.FALSE);
         newDev.setEui(EUI.replace(" ", "").trim());
@@ -1167,6 +1169,9 @@ public class Util {
         newDev.setOutType("PMW");
         newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
         newDev.setKI("991C");
+        newDev.setDateOfLastChange(new Date());
+        newDev.setComment("");
+        newDev.setIsDeleted(false);
 		return newDev;
 //		newDev.setEui();
 	}

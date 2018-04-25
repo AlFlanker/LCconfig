@@ -253,6 +253,36 @@
                             android:hint="@string/prompt_appSKey"
                             style="@style/BaseEditable.Body.EditHEX"
                     />
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/prompt_date"
+                            app:layout_column="0"
+                            app:layout_columnSpan="4"
+                            style="@style/BaseTextView.Caption.Expandable"
+                    />
+                    <EditText
+                            android:id="@+id/lc5_edit_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/prompt_date"
+                            android:inputType="date"
+                    />
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/prompt_comment"
+                            app:layout_column="0"
+                            app:layout_columnSpan="4"
+                            style="@style/BaseTextView.Caption.Expandable"
+                    />
+                    <EditText
+                            android:id="@+id/lc5_edit_comment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/prompt_comment"
+                            style="@style/BaseEditable.Body.EditHEX"
+                    />
                 </com.github.aakira.expandablelayout.ExpandableLinearLayout>
 
 
