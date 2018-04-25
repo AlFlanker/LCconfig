@@ -38,10 +38,7 @@ import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener {
 
@@ -288,9 +285,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         isOTAASwitch.setChecked(device.getIsOTTA());
         gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
         gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
-        commentEdit.setText(device.getComment());
-        dataEdit.setText(device.getDateOfLastChange().getDate()+" - "+(device.getDateOfLastChange().getMonth()+1)+" - "+ (1900+device.getDateOfLastChange().getYear()));
-
+        commentEdit.setText("");
+        dataEdit.setText(new Date().toString());
     }
 
     @Override
@@ -324,6 +320,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setOutType(out_typeSpinner.getSelectedItem().toString().toUpperCase());
         device.setComment(commentEdit.getText().toString());
         device.setDateOfLastChange(new Date());
+        device.setIsDeleted(false);
         return device;
     }
 
