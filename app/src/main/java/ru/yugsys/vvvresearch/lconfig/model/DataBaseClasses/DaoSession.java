@@ -8,9 +8,11 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DevEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DevEntryDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.MDeviceDao;
 
@@ -23,9 +25,11 @@ import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.MDeviceDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
+    private final DaoConfig devEntryDaoConfig;
     private final DaoConfig deviceDaoConfig;
     private final DaoConfig mDeviceDaoConfig;
 
+    private final DevEntryDao devEntryDao;
     private final DeviceDao deviceDao;
     private final MDeviceDao mDeviceDao;
 
@@ -33,22 +37,32 @@ public class DaoSession extends AbstractDaoSession {
             daoConfigMap) {
         super(db);
 
+        devEntryDaoConfig = daoConfigMap.get(DevEntryDao.class).clone();
+        devEntryDaoConfig.initIdentityScope(type);
+
         deviceDaoConfig = daoConfigMap.get(DeviceDao.class).clone();
         deviceDaoConfig.initIdentityScope(type);
 
         mDeviceDaoConfig = daoConfigMap.get(MDeviceDao.class).clone();
         mDeviceDaoConfig.initIdentityScope(type);
 
+        devEntryDao = new DevEntryDao(devEntryDaoConfig, this);
         deviceDao = new DeviceDao(deviceDaoConfig, this);
         mDeviceDao = new MDeviceDao(mDeviceDaoConfig, this);
 
+        registerDao(DevEntry.class, devEntryDao);
         registerDao(Device.class, deviceDao);
         registerDao(MDevice.class, mDeviceDao);
     }
     
     public void clear() {
+        devEntryDaoConfig.clearIdentityScope();
         deviceDaoConfig.clearIdentityScope();
         mDeviceDaoConfig.clearIdentityScope();
+    }
+
+    public DevEntryDao getDevEntryDao() {
+        return devEntryDao;
     }
 
     public DeviceDao getDeviceDao() {

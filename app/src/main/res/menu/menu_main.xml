@@ -10,4 +10,8 @@
           android:title="@string/action_ClearBD"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_Copy"
+          android:title="@string/action_Copy"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
 </menu>

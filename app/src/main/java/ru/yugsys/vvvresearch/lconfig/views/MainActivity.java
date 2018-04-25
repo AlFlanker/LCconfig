@@ -22,10 +22,7 @@ import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
-import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.Util;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
+import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
@@ -159,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             return true;
         } else if (id == R.id.action_clearBD) {
             ((App) getApplication()).getModel().clearDataBase();
+        } else if (id == R.id.action_Copy) {
+            new UpdateTable(((App) getApplication()).getDaoSession()).saveInNewTable();
         }
         return super.onOptionsItemSelected(item);
     }
