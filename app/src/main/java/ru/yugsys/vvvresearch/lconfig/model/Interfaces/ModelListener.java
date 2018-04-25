@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 
 import java.util.List;
@@ -14,11 +15,11 @@ public interface ModelListener {
     }
 
     interface OnDataRecived {
-        void OnDataRecived(List<MDevice> devList);
+        void OnDataRecived(List<DeviceEntry> devList);
     }
 
     interface OnNFCConnected {
-        void OnNFCConnected(MDevice dev);
+        void OnNFCConnected(DeviceEntry dev);
     }
 
     interface OnCheckedDevData {
@@ -30,7 +31,7 @@ public interface ModelListener {
     }
 
     interface OnLoadDevice {
-        void OnLoadDevice(MDevice dev);
+        void OnLoadDevice(DeviceEntry dev);
     }
 
 

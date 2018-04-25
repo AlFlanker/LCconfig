@@ -1,7 +1,7 @@
 package ru.yugsys.vvvresearch.lconfig.presenters;
 
 
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.views.MainViewable;
@@ -38,7 +38,7 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
 
 
     @Override
-    public void OnDataRecived(List<MDevice> devList) {
+    public void OnDataRecived(List<DeviceEntry> devList) {
         if (mainView != null) {
             mainView.setContentForView(devList);
         }

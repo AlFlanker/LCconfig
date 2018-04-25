@@ -31,14 +31,15 @@ import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -47,6 +48,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     private Vibrator vibrator;
     private ExpandableLinearLayout expandableLinearLayout;
+    private EditText dataEdit;
+    private EditText commentEdit;
     private EditText deveuiEdit;
     private EditText appEUIEdit;
     private EditText appKeyEdit;
@@ -66,7 +69,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private MDevice currentDevice;
+    private DeviceEntry currentDevice;
     private View buttonLayout;
     private View triangleButton;
     private EditText gpsEditLatitude;
@@ -110,6 +113,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
+        dataEdit = findViewById(R.id.lc5_edit_date);
+        commentEdit = findViewById(R.id.lc5_edit_comment);
         /*Filters*/
 //        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
 //        appKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
@@ -270,7 +275,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     }
 
     @Override
-    public void setDeviceFields(MDevice device) {
+    public void setDeviceFields(DeviceEntry device) {
         setSpinnerValuePosition(device.getType(), typeSpinner);
         setSpinnerValuePosition(device.getOutType(), out_typeSpinner);
         deveuiEdit.setText(device.getEui());
@@ -283,6 +288,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         isOTAASwitch.setChecked(device.getIsOTTA());
         gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
         gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
+        commentEdit.setText(device.getComment());
+        dataEdit.setText(device.getDateOfLastChange().getDate()+" - "+(device.getDateOfLastChange().getMonth()+1)+" - "+ (1900+device.getDateOfLastChange().getYear()));
 
     }
 
@@ -299,8 +306,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         else if (spinner == out_typeSpinner) this.out_typeSpinner.setSelection(i);
     }
 
-    private MDevice fieldToDevice() {
-        MDevice device = new MDevice();
+    private DeviceEntry fieldToDevice() {
+        DeviceEntry device = new DeviceEntry();
         device.setType(typeSpinner.getSelectedItem().toString().trim().toUpperCase());
         device.setEui(deveuiEdit.getText().toString().toUpperCase());
         device.setAppeui(appEUIEdit.getText().toString().toUpperCase());
@@ -315,6 +322,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setLatitude(Double.parseDouble(gpsEditLatitude.getText().toString()));
         device.setLongitude(Double.parseDouble(gpsEditLongitude.getText().toString()));
         device.setOutType(out_typeSpinner.getSelectedItem().toString().toUpperCase());
+        device.setComment(commentEdit.getText().toString());
+        device.setDateOfLastChange(new Date());
         return device;
     }
 

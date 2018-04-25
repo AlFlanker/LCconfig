@@ -22,13 +22,9 @@ import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
-import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
-import ru.yugsys.vvvresearch.lconfig.Services.Util;
-import ru.yugsys.vvvresearch.lconfig.Services.NFCCommand;
+import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.Device;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
@@ -46,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private MDevice currentDevice;
+    private DeviceEntry currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
     private byte[] readMultipleBlockAnswer = null;
@@ -160,11 +156,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         } else if (id == R.id.action_clearBD) {
             ((App) getApplication()).getModel().clearDataBase();
         }
+        else if(id == R.id.action_CopyDB){
+            new DataBaseMigrate(((App)getApplication()).getDaoSession()).migrate();
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void setContentForView(List<MDevice> devices) {
+    public void setContentForView(List<DeviceEntry> devices) {
         adapter.setDevices(devices);
         adapter.notifyDataSetChanged();
     }
@@ -180,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
 
     @Override
-    public void OnNFCConnected(MDevice dev) {
+    public void OnNFCConnected(DeviceEntry dev) {
         log.d("NFC", dev.getType());
     }
 
