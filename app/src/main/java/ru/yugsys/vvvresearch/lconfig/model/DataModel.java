@@ -224,6 +224,15 @@ public class DataModel implements Model, GPScallback<Location> {
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;
+            case DATE:
+                if (direction == Direction.Straight) {
+//                    Query<MDevice> queue = dataDao.queryBuilder().orderAsc(MDeviceDao.Properties.OutType).build();
+//                    eventManager.notifyOnDataReceive(queue.list());
+                } else {
+//                    Query<MDevice> queue = dataDao.queryBuilder().orderDesc(MDeviceDao.Properties.OutType).build();
+//                    eventManager.notifyOnDataReceive(queue.list());
+                }
+                break;
         }
     }
 

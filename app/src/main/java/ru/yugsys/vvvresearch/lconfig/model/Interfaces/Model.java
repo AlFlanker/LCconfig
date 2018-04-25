@@ -8,7 +8,7 @@ import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 public interface Model {
     enum Properties {
-        Id, Type, isOTTA, EUI, APPEUI, APPKEY, NWKID, DEVADR, NWKSKEY, APPSKEY, OUTTYPE
+        Id, Type, isOTTA, EUI, APPEUI, APPKEY, NWKID, DEVADR, NWKSKEY, APPSKEY, OUTTYPE, DATE
     }
 
     enum Direction {
