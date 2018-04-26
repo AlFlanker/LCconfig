@@ -33,8 +33,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected {
+public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBack.ReadCallBack {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private byte[] readMultipleBlockAnswer = null;
     private byte[] numberOfBlockToRead = null;
     private byte[] addressStart;
-    private StartReadTask task;
+    private ReadTask readTask;
     int cpt;
     Logger log = Logger.getInstance();
 
@@ -81,8 +82,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             if (!Util.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
-            task = new StartReadTask(this);
-            task.execute();
+//
+             ReadTask readTask = new ReadTask(systemInfo,null,null,tagFromIntent);
+            readTask.subscribe(this);
+
+            readTask.execute();
         }
 
     }
@@ -183,111 +187,18 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         log.d("NFC", dev.getType());
     }
 
-    class StartReadTask extends AsyncTask<Void, Void, Void> {
-        private MainActivity mainActivity;
-        final ProgressDialog dialog;
 
-        StartReadTask(MainActivity mainActivity) {
-            this.mainActivity = mainActivity;
-            this.dialog = new ProgressDialog(mainActivity);
-        }
-
-        protected void onPreExecute() {
-            this.dialog.setMessage(getString(R.string.reads_data));
-            this.dialog.show();
-            int cpt = 0;
-            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
-                mainActivity.addressStart = new byte[8];
-                Arrays.fill(mainActivity.addressStart, (byte) 0x00);
-                mainActivity.numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x20}; // 32 блока на 4 байта
-            }
-
-        }
-
-        protected Void doInBackground(Void... params) {
-            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
-                if (mainActivity.currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(mainActivity.numberOfBlockToRead).getShort() > 1) {
-                    if (Util.Convert2bytesHexaFormatToInt(mainActivity.numberOfBlockToRead) < 32) {
-                        while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
-                            mainActivity.readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead[1], mainActivity.currentDataDevice);
-                            mainActivity.cpt++;
-                        }
-
-                        mainActivity.cpt = 0;
-                    } else {
-                        while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
-                            mainActivity.readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead, mainActivity.currentDataDevice);
-                            mainActivity.cpt++;
-                        }
-
-                        mainActivity.cpt = 0;
-                    }
-
-                }
-                else {
-                    while ((mainActivity.readMultipleBlockAnswer == null || mainActivity.readMultipleBlockAnswer[0] == 1) && mainActivity.cpt <= 10) {
-                        mainActivity.readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(mainActivity.currentDataDevice.getCurrentTag(), mainActivity.addressStart, mainActivity.numberOfBlockToRead, mainActivity.currentDataDevice);
-                        mainActivity.cpt++;
-                    }
-
-                    mainActivity.cpt = 0;
-                }
-            }
-
-            return null;
-        }
-
-        protected void onPostExecute(Void unused) {
-
-            if ((mainActivity.currentDataDevice = Util.DecodeGetSystemInfoResponse(mainActivity.systemInfo, mainActivity.currentDataDevice)) != null) {
-                try {
-                    mainActivity.decode(mainActivity.readMultipleBlockAnswer); // to this.currentDevice
-                    if (this.dialog.isShowing()) {
-                        this.dialog.dismiss();
-                    }
-                    mainActivity.readMultipleBlockAnswer = null;
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                }
-            }
-            mainActivity.task = null;
-        }
-    }
-
-
-    public  void decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
-        CRC16 crc16 = new CRC16();
-        StringBuilder sb;
-        byte[] crc = new byte[121];
-        System.arraycopy(raw, 1, crc, 0, 121);
-        int res = crc16.CRC16ArrayGet(0, crc);
-        sb = new StringBuilder();
-        for (Byte b : Integer.toHexString(res).getBytes()) {
-            sb.append(String.format("%02x ", b));
-        }
-        sb = new StringBuilder();
-        for (Byte b : raw) {
-            sb.append(String.format("%02x ", b));
-        }
-        int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
-        if (c16 == res) {
-            currentDevice = Util.decodeByteArrayToDevice(crc);
-            ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
+    @Override
+    public void getDeviceEntry(DeviceEntry deviceEntry) {
+        if(deviceEntry!=null) {
+            ((App) getApplication()).getModel().setCurrentDevice(deviceEntry);
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
             currentDataDevice = null;
             startActivity(addActivity);
-
-        } else {
+        }
+        else{
             Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
-            String er = ((App) getApplication()).out;
-            Log.d("Er", sb.toString());
         }
     }
-
-
 }
