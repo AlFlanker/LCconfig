@@ -46,7 +46,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     private Vibrator vibrator;
     private ExpandableLinearLayout expandableLinearLayout;
-    private EditText dataEdit;
     private EditText commentEdit;
     private EditText deveuiEdit;
     private EditText appEUIEdit;
@@ -73,6 +72,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private boolean createNewDevice;
     private boolean readyToWriteDevice = false;
     private Logger log = Logger.getInstance();
+    private String comment;
 
 
     @Override
@@ -106,7 +106,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
-        dataEdit = findViewById(R.id.lc5_edit_date);
+
         commentEdit = findViewById(R.id.lc5_edit_comment);
         /*Filters*/
 //        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
@@ -168,8 +168,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, false);
         if (createNewDevice) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
-            if(mLocation!=null) {
-                if (mLocation.getProvider().equals("")) {
+            if(mLocation!=null ) {
+                if(mLocation.getProvider().equals("")) {
                     mLocation = new Location("");
                     mLocation.setLongitude(38.997585);
                     mLocation.setLatitude(45.071137);
@@ -214,6 +214,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
                 createNewDevice = false;
+
             }
             if (readyToWriteDevice && currentDev.getUid() != null) {
                 currentDevice = fieldToDevice();
@@ -225,7 +226,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 setDeviceFields(currentDevice);
                 WriteTask task = new WriteTask(currentDev);
                 task.subscribe(this);
-                task.devTEST = currentDevice;
                 task.execute(currentDevice);
                 readyToWriteDevice = false;
             }
@@ -269,8 +269,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         isOTAASwitch.setChecked(device.getIsOTTA());
         gpsEditLongitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLongitude()));
         gpsEditLatitude.setText(String.format(Locale.ENGLISH, "%.6f", device.getLatitude()));
-        commentEdit.setText("");
-        dataEdit.setText(new Date().toString());
+        commentEdit.setText(device.getComment());
+
     }
 
     @Override
