@@ -1176,4 +1176,22 @@ public class Util {
 //		newDev.setEui();
 	}
 
+	public static Byte[] autoBoxing(byte[] b){
+		int i=0;
+		Byte[] res = new Byte[b.length];
+		for(byte b1:b){
+			res[i] = b1;
+		}
+		return res;
+	}
+
+	public static byte[] unBoxing(Byte[] b){
+		int i=0;
+		byte[] res = new byte[b.length];
+		for(Byte b1:b){
+			res[i] = b1;
+		}
+		return res;
+	}
+
 }
