@@ -1,8 +1,13 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.util.Log;
+import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+import ru.yugsys.vvvresearch.lconfig.views.AddEditActivity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,23 +33,32 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
         int numberOfBlocks ;
         int countOfAttempt;
         byte[] block;
-        byte[] writeResult;
+        byte[] writeResult= null;
+        int ResultWriteAnswer=0;
 
-        if(dataDevice !=null) {
+        if(dataDevice !=null && objects[0] !=null) {
+            Log.d("NFC_WRITE","in method");
             valueBlocksWrite=getBytes(objects[0]);
-
+            Log.d("NFC_WRITE","get bytes");
+            StringBuilder sb = new StringBuilder();
+            for(byte ch:valueBlocksWrite){
+                sb.append(String.format("%02x ",ch));
+            }
+            Log.d("NFC_WRITE",sb.toString());
             if (valueBlocksWrite.length % 4 != 0) {
                 int l = 4 - valueBlocksWrite.length % 4;
                 dataBuf = new byte[valueBlocksWrite.length + l];
                 System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
                 Arrays.fill(dataBuf, valueBlocksWrite.length, valueBlocksWrite.length + 1, (byte) 0xFF);
                 numberOfBlocks = dataBuf.length / 4;
+                Log.d("NFC_WRITE_AFTER","num blocks -"+numberOfBlocks);
 
             } else {
                 dataBuf = new byte[valueBlocksWrite.length];
                 System.arraycopy(valueBlocksWrite, 0, dataBuf, 0, valueBlocksWrite.length);
                 numberOfBlocks = dataBuf.length / 4;
             }
+
             for (int startAddres = 0; startAddres < numberOfBlocks; startAddres++) {
                 byte[] addressStart = Util.ConvertIntTo2bytesHexaFormat(startAddres);
                 block = new byte[4];
@@ -52,6 +66,12 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
                 block[1] = dataBuf[startAddres * 4 + 1];
                 block[2] = dataBuf[startAddres * 4 + 2];
                 block[3] = dataBuf[startAddres * 4 + 3];
+                sb = new StringBuilder();
+                for(byte ch:block){
+                    sb.append(String.format("%02x ",ch));
+                }
+                sb.append("\nblock num:" + startAddres);
+                Log.d("NFC_WRITE_AFTER",sb.toString());
                 countOfAttempt = 0;
                 writeResult = null;
                 while ((writeResult == null || writeResult[0] == 1) && countOfAttempt <= 10) {
@@ -60,14 +80,21 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
                 }
                 if (writeResult != null) {
                     if (writeResult[0] != (byte) 0x00) {
+                        ResultWriteAnswer++;
                         writeResult[0] = (byte) 0xE1;
-                        return writeResult[0];
                     }
-                    return writeResult[0];
+
                 }
             }
+
+            if (writeResult != null) {
+                if (ResultWriteAnswer > 0)
+                    return writeResult[0] = (byte) 0xFF;
+                else
+                    return writeResult[0] = (byte) 0x00;
+            }
         }
-        return 0x1F;
+        return null;
     }
 
 

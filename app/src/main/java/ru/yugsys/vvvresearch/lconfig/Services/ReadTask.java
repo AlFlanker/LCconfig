@@ -63,6 +63,11 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
 
 
         try {
+                StringBuilder sb = new StringBuilder();
+                for(byte ch: readMultipleBlockAnswer){
+                    sb.append(String.format("%02x ",ch));
+                }
+                Log.d("NFC_READ",sb.toString());
             return decode(readMultipleBlockAnswer);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
