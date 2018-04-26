@@ -60,9 +60,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private Spinner out_typeSpinner;
     private Spinner typeSpinner;
     private AddEditPresentable presenter;
-
-
-    // new  fields
     private NfcAdapter mAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
@@ -73,8 +70,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText gpsEditLatitude;
     private DataDevice currentDev;
     private byte[] systemInfo;
-    private byte[] writeResult = null;
-    private byte[] valueBlocksWrite;
     private boolean createNewDevice;
     private boolean readyToWriteDevice = false;
     private Logger log = Logger.getInstance();
@@ -164,7 +159,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             GPSTracker gpsTracker = GPSTracker.instance();
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
-            mLocation = getLastKnownLocation();
+            mLocation = GPSTracker.getLastKnownLocation(this);
         }
 
         presenter = new AddEditPresenter(((App) getApplication()).getModel());
@@ -189,16 +184,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     }
 
-    public String getDevadrMSBtoLSB(String devadr) {
-        if (devadr != null) {
-            StringBuilder devText = new StringBuilder();
-            int length = devadr.length();
-            for (int i = 0; i < length; i += 2) {
-                devText = devText.insert(0, devadr.substring(i, i + 2));
-            }
-            return devText.toString().toUpperCase();
-        } else return null;
-    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -234,7 +220,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 task.subscribe(this);
                 task.devTEST = currentDevice;
                 task.execute(currentDevice);
-               // new StartWriteTask().execute();
                 readyToWriteDevice = false;
             }
 
@@ -271,7 +256,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
         nwkIDEdit.setText(device.getNwkid());
-        devAdrEdit.setText(getDevadrMSBtoLSB(device.getDevadr()));
+        devAdrEdit.setText(Util.getDevadrMSBtoLSB(device.getDevadr()));
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(device.getIsOTTA());
@@ -301,7 +286,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setAppeui(appEUIEdit.getText().toString().toUpperCase());
         device.setAppkey(appKeyEdit.getText().toString().toUpperCase());
         device.setNwkid(nwkIDEdit.getText().toString().toUpperCase());
-        device.setDevadr(getDevadrMSBtoLSB(devAdrEdit.getText().toString().toUpperCase()));
+        device.setDevadr(Util.getDevadrMSBtoLSB(devAdrEdit.getText().toString().toUpperCase()));
         device.setNwkskey(nwkSKeyEdit.getText().toString().toUpperCase());
         device.setAppskey(appSKeyEdit.getText().toString().toUpperCase());
         device.setKI("991C");
@@ -324,9 +309,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
 
     }
-    //************************************
-    //**************************************************************
-
 
     @Override
     protected void onDestroy() {
@@ -354,21 +336,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         return super.onOptionsItemSelected(item);
     }
 
-    private Location getLastKnownLocation() {
-        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        List<String> providers = mLocationManager.getProviders(true);
-        Location myLocation = null;
-        for (String provider : providers) {
-            Location l = mLocationManager.getLastKnownLocation(provider);
-            if (l == null) {
-                continue;
-            }
-            if (myLocation == null || l.getAccuracy() < myLocation.getAccuracy()) {
-                myLocation = l;
-            }
-        }
-        return myLocation;
-    }
 
     @Override
     public void writeComplate(Byte writeResult) {
@@ -389,8 +356,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 vibrator.vibrate(500);
             }
             finish();
-
-
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
         }

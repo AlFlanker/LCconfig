@@ -46,14 +46,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private DeviceEntry currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
-    private byte[] readMultipleBlockAnswer = null;
-    private byte[] numberOfBlockToRead = null;
-    private byte[] addressStart;
-    private ReadTask readTask;
-    int cpt;
     Logger log = Logger.getInstance();
-
-
     private MainContentAdapter adapter;
     private RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 100;
@@ -82,8 +75,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             if (!Util.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
-//
-             ReadTask readTask = new ReadTask(null,null);
+            ReadTask readTask = new ReadTask(null,null);
             readTask.subscribe(this);
             readTask.execute(currentDataDevice);
         }
