@@ -4,11 +4,16 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import com.google.android.gms.location.*;
 import ru.yugsys.vvvresearch.lconfig.Logger;
+
+import java.util.List;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * @version 1.0
@@ -73,8 +78,6 @@ public class GPSTracker {
         this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             log.d(TAG, "perm fall");
-
-
         }
         mRequestingLocationUpdates = true;
         log.d(TAG, "permission compl");
@@ -111,6 +114,22 @@ public class GPSTracker {
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
         mRequestingLocationUpdates = true;
         log.d("GPS", "OnResume");
+    }
+
+    public static Location getLastKnownLocation(Context context) {
+        LocationManager mLocationManager = (LocationManager) (context).getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getProviders(true);
+        Location myLocation = null;
+        for (String provider : providers) {
+            Location l = mLocationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (myLocation == null || l.getAccuracy() < myLocation.getAccuracy()) {
+                myLocation = l;
+            }
+        }
+        return myLocation;
     }
 
 }
