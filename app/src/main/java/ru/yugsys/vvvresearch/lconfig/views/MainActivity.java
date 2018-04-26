@@ -83,10 +83,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
                 return;
             }
 //
-             ReadTask readTask = new ReadTask(systemInfo,null,null,tagFromIntent);
+             ReadTask readTask = new ReadTask(null,null);
             readTask.subscribe(this);
-
-            readTask.execute();
+            readTask.execute(currentDataDevice);
         }
 
     }
@@ -189,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
 
 
     @Override
-    public void getDeviceEntry(DeviceEntry deviceEntry) {
+    public void OnDeviceEntry(DeviceEntry deviceEntry) {
         if(deviceEntry!=null) {
             ((App) getApplication()).getModel().setCurrentDevice(deviceEntry);
             Intent addActivity = new Intent(this, AddEditActivity.class);

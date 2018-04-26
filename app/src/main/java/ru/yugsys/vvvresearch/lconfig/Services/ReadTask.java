@@ -2,30 +2,23 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 
 
 
-import android.nfc.Tag;
+
 import android.os.AsyncTask;
 import android.util.Log;
-import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ReadTask extends AsyncTask<Void, Void, Void> {
-    private Tag cTag;
-    private byte[] systemInfo;
+public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
     private DataDevice currentDataDevice = new DataDevice();
     private byte[] addressStart = new byte[8];;
     private byte[] numberOfBlockToRead ;
-    private long cpt;
     private AsyncTaskCallBack.ReadCallBack readCallBack;
-    private byte[] readMultipleBlockAnswer;
 
-    public ReadTask(byte[] systemInfo, byte[] addressStart,byte[] numberOfBlockToRead,Tag tag) {
-        this.systemInfo = systemInfo;
-         this.cTag = tag;
+
+    public ReadTask( byte[] addressStart,byte[] numberOfBlockToRead){
         if(addressStart==null)
         Arrays.fill(this.addressStart, (byte) 0x00);
         else this.addressStart = addressStart;
@@ -38,10 +31,10 @@ public class ReadTask extends AsyncTask<Void, Void, Void> {
 
 
     @Override
-    protected Void doInBackground(Void... params) {
-        if ((currentDataDevice = Util.DecodeGetSystemInfoResponse(systemInfo, currentDataDevice)) != null) {
-            readMultipleBlockAnswer = null;
-            currentDataDevice.setCurrentTag(this.cTag);
+    protected DeviceEntry doInBackground(DataDevice... params) {
+            currentDataDevice = params[0];
+            int cpt=0;
+            byte[] readMultipleBlockAnswer = null;
             if (currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(numberOfBlockToRead).getShort() > 1) {
                 if (Util.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
                     while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
@@ -68,15 +61,9 @@ public class ReadTask extends AsyncTask<Void, Void, Void> {
                 cpt = 0;
             }
 
-        }
-    return null;
-    }
 
-
-    @Override
-    protected void onPostExecute(Void param ) {
         try {
-            OnRead(decode(readMultipleBlockAnswer));
+            return decode(readMultipleBlockAnswer);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -84,6 +71,13 @@ public class ReadTask extends AsyncTask<Void, Void, Void> {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+        return  null;
+    }
+
+
+    @Override
+    protected void onPostExecute(DeviceEntry dev ) {
+        OnRead(dev);
     }
 
 
@@ -91,14 +85,13 @@ public class ReadTask extends AsyncTask<Void, Void, Void> {
         this.readCallBack = readCallBack;
     }
     private void OnRead(DeviceEntry d){
-        this.readCallBack.getDeviceEntry(d);
+        this.readCallBack.OnDeviceEntry(d);
     }
 
     private  DeviceEntry decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
         CRC16 crc16 = new CRC16();
         StringBuilder sb;
         byte[] crc = new byte[121];
-        DeviceEntry currentDevice;
         System.arraycopy(raw, 1, crc, 0, 121);
         int res = crc16.CRC16ArrayGet(0, crc);
         sb = new StringBuilder();
@@ -111,7 +104,7 @@ public class ReadTask extends AsyncTask<Void, Void, Void> {
         }
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
         if (c16 == res) {
-            return currentDevice = Util.decodeByteArrayToDevice(crc);
+            return Util.decodeByteArrayToDevice(crc);
             //            ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
 //            Intent addActivity = new Intent(this, AddEditActivity.class);
 //            addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);

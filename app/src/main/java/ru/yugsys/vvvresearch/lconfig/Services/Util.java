@@ -1180,7 +1180,7 @@ public class Util {
 		int i=0;
 		Byte[] res = new Byte[b.length];
 		for(byte b1:b){
-			res[i] = b1;
+			res[i] = Byte.valueOf(b1);
 		}
 		return res;
 	}
