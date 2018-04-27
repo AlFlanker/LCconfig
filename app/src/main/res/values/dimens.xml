@@ -6,8 +6,8 @@
     <dimen name="md_keylines">16dp</dimen>
     <dimen name="cardElevation">5dp</dimen>
     <dimen name="marginCard">8dp</dimen>
-    <dimen name="marginCardBottom">8dp</dimen>
-    <dimen name="marginCardTop">8dp</dimen>
+    <dimen name="marginCardBottom">4dp</dimen>
+    <dimen name="marginCardTop">4dp</dimen>
     <dimen name="defaultPadding">4dp</dimen>
     <dimen name="defaultMargin">4dp</dimen>
 

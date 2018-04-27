@@ -12,6 +12,7 @@
         android:focusableInTouchMode="true"
         tools:context="ru.yugsys.vvvresearch.lconfig.views.AddEditActivity">
     <ScrollView
+            android:id="@+id/lc5_scrollView"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
     >

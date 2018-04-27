@@ -45,6 +45,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
 
     private Vibrator vibrator;
+    private ProgressBar progressBar;
+    private ScrollView scrollView;
     private ExpandableLinearLayout expandableLinearLayout;
     private EditText commentEdit;
     private EditText deveuiEdit;
@@ -106,7 +108,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
-
+        scrollView = findViewById(R.id.lc5_scrollView);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         commentEdit = findViewById(R.id.lc5_edit_comment);
         /*Filters*/
 //        appEUIEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
@@ -188,7 +192,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             setDeviceFields(currentDevice);
         }
 
-
+        scrollView.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
     }
 
 
@@ -217,6 +222,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
             }
             if (readyToWriteDevice && currentDev.getUid() != null) {
+                scrollView.setVisibility(View.GONE);
+                progressBar.setVisibility(View.VISIBLE);
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
@@ -346,6 +353,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void writeComplate(Byte writeResult) {
+        scrollView.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
         if (writeResult == null) {
         } else if (writeResult == (byte) 0x01) {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
@@ -366,5 +375,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
         }
+
     }
 }

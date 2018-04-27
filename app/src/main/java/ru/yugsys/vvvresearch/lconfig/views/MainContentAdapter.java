@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.github.aakira.expandablelayout.ExpandableLayout;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
@@ -25,7 +27,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     List<DeviceEntry> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
     private Context context;
-
+    private long oldsize =-1;
     public MainContentAdapter(Context context) {
         this.context = context;
     }
@@ -35,6 +37,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         for (int i = 0; i < devices.size(); i++) {
             expandState.append(i, false);
         }
+
     }
 
     @Override
@@ -64,6 +67,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
         else{
+
             holder.typeOfLC5.setText(devices.get(finalPosition).getType());
             holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
             holder.devEUI.setText(devices.get(finalPosition).getEui());
@@ -72,10 +76,11 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.nwkID.setText(devices.get(finalPosition).getNwkid());
             holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
             holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-            holder.appSKeyLabel.setVisibility(View.INVISIBLE);
-            holder.nwkSKeyLabel.setVisibility(View.INVISIBLE);
-            holder.nwkSKey.setVisibility(View.INVISIBLE);;
-            holder.appSKey.setVisibility(View.INVISIBLE);
+            holder.appSKeyLabel.setVisibility(View.GONE);
+            holder.appSKey.setVisibility(View.GONE);
+            holder.nwkSKeyLabel.setVisibility(View.GONE);
+            holder.nwkSKey.setVisibility(View.GONE);;
+
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
@@ -123,12 +128,11 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         setAnimation(holder.itemView,finalPosition);
 
     }
+
+
     private void setAnimation(View viewAnimate, int pos){
-
-            Animation animation = AnimationUtils.loadAnimation(context,R.anim.push_elem);
+            Animation animation = AnimationUtils.loadAnimation(context, R.anim.push_elem);
             viewAnimate.startAnimation(animation);
-
-
     }
 
     @Override
@@ -159,11 +163,17 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView comment;
         public TextView nwkSKeyLabel;
         public TextView appSKeyLabel;
+        public TextView additionalInfo;
+        public TextView commentLabel;
+        public TextView dateLabel;
         public ExpandableLinearLayout expandableLayout;
         public ImageButton gpsLocation;
 
         public ViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.lc5_item_list, parent, false));
+            additionalInfo = itemView.findViewById(R.id.lc5_AdditionalInfo);
+            commentLabel = itemView.findViewById(R.id.lc5_commentLabel);
+            dateLabel = itemView.findViewById(R.id.lc5_dateLabel);
             typeOfLC5 = itemView.findViewById(R.id.lc5_type);
             isOTAA = itemView.findViewById(R.id.lc5_isOTAA);
             devEUI = itemView.findViewById(R.id.lc5_deveui);
@@ -184,6 +194,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             comment = itemView.findViewById(R.id.lc5_comment);
             nwkSKeyLabel =itemView.findViewById(R.id.lc5_nwkSKeyLabel);
             appSKeyLabel =itemView.findViewById(R.id.lc5_appSKeyLabel);
+
+
         }
     }
 }
