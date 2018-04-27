@@ -7,6 +7,8 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,7 +24,6 @@ import java.util.Locale;
 public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
     List<DeviceEntry> devices;
     private SparseBooleanArray expandState = new SparseBooleanArray();
-
     private Context context;
 
     public MainContentAdapter(Context context) {
@@ -44,22 +45,44 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final int finalPosition = holder.getAdapterPosition();
-        holder.typeOfLC5.setText(devices.get(finalPosition).getType());
-        holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
-        holder.devEUI.setText(devices.get(finalPosition).getEui());
-        holder.appEUI.setText(devices.get(finalPosition).getAppeui());
-        holder.appKey.setText(devices.get(finalPosition).getAppkey());
-        holder.nwkID.setText(devices.get(finalPosition).getNwkid());
-        holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-        holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment()))?devices.get(finalPosition).getComment():devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-        holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
-        holder.appSKey.setText(devices.get(finalPosition).getAppskey());
-        holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",
-                devices.get(finalPosition).getLongitude(),
-                devices.get(finalPosition).getLatitude()));
-        holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
-        holder.comment.setText("".equals(devices.get(finalPosition).getComment())?"":devices.get(finalPosition).getComment());
-        holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
+        if(!devices.get(finalPosition).getIsOTTA()) {
+            holder.typeOfLC5.setText(devices.get(finalPosition).getType());
+            holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
+            holder.devEUI.setText(devices.get(finalPosition).getEui());
+            holder.appEUI.setText(devices.get(finalPosition).getAppeui());
+            holder.appKey.setText(devices.get(finalPosition).getAppkey());
+            holder.nwkID.setText(devices.get(finalPosition).getNwkid());
+            holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
+            holder.appSKey.setText(devices.get(finalPosition).getAppskey());
+            holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
+                    devices.get(finalPosition).getLongitude(),
+                    devices.get(finalPosition).getLatitude()));
+            holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
+            holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
+            holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
+        }
+        else{
+            holder.typeOfLC5.setText(devices.get(finalPosition).getType());
+            holder.isOTAA.setText(devices.get(finalPosition).getIsOTTA() ? context.getText(R.string.yesotta) : context.getText(R.string.nootaa));
+            holder.devEUI.setText(devices.get(finalPosition).getEui());
+            holder.appEUI.setText(devices.get(finalPosition).getAppeui());
+            holder.appKey.setText(devices.get(finalPosition).getAppkey());
+            holder.nwkID.setText(devices.get(finalPosition).getNwkid());
+            holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.appSKeyLabel.setVisibility(View.INVISIBLE);
+            holder.nwkSKeyLabel.setVisibility(View.INVISIBLE);
+            holder.nwkSKey.setVisibility(View.INVISIBLE);;
+            holder.appSKey.setVisibility(View.INVISIBLE);
+            holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
+                    devices.get(finalPosition).getLongitude(),
+                    devices.get(finalPosition).getLatitude()));
+            holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
+            holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
+            holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
+        }
         holder.expandableLayout.setInRecyclerView(true);
         //holder.expandableLayout.setBackgroundColor(context.(R.color.colorPrimary));
         holder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));
@@ -96,6 +119,16 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
 
             }
         });
+
+        setAnimation(holder.itemView,finalPosition);
+
+    }
+    private void setAnimation(View viewAnimate, int pos){
+
+            Animation animation = AnimationUtils.loadAnimation(context,R.anim.push_elem);
+            viewAnimate.startAnimation(animation);
+
+
     }
 
     @Override
@@ -124,6 +157,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView outType;
         public TextView date;
         public TextView comment;
+        public TextView nwkSKeyLabel;
+        public TextView appSKeyLabel;
         public ExpandableLinearLayout expandableLayout;
         public ImageButton gpsLocation;
 
@@ -147,6 +182,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             gpsLocation = itemView.findViewById(R.id.gps_device_location);
             date = itemView.findViewById(R.id.lc5_date);
             comment = itemView.findViewById(R.id.lc5_comment);
+            nwkSKeyLabel =itemView.findViewById(R.id.lc5_nwkSKeyLabel);
+            appSKeyLabel =itemView.findViewById(R.id.lc5_appSKeyLabel);
         }
     }
 }

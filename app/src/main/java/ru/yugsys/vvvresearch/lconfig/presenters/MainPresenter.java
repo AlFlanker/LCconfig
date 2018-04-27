@@ -33,7 +33,7 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
     public void fireUpdateDataForView() {
 
         // model.loadAllDeviceData();
-        model.loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Straight);
+        model.loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
     }
 
 
