@@ -26,8 +26,8 @@
     <string name="prompt_devAdr">Local address</string>
     <string name="prompt_nwkID">Network ID</string>
     <string name="prompt_appKey">App code</string>
-    <string name="prompt_date">date</string>
-    <string name="prompt_comment">our comment</string>
+    <string name="prompt_date">Time of Change</string>
+    <string name="prompt_comment">a comment</string>
     <string name="title_activity_add_edit">AddEdit</string>
 
 
@@ -117,6 +117,8 @@
     <string name="identification">Identification</string>
     <string name="network_label">Network</string>
     <string name="security_label">Security</string>
+    <string name="additionalInformation">Additional Information</string>
+
 
     <string-array name="controller_type_list">
         <item>LC501</item>
