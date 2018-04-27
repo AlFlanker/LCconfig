@@ -50,14 +50,16 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         holder.appEUI.setText(devices.get(finalPosition).getAppeui());
         holder.appKey.setText(devices.get(finalPosition).getAppkey());
         holder.nwkID.setText(devices.get(finalPosition).getNwkid());
-        holder.devAdr.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
         holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+        holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment()))?devices.get(finalPosition).getComment():devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
         holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
         holder.appSKey.setText(devices.get(finalPosition).getAppskey());
         holder.gps.setText(String.format(Locale.ENGLISH,"%.6f°, %.6f°",
                 devices.get(finalPosition).getLongitude(),
                 devices.get(finalPosition).getLatitude()));
         holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
+        holder.comment.setText("".equals(devices.get(finalPosition).getComment())?"":devices.get(finalPosition).getComment());
+        holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         holder.expandableLayout.setInRecyclerView(true);
         //holder.expandableLayout.setBackgroundColor(context.(R.color.colorPrimary));
         holder.expandableLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));
@@ -120,6 +122,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView appSKey;
         public TextView gps;
         public TextView outType;
+        public TextView date;
+        public TextView comment;
         public ExpandableLinearLayout expandableLayout;
         public ImageButton gpsLocation;
 
@@ -141,6 +145,8 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             triangleView = itemView.findViewById(R.id.button_triangle);
             expandableLayout = (ExpandableLinearLayout) itemView.findViewById(R.id.expandableLayout);
             gpsLocation = itemView.findViewById(R.id.gps_device_location);
+            date = itemView.findViewById(R.id.lc5_date);
+            comment = itemView.findViewById(R.id.lc5_comment);
         }
     }
 }

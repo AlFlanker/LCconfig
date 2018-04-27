@@ -34,7 +34,7 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
         int countOfAttempt;
         byte[] block;
         byte[] writeResult= null;
-        int ResultWriteAnswer=0;
+        int resultWriteAnswer=0;
 
         if(dataDevice !=null && objects[0] !=null) {
             Log.d("NFC_WRITE","in method");
@@ -80,7 +80,7 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
                 }
                 if (writeResult != null) {
                     if (writeResult[0] != (byte) 0x00) {
-                        ResultWriteAnswer++;
+                        resultWriteAnswer++;
                         writeResult[0] = (byte) 0xE1;
                     }
 
@@ -88,7 +88,7 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
             }
 
             if (writeResult != null) {
-                if (ResultWriteAnswer > 0)
+                if (resultWriteAnswer > 0)
                     return writeResult[0] = (byte) 0xFF;
                 else
                     return writeResult[0] = (byte) 0x00;

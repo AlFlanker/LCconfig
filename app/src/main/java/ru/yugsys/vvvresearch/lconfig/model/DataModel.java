@@ -14,6 +14,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
+import java.util.Objects;
+
 
 public class DataModel implements Model, GPScallback<Location> {
 
@@ -45,9 +47,17 @@ public class DataModel implements Model, GPScallback<Location> {
         } else eventManager.notifyOnDevDataChecked(false);
     }
 
+
     @Override
     public void setCurrentDevice(DeviceEntry dev) {
+        DeviceEntryDao dataDao = this.daoSession.getDeviceEntryDao();
+        DeviceEntry devFromDB;
         this.currentDevice = dev;
+        devFromDB = dataDao.queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(dev.getEui())).build().unique();
+        if(devFromDB!=null){
+            this.currentDevice.setComment(devFromDB.getComment());
+            this.currentDevice.setDateOfLastChange(devFromDB.getDateOfLastChange());
+        }
     }
 
     @Override
@@ -221,6 +231,15 @@ public class DataModel implements Model, GPScallback<Location> {
                     eventManager.notifyOnDataReceive(queue.list());
                 } else {
                     Query<DeviceEntry> queue = dataDao.queryBuilder().orderDesc(DeviceEntryDao.Properties.OutType).build();
+                    eventManager.notifyOnDataReceive(queue.list());
+                }
+                break;
+            case DateOfChange:
+                if (direction == Direction.Straight) {
+                    Query<DeviceEntry> queue = dataDao.queryBuilder().orderAsc(DeviceEntryDao.Properties.DateOfLastChange).build();
+                    eventManager.notifyOnDataReceive(queue.list());
+                } else {
+                    Query<DeviceEntry> queue = dataDao.queryBuilder().orderDesc(DeviceEntryDao.Properties.DateOfLastChange).build();
                     eventManager.notifyOnDataReceive(queue.list());
                 }
                 break;

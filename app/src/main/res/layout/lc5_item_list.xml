@@ -264,18 +264,40 @@
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
                 <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_appEUI"
+                        android:text="@string/additionalInformation"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Caption.Expandable"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_comment"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
+                />
+                <TextView
                         android:id="@+id/lc5_comment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_appSKey"
+                        android:hint="@string/prompt_comment"
                         android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
+                />
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_date"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
                 <TextView
                         android:id="@+id/lc5_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_appSKey"
+                        android:hint="@string/prompt_date"
                         android:maxLines="2"
                         style="@style/BaseTextView.Body.ExpandFields"
                 />

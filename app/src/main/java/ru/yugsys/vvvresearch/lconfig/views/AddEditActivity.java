@@ -357,7 +357,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
             presenter.fireNewDevice(currentDevice);
             readyToWriteDevice = false;
-            if (Build.VERSION.SDK_INT == 26) {
+            if (Build.VERSION.SDK_INT >= 26) {
                 vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
             } else if (Build.VERSION.SDK_INT < 26) {
                 vibrator.vibrate(500);
