@@ -18,6 +18,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
+import android.view.animation.AnimationUtils;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private MainPresentable mainPresenter;
-
+    private ProgressBar progressBar;
     @Override
     protected void onPause() {
         super.onPause();
@@ -69,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         Tag tagFromIntent;
         currentDataDevice = new DataDevice();
         if ("android.nfc.action.TECH_DISCOVERED".equals(intent.getAction())) {
+            progressBar.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
             tagFromIntent = (Tag) intent.getParcelableExtra("android.nfc.extra.TAG");
             currentDataDevice.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDataDevice);
@@ -96,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        progressBar = findViewById(R.id.MainProgressBar);
+        progressBar.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
         //Connect presenter to main view
         mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         mainPresenter.bind(this);
@@ -117,7 +124,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         if (mAdapter != null) {
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
+        recyclerView.scrollToPosition(0);
         mainPresenter.fireUpdateDataForView();
+       recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             GPSTracker gpsTracker = GPSTracker.instance();
             gpsTracker.setContext(this);
@@ -186,9 +195,13 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             Intent addActivity = new Intent(this, AddEditActivity.class);
             addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
             currentDataDevice = null;
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
             startActivity(addActivity);
         }
         else{
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
             Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
         }
     }
