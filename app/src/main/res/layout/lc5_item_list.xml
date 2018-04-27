@@ -234,6 +234,7 @@
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
                 <TextView
+                        android:id="@+id/lc5_nwkSKeyLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/prompt_nwkSKey"
@@ -249,6 +250,7 @@
                         style="@style/BaseTextView.Body.ExpandFields"
                 />
                 <TextView
+                        android:id="@+id/lc5_appSKeyLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/prompt_appSKey"
