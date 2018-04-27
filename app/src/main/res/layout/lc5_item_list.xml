@@ -146,6 +146,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/prompt_devEUI"
                         android:maxLines="2"
+                        android:layout_gravity=""
                         style="@style/BaseTextView.Body.ExpandFieldsCaption"
                 />
 

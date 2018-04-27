@@ -8,7 +8,9 @@ import ru.yugsys.vvvresearch.lconfig.views.MainViewable;
 
 import java.util.List;
 
-public class MainPresenter implements MainPresentable, ModelListener.OnDataRecived {
+public class MainPresenter implements MainPresentable, ModelListener.OnDataRecived,ModelListener.OnLoadDevice {
+
+
     private Model model;
     MainViewable mainView;
 
@@ -16,6 +18,7 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
     public MainPresenter(Model model) {
         this.model = model;
         this.model.getEventManager().subscribeOnDataRecive(this);
+        this.model.getEventManager().subscribeOnLoadDevice(this);
 
     }
 
@@ -41,6 +44,17 @@ public class MainPresenter implements MainPresentable, ModelListener.OnDataReciv
     public void OnDataRecived(List<DeviceEntry> devList) {
         if (mainView != null) {
             mainView.setContentForView(devList);
+        }
+    }
+
+    @Override
+    public void OnLoadDevice(DeviceEntry dev) {
+        mainView.OnCardFullView(dev);
+    }
+    @Override
+    public void loadDevByEUI(String eui) {
+        if(!("".equals(eui))) {
+            model.loadDeviceByEUI(eui);
         }
     }
 }

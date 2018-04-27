@@ -31,6 +31,7 @@ public class DataModel implements Model, GPScallback<Location> {
     @Override
     public void loadDeviceByEUI(String EUI) {
         DeviceEntry dev = this.daoSession.getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(EUI)).build().unique();
+        eventManager.notifyOnLoadDevice(dev);
     }
 
     @Override

@@ -10,10 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayout;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
@@ -23,11 +20,20 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import java.util.List;
 import java.util.Locale;
 
-public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder> {
+public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.ViewHolder>  {
     List<DeviceEntry> devices;
+    public static OnItemClickListener onItemClickListener;
     private SparseBooleanArray expandState = new SparseBooleanArray();
     private Context context;
     private long oldsize =-1;
+
+    public interface OnItemClickListener{
+        void OnItemSelected(String eui);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
     public MainContentAdapter(Context context) {
         this.context = context;
     }
@@ -144,7 +150,9 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         expandableLayout.toggle();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final TextView devAdrExp;
         public LinearLayout buttonLayout;
         public View triangleView;
@@ -194,8 +202,14 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             comment = itemView.findViewById(R.id.lc5_comment);
             nwkSKeyLabel =itemView.findViewById(R.id.lc5_nwkSKeyLabel);
             appSKeyLabel =itemView.findViewById(R.id.lc5_appSKeyLabel);
+            itemView.setOnClickListener(this);
 
+        }
 
+        @Override
+        public void onClick(View v) {
+            String s = devEUI.getText().toString();
+            onItemClickListener.OnItemSelected(s);
         }
     }
 }

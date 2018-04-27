@@ -18,8 +18,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
@@ -37,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBack.ReadCallBack {
+public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBack.ReadCallBack,MainContentAdapter.OnItemClickListener {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -54,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private static final int PERMISSION_REQUEST_CODE = 100;
     private MainPresentable mainPresenter;
     private ProgressBar progressBar;
+    private View scrollView;
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -90,12 +95,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getPremissionGPS();
+        MainContentAdapter.onItemClickListener = this;
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(this);
         recyclerView = findViewById(R.id.lc5_recycler_view);
+        scrollView = findViewById(R.id.lc5_scrollViewFull);
+        scrollView.setVisibility(View.GONE);
         adapter = new MainContentAdapter(recyclerView.getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(true);
@@ -115,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
+
     }
 
     @Override
@@ -173,6 +182,41 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     }
 
     @Override
+    public void OnCardFullView(DeviceEntry deviceEntry) {
+        EditText textView = findViewById(R.id.lc5_edit_deveui);
+        EditText lc5_edit_gps_latitude = findViewById(R.id.lc5_edit_gps_latitude);
+        EditText lc5_edit_gps_longitude = findViewById(R.id.lc5_edit_gps_longitude);
+        EditText lc5_edit_appEUI = findViewById(R.id.lc5_edit_appEUI);
+        EditText lc5_edit_appKey = findViewById(R.id.lc5_edit_appKey);
+        EditText lc5_edit_nwkID = findViewById(R.id.lc5_edit_nwkID);
+        EditText lc5_edit_devAdr = findViewById(R.id.lc5_edit_devAdr);
+        EditText lc5_edit_nwkSKey = findViewById(R.id.lc5_edit_nwkSKey);
+        EditText lc5_edit_comment = findViewById(R.id.lc5_edit_comment);
+        EditText lc5_date = findViewById(R.id.lc5_date1);
+        EditText lc5_appskey = findViewById(R.id.lc5_edit_appSKey);
+
+        textView.setText(deviceEntry.getEui());
+         lc5_edit_gps_latitude.setText(String.valueOf(deviceEntry.getLatitude()));
+         lc5_edit_gps_longitude.setText(String.valueOf(deviceEntry.getLongitude()));
+         lc5_edit_appEUI.setText(deviceEntry.getAppeui());
+         lc5_edit_appKey.setText(deviceEntry.getAppkey());
+         lc5_edit_nwkID.setText(deviceEntry.getNwkid());
+         lc5_edit_devAdr.setText(deviceEntry.getDevadrMSBtoLSB());
+         lc5_edit_nwkSKey.setText(deviceEntry.getNwkskey());
+         lc5_edit_comment.setText(deviceEntry.getComment());
+         lc5_date.setText(deviceEntry.getDateOfLastChange().toString());
+        lc5_appskey.setText(deviceEntry.getAppskey());
+
+
+        recyclerView.setVisibility(View.GONE);
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.ef1);
+
+        scrollView.setVisibility(View.VISIBLE);
+        scrollView.startAnimation(animation);
+
+    }
+
+    @Override
     public void onClick(View view) {
         if (view.getId() == R.id.fab) {
             Intent addEditIntent = new Intent(this, AddEditActivity.class);
@@ -204,5 +248,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             recyclerView.setVisibility(View.VISIBLE);
             Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void OnItemSelected(String eui) {
+        mainPresenter.loadDevByEUI(eui);
     }
 }

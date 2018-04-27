@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface MainViewable {
     void setContentForView(List<DeviceEntry> devices);
+    void OnCardFullView(DeviceEntry deviceEntry);
 }
