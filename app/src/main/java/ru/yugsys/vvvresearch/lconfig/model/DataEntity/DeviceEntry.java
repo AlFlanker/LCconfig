@@ -1,14 +1,23 @@
 package ru.yugsys.vvvresearch.lconfig.model.DataEntity;
 
+import android.location.Location;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Objects;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
+import ru.yugsys.vvvresearch.lconfig.Services.CRC16;
+import ru.yugsys.vvvresearch.lconfig.Services.Util;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
@@ -59,6 +68,8 @@ public class DeviceEntry {
     @NotNull
     private Date dateOfLastChange;
     @NotNull
+    private byte sendFrequency;
+    @NotNull
     private Boolean isDeleted;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -67,14 +78,13 @@ public class DeviceEntry {
     @Generated(hash = 502908221)
     private transient DeviceEntryDao myDao;
 
-    @Generated(hash = 1836589756)
+    @Generated(hash = 495081188)
     public DeviceEntry(Long id, @NotNull String type, boolean isOTTA, String eui,
             @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-            @NotNull String devadr, @NotNull String nwkskey,
-            @NotNull String appskey, double Latitude, double Longitude,
-            @NotNull String outType, @NotNull String kV, @NotNull String kI,
-            @NotNull String comment, @NotNull Date dateOfLastChange,
-            @NotNull Boolean isDeleted) {
+            @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey,
+            double Latitude, double Longitude, @NotNull String outType, @NotNull String kV,
+            @NotNull String kI, @NotNull String comment, @NotNull Date dateOfLastChange,
+            byte sendFrequency, @NotNull Boolean isDeleted) {
         this.id = id;
         this.type = type;
         this.isOTTA = isOTTA;
@@ -92,12 +102,279 @@ public class DeviceEntry {
         this.kI = kI;
         this.comment = comment;
         this.dateOfLastChange = dateOfLastChange;
+        this.sendFrequency = sendFrequency;
         this.isDeleted = isDeleted;
     }
 
     @Generated(hash = 105489907)
     public DeviceEntry() {
     }
+
+    //***********************************************************************/
+	//* the function Convert Fields of Object to byte array
+	// Alex Flanker
+	//***********************************************************************/
+    public static byte[] DeviceToByteArray(DeviceEntry dev) throws IllegalAccessException, IOException, NoSuchFieldException {
+		Field field;
+		StringBuilder sb = new StringBuilder();
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		byte[] raw=new byte[8];
+		field = DeviceEntry.class.getDeclaredField("type");
+		field.setAccessible(true);
+		String s = field.get(dev).toString();
+		sb.append(s);
+		while (sb.length() < 5) {
+			sb.append((char) 0x00);
+		}
+		byteArrayOutputStream.write(sb.toString().getBytes());
+		field = DeviceEntry.class.getDeclaredField("isOTTA");
+		field.setAccessible(true);
+		byteArrayOutputStream.write((field.get(dev).equals(Boolean.TRUE) ? 1 : 0));
+		field = DeviceEntry.class.getDeclaredField("eui");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("appeui");
+		field.setAccessible(true);
+		//raw = new BigInteger(field.get(dev).toString(),16).toByteArray();
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("appkey");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("nwkid");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+
+		field = DeviceEntry.class.getDeclaredField("devadr");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+
+
+        field = DeviceEntry.class.getDeclaredField("nwkskey");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("appskey");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+
+		field = DeviceEntry.class.getDeclaredField("Latitude");
+		field.setAccessible(true);
+		float f = Float.parseFloat(String.valueOf(field.get(dev)));
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
+
+
+		field = DeviceEntry.class.getDeclaredField("Longitude");
+		field.setAccessible(true);
+		f = Float.parseFloat(String.valueOf(field.get(dev)));
+
+		byteArrayOutputStream.write(ByteBuffer.allocate(4).order((ByteOrder.LITTLE_ENDIAN)).putFloat(f).array());
+
+		field = DeviceEntry.class.getDeclaredField("outType");
+		field.setAccessible(true);
+		s = field.get(dev).toString();
+		sb = new StringBuilder();
+		sb.append(s);
+		while (sb.length() < 5) {
+			sb.append((char) 0x00);
+		}
+		byteArrayOutputStream.write(sb.toString().getBytes());
+		field = DeviceEntry.class.getDeclaredField("kV");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		field = DeviceEntry.class.getDeclaredField("kI");
+		field.setAccessible(true);
+		byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
+		CRC16 c = new CRC16();
+		int cr = c.CRC16ArrayGet(0, byteArrayOutputStream.toByteArray());
+		byte[] crb = ByteBuffer.allocate(4).putInt(cr).array();
+		StringBuilder stb = new StringBuilder();
+		for (Byte b : crb) {
+			stb.append(String.format("%02x; ", b));
+		}
+		return byteArrayOutputStream.toByteArray();
+	}
+
+    //***********************************************************************/
+    //* the function Convert raw byte[] to Device
+    // Alex Flanker
+    //***********************************************************************/
+public static DeviceEntry decodeByteArrayToDevice(byte[] raw) throws IllegalAccessException, IOException {
+        DeviceEntry device = new DeviceEntry();
+        byte[] buf;
+        StringBuilder stringBuilder = new StringBuilder();
+        Field[] fields = DeviceEntry.class.getDeclaredFields();
+        String[] names = new String[fields.length];
+        int i = 0;
+        for (Field field : fields) {
+            names[i++] = field.getName();
+        }
+
+        for (Field field : fields) {
+            //name = field.getName();
+            if (field.getName().equals("type")) {
+                buf = new byte[5];
+                System.arraycopy(raw, 0, buf, 0, 5);
+                device.setType(new String(buf, StandardCharsets.UTF_8).toUpperCase().trim());
+//				field.set(device, new String(buf, StandardCharsets.UTF_8));
+            }
+            if (field.getName().equals("isOTTA")) {
+                buf = new byte[1];
+                boolean isotta;
+                System.arraycopy(raw, 5, buf, 0, 1);
+                if (buf[0] > 0) {
+                    isotta = true;
+                } else isotta = false;
+                device.setIsOTTA(isotta);
+                //field.set(device, isotta);
+
+            }
+            if (field.getName().equals("eui")) {
+                buf = new byte[8];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 6, buf, 0, 8);
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setEui(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("appeui")) {
+                buf = new byte[8];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 14, buf, 0, 8);
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setAppeui(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("appkey")) {
+                buf = new byte[16];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 22, buf, 0, 16);
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setAppkey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("nwkid")) {
+                buf = new byte[4];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 38, buf, 0, 4);
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setNwkid(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("devadr")) {
+                buf = new byte[4];
+                System.arraycopy(raw, 42, buf, 0, 4);
+                stringBuilder = new StringBuilder();
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setDevadr(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("nwkskey")) {
+                buf = new byte[16];
+                System.arraycopy(raw, 46, buf, 0, 16);
+                stringBuilder = new StringBuilder();
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setNwkskey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("appskey")) {
+                buf = new byte[16];
+                System.arraycopy(raw, 62, buf, 0, 16);
+                stringBuilder = new StringBuilder();
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setAppskey(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("Latitude")) {
+                buf = new byte[4];
+                System.arraycopy(raw, 78, buf, 0, 4);
+//				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+                device.setLatitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+                //order(ByteOrder.LITTLE_ENDIAN)
+            }
+            if (field.getName().equals("Longitude")) {
+                buf = new byte[4];
+                System.arraycopy(raw, 82, buf, 0, 4);
+                device.setLongitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+//				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+            }
+            if (field.getName().equals("outType")) {    //refactor!
+                buf = new byte[5];
+                System.arraycopy(raw, 86, buf, 0, 5);
+                stringBuilder = new StringBuilder();
+                for (Byte b : buf) {
+                    if (b == 0x00) {
+                    } else
+                        stringBuilder.append(new String(new byte[]{b}, StandardCharsets.UTF_8));
+                }
+                device.setOutType(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("kV")) {
+                buf = new byte[28];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 91, buf, 0, 28);
+                stringBuilder = new StringBuilder();
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setKV(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+            if (field.getName().equals("kI")) {
+                buf = new byte[2];
+                stringBuilder = new StringBuilder();
+                System.arraycopy(raw, 119, buf, 0, 2);
+                for (Byte b : buf) {
+                    stringBuilder.append(String.format("%02x", b));
+                }
+                device.setKI(stringBuilder.toString().toUpperCase());
+//				field.set(device, stringBuilder.toString());
+            }
+        }
+        return device;
+
+    }
+
+    public static DeviceEntry generate(String EUI, Location location) {
+		String mEUI;
+		mEUI = EUI.replace(" ", "");
+		mEUI = mEUI.substring(8);
+		DeviceEntry newDev = new DeviceEntry();
+        newDev.setType("LC503");
+        newDev.setIsOTTA(Boolean.FALSE);
+        newDev.setEui(EUI.replace(" ", "").trim());
+        newDev.setAppeui("0000000000000001");
+        newDev.setAppkey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setNwkid("00000000");
+
+		//ConvertStringToHexBytesArray(String.valueOf(Integer.reverseBytes(Integer.parseInt(mEUI,16))));
+        newDev.setDevadr(mEUI);
+        newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setAppskey("2B7E151628AED2A6ABF7158809CF4F3C");
+        newDev.setLatitude(location != null ? location.getLatitude() : 0.0d);
+        newDev.setLongitude(location != null ? location.getLongitude() : 0.0d);
+        newDev.setOutType("PMW");
+        newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
+        newDev.setKI("991C");
+        newDev.setDateOfLastChange(new Date());
+        newDev.setComment("");
+        newDev.setIsDeleted(false);
+		return newDev;
+//		newDev.setEui();
+	}
 
     @Override
     public boolean equals(Object obj) {
@@ -372,5 +649,14 @@ public class DeviceEntry {
             return devText.toString().toUpperCase();
         } else return null;
     }
+
+    public byte getSendFrequency() {
+        return this.sendFrequency;
+    }
+
+    public void setSendFrequency(byte sendFrequency) {
+        this.sendFrequency = sendFrequency;
+    }
+
 
 }

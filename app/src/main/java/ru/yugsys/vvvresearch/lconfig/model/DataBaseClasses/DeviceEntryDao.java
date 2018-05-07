@@ -41,7 +41,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         public final static Property KI = new Property(14, String.class, "kI", false, "K_I");
         public final static Property Comment = new Property(15, String.class, "comment", false, "COMMENT");
         public final static Property DateOfLastChange = new Property(16, java.util.Date.class, "dateOfLastChange", false, "DATE_OF_LAST_CHANGE");
-        public final static Property IsDeleted = new Property(17, Boolean.class, "isDeleted", false, "IS_DELETED");
+        public final static Property SendFrequency = new Property(17, byte.class, "sendFrequency", false, "SEND_FREQUENCY");
+        public final static Property IsDeleted = new Property(18, Boolean.class, "isDeleted", false, "IS_DELETED");
     }
 
     private DaoSession daoSession;
@@ -77,7 +78,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
                 "\"K_I\" TEXT NOT NULL ," + // 14: kI
                 "\"COMMENT\" TEXT NOT NULL ," + // 15: comment
                 "\"DATE_OF_LAST_CHANGE\" INTEGER NOT NULL ," + // 16: dateOfLastChange
-                "\"IS_DELETED\" INTEGER NOT NULL );"); // 17: isDeleted
+                "\"SEND_FREQUENCY\" INTEGER NOT NULL ," + // 17: sendFrequency
+                "\"IS_DELETED\" INTEGER NOT NULL );"); // 18: isDeleted
     }
 
     /** Drops the underlying database table. */
@@ -114,7 +116,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         stmt.bindString(15, entity.getKI());
         stmt.bindString(16, entity.getComment());
         stmt.bindLong(17, entity.getDateOfLastChange().getTime());
-        stmt.bindLong(18, entity.getIsDeleted() ? 1L: 0L);
+        stmt.bindLong(18, entity.getSendFrequency());
+        stmt.bindLong(19, entity.getIsDeleted() ? 1L: 0L);
     }
 
     @Override
@@ -145,7 +148,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         stmt.bindString(15, entity.getKI());
         stmt.bindString(16, entity.getComment());
         stmt.bindLong(17, entity.getDateOfLastChange().getTime());
-        stmt.bindLong(18, entity.getIsDeleted() ? 1L: 0L);
+        stmt.bindLong(18, entity.getSendFrequency());
+        stmt.bindLong(19, entity.getIsDeleted() ? 1L: 0L);
     }
 
     @Override
@@ -179,7 +183,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
             cursor.getString(offset + 14), // kI
             cursor.getString(offset + 15), // comment
             new java.util.Date(cursor.getLong(offset + 16)), // dateOfLastChange
-            cursor.getShort(offset + 17) != 0 // isDeleted
+            (byte) cursor.getShort(offset + 17), // sendFrequency
+            cursor.getShort(offset + 18) != 0 // isDeleted
         );
         return entity;
     }
@@ -203,7 +208,8 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         entity.setKI(cursor.getString(offset + 14));
         entity.setComment(cursor.getString(offset + 15));
         entity.setDateOfLastChange(new java.util.Date(cursor.getLong(offset + 16)));
-        entity.setIsDeleted(cursor.getShort(offset + 17) != 0);
+        entity.setSendFrequency((byte) cursor.getShort(offset + 17));
+        entity.setIsDeleted(cursor.getShort(offset + 18) != 0);
      }
     
     @Override

@@ -2,13 +2,11 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -16,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
@@ -31,13 +28,9 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBack.ReadCallBack {
+public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBacks.ReadCallBack {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -79,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             if (!Util.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
-            ReadTask readTask = new ReadTask(null,null);
-            readTask.subscribe(this);
-            readTask.execute(currentDataDevice);
+            ReadFromDeviceTask readFromDeviceTask = new ReadFromDeviceTask(null,null);
+            readFromDeviceTask.subscribe(this);
+            readFromDeviceTask.execute(currentDataDevice);
         }
 
     }

@@ -2,13 +2,11 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.*;
@@ -18,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +23,6 @@ import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
-import com.google.android.gms.tasks.Task;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -36,12 +32,9 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener,AsyncTaskCallBack.WriteCallback {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener,AsyncTaskCallBacks.WriteCallback {
 
 
     private Vibrator vibrator;
@@ -184,7 +177,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 mLocation.setLongitude(38.997585);
                 mLocation.setLatitude(45.071137);
             }
-            currentDevice = Util.generate(jperf + "00000000", mLocation);
+            currentDevice = DeviceEntry.generate(jperf + "00000000", mLocation);
         } else {
             currentDevice = ((App) getApplication()).getModel().getCurrentDevice();
         }
@@ -231,7 +224,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8).toUpperCase());
                 currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
                 setDeviceFields(currentDevice);
-                WriteTask task = new WriteTask(currentDev);
+                WriteToDeviceTask task = new WriteToDeviceTask(currentDev);
                 task.subscribe(this);
                 task.execute(currentDevice);
                 readyToWriteDevice = false;
