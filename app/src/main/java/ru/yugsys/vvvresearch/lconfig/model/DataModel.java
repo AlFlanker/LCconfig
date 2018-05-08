@@ -41,8 +41,8 @@ public class DataModel implements Model, GPScallback<Location> {
 
     @Override
     public void DeleteDevice(long id) {
-        if (this.daoSession.getDeviceDao().load(id) != null) {
-            this.daoSession.getDeviceDao().deleteByKey(id);
+        if (this.daoSession.getDeviceEntryDao().load(id) != null) {
+            this.daoSession.getDeviceEntryDao().deleteByKey(id);
             eventManager.notifyOnDevDataChecked(true);
         } else eventManager.notifyOnDevDataChecked(false);
     }

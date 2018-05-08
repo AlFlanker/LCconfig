@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             ((App) getApplication()).getModel().clearDataBase();
         }
         else if(id == R.id.action_CopyDB){
-            new DataBaseMigrate(((App)getApplication()).getDaoSession()).migrate();
+            //new DataBaseMigrate(((App)getApplication()).getDaoSession()).migrate();
         }
         return super.onOptionsItemSelected(item);
     }
