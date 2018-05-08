@@ -199,7 +199,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             currentDev = new DataDevice();
             currentDev.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
-            currentDev = Util.DecodeGetSystemInfoResponse(systemInfo,currentDev);
+            currentDev = DataDevice.DecodeGetSystemInfoResponse(systemInfo, currentDev);
 
 
             Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
