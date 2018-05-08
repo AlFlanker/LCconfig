@@ -109,7 +109,7 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
         }
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
         if (c16 == res) {
-            return Util.decodeByteArrayToDevice(crc);
+            return DeviceEntry.decodeByteArrayToDevice(crc);
             //            ((App) getApplication()).getModel().setCurrentDevice(currentDevice);
 //            Intent addActivity = new Intent(this, AddEditActivity.class);
 //            addActivity.putExtra(ADD_NEW_DEVICE_MODE, Boolean.FALSE);
