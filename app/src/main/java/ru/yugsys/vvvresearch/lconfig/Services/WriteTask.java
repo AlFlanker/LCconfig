@@ -1,13 +1,9 @@
 package ru.yugsys.vvvresearch.lconfig.Services;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
-import ru.yugsys.vvvresearch.lconfig.App;
-import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.views.AddEditActivity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -108,7 +104,7 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
         byte[] valueBlocksWrite = new byte[123] ;
         byte[] raw;
         try {
-            raw = Util.Object2ByteArray(object);
+            raw = DeviceEntry.Object2ByteArray(object);
             System.arraycopy(raw, 0, valueBlocksWrite, 0, raw.length);
             CRC16 crc16 = new CRC16();
             int res = crc16.CRC16ArrayGet(0, raw);
