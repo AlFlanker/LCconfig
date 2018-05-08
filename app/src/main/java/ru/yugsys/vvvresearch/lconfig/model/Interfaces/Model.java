@@ -3,7 +3,6 @@ package ru.yugsys.vvvresearch.lconfig.model.Interfaces;
 
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 

@@ -2,7 +2,6 @@ package ru.yugsys.vvvresearch.lconfig.presenters;
 
 import android.location.Location;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.MDevice;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.views.AddEditViewable;
