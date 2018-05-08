@@ -13,8 +13,8 @@ public class NFCCommand {
 	 //* the argument myTag is the intent triggered with the TAG_DISCOVERED
 	 //***********************************************************************/
      //* REFACTOR
-     //public static byte[] SendGetSystemInfoCommandCustom_Inventory (Tag myTag, DataDevice dataDevice)
-     public static byte[] SendGetSystemInfoCommandCustom(Tag myTag, DataDevice dataDevice)
+
+	public static byte[] SendGetSystemInfoCommandCustom(Tag myTag, DataDevice dataDevice)
 	 {
 		 boolean boolDeviceDetected = false;
          dataDevice.setBasedOnTwoBytesAddress(false);

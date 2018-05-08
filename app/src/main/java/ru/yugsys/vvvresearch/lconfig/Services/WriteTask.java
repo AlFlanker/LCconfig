@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
 
-    public DeviceEntry devTEST;
+
     private DataDevice dataDevice;
     private AsyncTaskCallBack.WriteCallback writeCallback;
 
