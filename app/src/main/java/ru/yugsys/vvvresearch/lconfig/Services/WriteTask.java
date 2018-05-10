@@ -101,17 +101,12 @@ public class WriteTask extends AsyncTask<DeviceEntry,Void,Byte>{
     }
 
     private byte[] getBytes(DeviceEntry object) {
-        byte[] valueBlocksWrite = new byte[123] ;
+
         byte[] raw;
         try {
             raw = DeviceEntry.Object2ByteArray(object);
-            System.arraycopy(raw, 0, valueBlocksWrite, 0, raw.length);
-            CRC16 crc16 = new CRC16();
-            int res = crc16.CRC16ArrayGet(0, raw);
-            byte[] crc = ByteBuffer.allocate(4).putInt(res).array();
-            valueBlocksWrite[121] = crc[3];
-            valueBlocksWrite[122] = crc[2];
-                return valueBlocksWrite;
+
+            return raw;
         }
 
         catch (IllegalAccessException e) {
