@@ -29,12 +29,11 @@ import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresentable;
-import ru.yugsys.vvvresearch.lconfig.presenters.AddEditPresenter;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.*;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener,AsyncTaskCallBack.WriteCallback {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
 
 
     private Vibrator vibrator;
@@ -53,7 +52,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText gpsEditLongitude;
     private Spinner out_typeSpinner;
     private Spinner typeSpinner;
-    private AddEditPresentable presenter;
     private NfcAdapter mAdapter;
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
@@ -159,8 +157,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             mLocation = GPSTracker.getLastKnownLocation(this);
         }
 
-        presenter = new AddEditPresenter(((App) getApplication()).getModel());
-        presenter.bind(this);
+//        presenter = new AddEditPresenter(((App) getApplication()).getModel());
+//        presenter.bind(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, false);
         if (createNewDevice) {
@@ -241,7 +239,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                presenter.fireGetNewGPSData();
+
+                ((App) getApplication()).getModel().getGPSLocation();
             }
         } else {
         }
@@ -320,7 +319,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        presenter.unBind();
     }
 
     @Override
@@ -357,7 +355,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
         } else if (writeResult == (byte) 0x00) {
             Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
-            presenter.fireNewDevice(currentDevice);
+
+            ((App) getApplication()).getModel().saveDevice(currentDevice);
             readyToWriteDevice = false;
             if (Build.VERSION.SDK_INT >= 26) {
                 vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
@@ -369,5 +368,17 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    @Override
+    public void OnGPSdata(Location location) {
+        if (location != null) {
+            setLocationFields(location);
+        }
+    }
+
+    @Override
+    public void OnNFCConnected(DeviceEntry dev) {
+        setDeviceFields(dev);
     }
 }

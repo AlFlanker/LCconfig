@@ -24,13 +24,12 @@ import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
-import ru.yugsys.vvvresearch.lconfig.presenters.MainPresentable;
-import ru.yugsys.vvvresearch.lconfig.presenters.MainPresenter;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected,AsyncTaskCallBack.ReadCallBack {
+public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected, AsyncTaskCallBack.ReadCallBack, ModelListener.OnDataRecived {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private MainContentAdapter adapter;
     private RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 100;
-    private MainPresentable mainPresenter;
+
     private ProgressBar progressBar;
     @Override
     protected void onPause() {
@@ -97,9 +96,13 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         //Connect presenter to main view
-        mainPresenter = new MainPresenter(((App) getApplication()).getModel());
-        mainPresenter.bind(this);
-        mainPresenter.fireUpdateDataForView();
+        //mainPresenter = new MainPresenter(((App) getApplication()).getModel());
+        //mainPresenter.bind(this);
+        // mainPresenter.fireUpdateDataForView();
+
+        // WithoutPresenter
+        ((App) getApplication()).getModel().getEventManager().subscribeOnDataRecive(this);
+        ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
         //getPremissionGPS();
         mAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mAdapter != null && mAdapter.isEnabled()) {
@@ -118,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
         recyclerView.scrollToPosition(0);
-        mainPresenter.fireUpdateDataForView();
+        ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
        recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             GPSTracker gpsTracker = GPSTracker.instance();
@@ -197,5 +200,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             recyclerView.setVisibility(View.VISIBLE);
             Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void OnDataRecived(List<DeviceEntry> devList) {
+        this.setContentForView(devList);
     }
 }

@@ -95,7 +95,6 @@ public class DataModel implements Model, GPScallback<Location> {
             dataDao.insert(device);
             eventManager.notifyOnDevDataChecked(true);
         } else {
-//            devFromDB.copyFields(device);
             device.setId(devFromDB.getId());
             dataDao.update(device);
             eventManager.notifyOnDevDataChecked(true);
