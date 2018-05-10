@@ -110,7 +110,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 //        devAdrEdit.setFilters(new InputFilter[]{new LengthFilter((short) 8)});
 //        nwkSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
 //        appSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
-//        deveuiEdit.setFilters(new InputFilter[]{new LengthFilter((short) 16)});
+//        commentEdit.setFilters(new InputFilter[]{new LengthFilter((short) 50)});
         gpsEditLatitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         gpsEditLongitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         gpsEditLongitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
@@ -157,8 +157,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             mLocation = GPSTracker.getLastKnownLocation(this);
         }
 
-//        presenter = new AddEditPresenter(((App) getApplication()).getModel());
-//        presenter.bind(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         createNewDevice = getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, false);
         if (createNewDevice) {
