@@ -9,7 +9,10 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.*;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +34,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Locale;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
 
@@ -302,6 +306,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setComment(commentEdit.getText().toString());
         device.setDateOfLastChange(new Date());
         device.setIsDeleted(false);
+        device.setIsSyncServer(false);
         return device;
     }
 

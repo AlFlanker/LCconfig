@@ -1,10 +1,11 @@
 package ru.yugsys.vvvresearch.lconfig.model.DataEntity;
 
 import android.location.Location;
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Unique;
+import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.*;
+import ru.yugsys.vvvresearch.lconfig.Services.Util;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,11 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
-import ru.yugsys.vvvresearch.lconfig.Services.Util;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
 @Entity(
 
@@ -69,6 +65,8 @@ public class DeviceEntry {
     private Date dateOfLastChange;
     @NotNull
     private Boolean isDeleted;
+    @NotNull
+    private Boolean isSyncServer;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -76,14 +74,11 @@ public class DeviceEntry {
     @Generated(hash = 502908221)
     private transient DeviceEntryDao myDao;
 
-    @Generated(hash = 1836589756)
-    public DeviceEntry(Long id, @NotNull String type, boolean isOTTA, String eui,
-            @NotNull String appeui, @NotNull String appkey, @NotNull String nwkid,
-            @NotNull String devadr, @NotNull String nwkskey,
-            @NotNull String appskey, double Latitude, double Longitude,
-            @NotNull String outType, @NotNull String kV, @NotNull String kI,
-            @NotNull String comment, @NotNull Date dateOfLastChange,
-            @NotNull Boolean isDeleted) {
+    @Generated(hash = 1743064902)
+    public DeviceEntry(Long id, @NotNull String type, boolean isOTTA, String eui, @NotNull String appeui, @NotNull String appkey,
+                       @NotNull String nwkid, @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey, double Latitude,
+                       double Longitude, @NotNull String outType, @NotNull String kV, @NotNull String kI, @NotNull String comment,
+                       @NotNull Date dateOfLastChange, @NotNull Boolean isDeleted, @NotNull Boolean isSyncServer) {
         this.id = id;
         this.type = type;
         this.isOTTA = isOTTA;
@@ -102,6 +97,7 @@ public class DeviceEntry {
         this.comment = comment;
         this.dateOfLastChange = dateOfLastChange;
         this.isDeleted = isDeleted;
+        this.isSyncServer = isSyncServer;
     }
 
     @Generated(hash = 105489907)
@@ -182,42 +178,35 @@ public class DeviceEntry {
         field.setAccessible(true);
         byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
         int cr = CRC16.CRC16ArrayGet(0, byteArrayOutputStream.toByteArray());
-        byte[] crb = ByteBuffer.allocate(4).putInt(cr).array();
-//        StringBuilder stb = new StringBuilder();
-//        for (Byte b : crb) {
-//            stb.append(String.format("%02x; ", b));
-//        }
-        byteArrayOutputStream.write(crb[3]);
-        byteArrayOutputStream.write(crb[2]);
+        byte[] crb = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(cr).array(), 2, 4);
+        byteArrayOutputStream.write(new byte[]{crb[1], crb[0]});
+        //new block
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         field = DeviceEntry.class.getDeclaredField("comment");
         field.setAccessible(true);
         s = field.get(dev).toString();
-        sb = new StringBuilder();
-        sb.append(s);
-        byte[] tmp = sb.toString().getBytes();
-        byte[] ok = new byte[50];
-        if (tmp.length < 50) {
-            Arrays.fill(ok, tmp.length, 50, (byte) 0x00);
-            System.arraycopy(tmp, 0, ok, 0, tmp.length);
-        }
-        baos.write(ok);
-
+        byte[] tmp = s.getBytes();
+        baos.write(Arrays.copyOf(tmp, 25));
         field = DeviceEntry.class.getDeclaredField("dateOfLastChange");
         field.setAccessible(true);
         long ms = ((Date) field.get(dev)).getTime();
         byte[] t = ByteBuffer.allocate(8).putLong(ms).array();
         baos.write(t);
-        int cr2 = CRC16.CRC16ArrayGet(0, baos.toByteArray());
-        byte[] crb2 = ByteBuffer.allocate(4).putInt(cr2).array();
-        baos.write(crb2[3]);
-        baos.write(crb2[2]);
-        byteArrayOutputStream.write(baos.toByteArray());
 
-        sb = new StringBuilder();
-        for (Byte b : baos.toByteArray()) {
-            sb.append(String.format("%02x ", b));
-        }
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        int amountOfByte = baos.size() + 2; // Without CRC bytes, but with check length!
+
+        byte[] bytes = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(amountOfByte).array(), 2, 4);
+        buf.write(new byte[]{bytes[1], bytes[0]});
+        buf.write(baos.toByteArray());
+        baos.close();
+        int cr2 = CRC16.CRC16ArrayGet(0, buf.toByteArray());
+        byte[] crb2 = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(cr2).array(), 2, 4);
+        buf.write(new byte[]{crb2[1], crb2[0]});
+
+        byteArrayOutputStream.write(buf.toByteArray());
+        buf.close();
+
         return byteArrayOutputStream.toByteArray();
     }
 
@@ -373,20 +362,16 @@ public class DeviceEntry {
             }
         }
         if (raw.length > 121) {
-            buf = new byte[50];
-            System.arraycopy(raw, 121, buf, 0, 50);
-            stringBuilder = new StringBuilder();
-            for (Byte b : buf) {
-                if (b == 0x00) {
-                } else
-                    stringBuilder.append(new String(new byte[]{b}, StandardCharsets.UTF_8));
+            //int amount = ByteBuffer.wrap(Arrays.copyOf(new byte[]{raw[122],raw[121]},4)).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            StringBuilder sb = new StringBuilder();
+            for (Byte ch : Arrays.copyOfRange(raw, 123, (123 + 25))) {
+                if (ch != 0x00) {
+                    sb.append(new String(new byte[]{ch}, StandardCharsets.UTF_8));
+                }
             }
-            device.setComment(stringBuilder.toString());
-
-            buf = new byte[8];
-            System.arraycopy(raw, 171, buf, 0, 8);
-
-            device.setDateOfLastChange(new Date(ByteBuffer.wrap(buf).getLong()));
+            device.setComment(sb.toString());
+            device.setDateOfLastChange(new Date(ByteBuffer.wrap(Arrays.copyOfRange(raw, (123 + 25), (123 + 25 + 8))).getLong()));
+            //device.setIsSyncServer(false);
         }
         return device;
 
@@ -403,7 +388,6 @@ public class DeviceEntry {
         newDev.setAppeui("0000000000000001");
         newDev.setAppkey("2B7E151628AED2A6ABF7158809CF4F3C");
         newDev.setNwkid("00000000");
-
         //ConvertStringToHexBytesArray(String.valueOf(Integer.reverseBytes(Integer.parseInt(mEUI,16))));
         newDev.setDevadr(mEUI);
         newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
@@ -416,6 +400,7 @@ public class DeviceEntry {
         newDev.setDateOfLastChange(new Date());
         newDev.setComment("");
         newDev.setIsDeleted(false);
+        newDev.setIsSyncServer(false);
         return newDev;
 //		newDev.setEui();
     }
@@ -461,6 +446,8 @@ public class DeviceEntry {
         if (!Objects.equals(this.isDeleted, other.isDeleted))
             return false;
         if (!Objects.equals(this.isOTTA, other.isOTTA))
+            return false;
+        if (!Objects.equals(this.isSyncServer, other.isSyncServer))
             return false;
         return true;
 
@@ -692,6 +679,14 @@ public class DeviceEntry {
             }
             return devText.toString().toUpperCase();
         } else return null;
+    }
+
+    public Boolean getIsSyncServer() {
+        return this.isSyncServer;
+    }
+
+    public void setIsSyncServer(Boolean isSyncServer) {
+        this.isSyncServer = isSyncServer;
     }
 
     public static class CRC16 {
