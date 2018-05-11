@@ -11,6 +11,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
@@ -24,7 +25,7 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
         if(addressStart==null)
         Arrays.fill(this.addressStart, (byte) 0x00);
         else this.addressStart = addressStart;
-        if (numberOfBlockToRead == null) this.numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x30};
+        if (numberOfBlockToRead == null) this.numberOfBlockToRead = new byte[]{(byte) 0x00, (byte) 0x80};
         else this.numberOfBlockToRead = numberOfBlockToRead;
 
 
@@ -96,35 +97,36 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
     }
 
     private  DeviceEntry decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
-
         StringBuilder sb;
-        DeviceEntry dev;
         byte[] crc = new byte[121];
-        byte[] added = new byte[60];
-        byte[] crc4added = new byte[58];
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         System.arraycopy(raw, 1, crc, 0, 121);
-        System.arraycopy(raw, 124, added, 0, 60);
-        System.arraycopy(raw, 124, crc4added, 0, 58);
         sb = new StringBuilder();
         for (Byte b : raw) {
             sb.append(String.format("%02x ", b));
         }
         int res = DeviceEntry.CRC16.CRC16ArrayGet(0, crc);
-        int res1 = DeviceEntry.CRC16.CRC16ArrayGet(0, crc4added);
-        int c16_added = ByteBuffer.wrap(new byte[]{0x00, 0x00, added[59], added[58]}).getInt();
         int c16 = ByteBuffer.wrap(new byte[]{0x00, 0x00, raw[123], raw[122]}).getInt();
 
-        if (c16 == res && res1 == c16_added) {
+        if (c16 == res) {
             data.write(crc);
-            data.write(crc4added);
-            return DeviceEntry.decodeByteArrayToDevice(data.toByteArray());
-        } else if (c16 == res) {
-            return DeviceEntry.decodeByteArrayToDevice(crc);
+            int amount = ByteBuffer.wrap(Arrays.copyOf(new byte[]{raw[124], raw[125]}, 4)).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            if (amount > (512 - (crc.length + 4))) {
+                return DeviceEntry.decodeByteArrayToDevice(data.toByteArray());
+            }
+            int crc_added = ByteBuffer
+                    .wrap(Arrays.copyOf(new byte[]{raw[124 + amount], raw[124 + amount + 1]}, 4))
+                    .order(ByteOrder.LITTLE_ENDIAN).getInt();
+            if (crc_added == DeviceEntry.CRC16.CRC16ArrayGet(0, Arrays.copyOfRange(raw, 124, 124 + amount))) {
+                data.write(Arrays.copyOfRange(raw, 124, 124 + amount));
+                return DeviceEntry.decodeByteArrayToDevice(data.toByteArray());
+            } else
+                return DeviceEntry.decodeByteArrayToDevice(data.toByteArray());
         } else {
             Log.d("Er", sb.toString());
             return null;
         }
-    }
 
+    }
 }
+
