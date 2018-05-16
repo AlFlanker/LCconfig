@@ -114,7 +114,7 @@ public class DataModel implements Model, GPScallback<Location> {
     }
 
     /**
-     * загрузка объектов Device из БД в List
+     * загрузка объектов  из БД в List
      */
     @Override
     public void loadAllDeviceData() {
