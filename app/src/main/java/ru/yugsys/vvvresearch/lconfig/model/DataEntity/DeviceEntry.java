@@ -21,7 +21,7 @@ import java.util.Objects;
 
         active = true,
 
-        nameInDb = "DeviceTable",
+        nameInDb = "LCTable",
 
         createInDb = true,
 
@@ -177,7 +177,7 @@ public class DeviceEntry {
         field = DeviceEntry.class.getDeclaredField("kI");
         field.setAccessible(true);
         byteArrayOutputStream.write(Util.hexToBytes(field.get(dev).toString()));
-        int cr = CRC16.CRC16ArrayGet(0, byteArrayOutputStream.toByteArray());
+        int cr = DeviceEntry.CRC16.CRC16ArrayGet(0, byteArrayOutputStream.toByteArray());
         byte[] crb = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(cr).array(), 2, 4);
         byteArrayOutputStream.write(new byte[]{crb[1], crb[0]});
         //new block
@@ -200,7 +200,7 @@ public class DeviceEntry {
         buf.write(new byte[]{bytes[1], bytes[0]});
         buf.write(baos.toByteArray());
         baos.close();
-        int cr2 = CRC16.CRC16ArrayGet(0, buf.toByteArray());
+        int cr2 = DeviceEntry.CRC16.CRC16ArrayGet(0, buf.toByteArray());
         byte[] crb2 = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(cr2).array(), 2, 4);
         buf.write(new byte[]{crb2[1], crb2[0]});
 
@@ -474,6 +474,27 @@ public class DeviceEntry {
         return (result ^ (result >>> 16));
     }
 
+    public void setDevadrMSBtoLSB(String devadr) {
+        if (devadr != null) {
+            StringBuilder devText = new StringBuilder();
+            for (int i = 0; i < devadr.length(); i += 2) {
+                devText.insert(0, devadr.substring(i, i + 2));
+                this.devadr = devText.toString().toUpperCase();
+            }
+        } else this.devadr = null;
+    }
+
+    public String getDevadrMSBtoLSB() {
+        if (devadr != null) {
+            StringBuilder devText = new StringBuilder();
+            int length = devadr.length();
+            for (int i = 0; i < length; i += 2) {
+                devText = devText.insert(0, devadr.substring(i, i + 2));
+            }
+            return devText.toString().toUpperCase();
+        } else return null;
+    }
+
     public Long getId() {
         return this.id;
     }
@@ -618,6 +639,14 @@ public class DeviceEntry {
         this.isDeleted = isDeleted;
     }
 
+    public Boolean getIsSyncServer() {
+        return this.isSyncServer;
+    }
+
+    public void setIsSyncServer(Boolean isSyncServer) {
+        this.isSyncServer = isSyncServer;
+    }
+
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -660,34 +689,7 @@ public class DeviceEntry {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getDeviceEntryDao() : null;
     }
-    public void setDevadrMSBtoLSB(String devadr) {
-        if (devadr != null) {
-            StringBuilder devText = new StringBuilder();
-            for (int i = 0; i < devadr.length(); i += 2) {
-                devText.insert(0, devadr.substring(i, i + 2));
-                this.devadr = devText.toString().toUpperCase();
-            }
-        } else this.devadr = null;
-    }
 
-    public String getDevadrMSBtoLSB() {
-        if (devadr != null) {
-            StringBuilder devText = new StringBuilder();
-            int length = devadr.length();
-            for (int i = 0; i < length; i += 2) {
-                devText = devText.insert(0, devadr.substring(i, i + 2));
-            }
-            return devText.toString().toUpperCase();
-        } else return null;
-    }
-
-    public Boolean getIsSyncServer() {
-        return this.isSyncServer;
-    }
-
-    public void setIsSyncServer(Boolean isSyncServer) {
-        this.isSyncServer = isSyncServer;
-    }
 
     public static class CRC16 {
         static final char[] CRCTablHigh = {
