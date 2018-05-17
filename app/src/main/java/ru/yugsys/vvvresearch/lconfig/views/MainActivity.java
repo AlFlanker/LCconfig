@@ -21,7 +21,7 @@ import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private MainContentAdapter adapter;
     private RecyclerView recyclerView;
     private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final int ERROR = 0;
+    private static final int MESSAGE = 1;
 
     private ProgressBar progressBar;
     @Override
@@ -128,10 +130,16 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        /*Apps targeting Android 7.0 (API level 24) and higher
+         do not receive CONNECTIVITY_ACTION broadcasts if they declare the broadcast receiver in their manifest.
+         Apps will still receive CONNECTIVITY_ACTION broadcasts if they register their BroadcastReceiver
+          with Context.registerReceiver() and that context is still valid
+          */
         intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         detectInternetConnection = new DetectInternetConnection();
         registerReceiver(detectInternetConnection, intentFilter);
+        /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         App.getInstance().BindConnectivityListener(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         if (mAdapter != null) {
@@ -145,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
+
 
     }
 
@@ -166,6 +175,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.INTERNET},
+                    PERMISSION_REQUEST_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.NFC) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.NFC},
                     PERMISSION_REQUEST_CODE);
         }
     }
@@ -229,7 +243,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         else{
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.Incorrect), ERROR);
+//            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -256,6 +271,26 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 
         Snackbar snackbar = Snackbar
                 .make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
+    }
+
+    private void showDiffrentSnackBar(String msg, int me) {
+
+        int color;
+        if (me == 1) {
+
+            color = Color.WHITE;
+        } else {
+
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.fab), msg, Snackbar.LENGTH_LONG);
 
         View sbView = snackbar.getView();
         TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);

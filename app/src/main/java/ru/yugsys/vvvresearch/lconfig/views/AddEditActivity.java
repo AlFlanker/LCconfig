@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -70,6 +72,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private boolean readyToWriteDevice = false;
     private Logger log = Logger.getInstance();
     private String comment;
+    private static final int ERROR = 0;
+    private static final int MESSAGE = 1;
 
 
     @Override
@@ -200,9 +204,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             currentDev.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
             currentDev = DataDevice.DecodeGetSystemInfoResponse(systemInfo, currentDev);
-
-
             Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.TagDetected),MESSAGE);
             if (createNewDevice && currentDev.getUid() != null) {
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
@@ -315,6 +318,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         //  currentDevice = fieldToDevice(); // In OnNewIntent()
         readyToWriteDevice = true;
         Toast.makeText(getApplicationContext(), getString(R.string.TouchToDevice), Toast.LENGTH_SHORT).show();
+//        showDiffrentSnackBar(getString(R.string.TouchToDevice),MESSAGE);
 
 
     }
@@ -352,12 +356,16 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (writeResult == null) {
         } else if (writeResult == (byte) 0x01) {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
         } else if (writeResult== (byte) 0xFF) {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
         } else if (writeResult == (byte) 0xE1) {
             Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.TransferStop),ERROR);
         } else if (writeResult == (byte) 0x00) {
             Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.WriteSucessfull),MESSAGE);
 
             ((App) getApplication()).getModel().saveDevice(currentDevice);
             readyToWriteDevice = false;
@@ -369,6 +377,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             finish();
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
         }
 
     }
@@ -383,5 +392,25 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     public void OnNFCConnected(DeviceEntry dev) {
         setDeviceFields(dev);
+    }
+
+    private void showDiffrentSnackBar(String msg, int me) {
+
+        int color;
+        if (me == 1) {
+
+            color = Color.WHITE;
+        } else {
+
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.fab), msg, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
     }
 }
