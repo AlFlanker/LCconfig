@@ -15,6 +15,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
+import java.lang.Object;
 import java.util.Objects;
 
 @Entity(
@@ -407,7 +408,7 @@ public class DeviceEntry {
 
     @Override
     public boolean equals(Object obj) {
-        Object o; // for hold import
+
         if (this == obj)
             return true;
         if (obj == null)
