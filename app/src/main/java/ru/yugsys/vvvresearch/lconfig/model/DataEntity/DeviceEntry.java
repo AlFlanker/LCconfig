@@ -407,6 +407,7 @@ public class DeviceEntry {
 
     @Override
     public boolean equals(Object obj) {
+        Object o; // for hold import
         if (this == obj)
             return true;
         if (obj == null)
