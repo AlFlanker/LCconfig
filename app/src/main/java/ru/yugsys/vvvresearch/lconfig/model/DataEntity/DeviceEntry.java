@@ -21,7 +21,7 @@ import java.util.Objects;
 
         active = true,
 
-        nameInDb = "LCTable",
+        nameInDb = "MainTable",
 
         createInDb = true,
 
@@ -407,7 +407,6 @@ public class DeviceEntry {
 
     @Override
     public boolean equals(Object obj) {
-
         if (this == obj)
             return true;
         if (obj == null)
