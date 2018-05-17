@@ -2,6 +2,7 @@ package ru.yugsys.vvvresearch.lconfig;
 
 import android.app.Application;
 import org.greenrobot.greendao.database.Database;
+import ru.yugsys.vvvresearch.lconfig.Services.DetectInternetConnection;
 import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoMaster;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
@@ -12,10 +13,12 @@ public class App extends Application {
     private Model model;
     public String out;
     private DaoSession daoSession;
+    private static App instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "devices-db");
         Database db = helper.getWritableDb();
         daoSession = new DaoMaster(db).newSession();
@@ -23,7 +26,6 @@ public class App extends Application {
         GPSTracker gpsTracker = GPSTracker.instance();
         gpsTracker.onChange(dataModel);
         model = dataModel;
-
     }
 
     public DaoSession getDaoSession() {
@@ -32,5 +34,13 @@ public class App extends Application {
 
     public Model getModel() {
         return model;
+    }
+
+    public void BindConnectivityListener(DetectInternetConnection.ConnectivityReceiverListener listener) {
+        DetectInternetConnection.connectivityReceiverListener = listener;
+    }
+
+    public static synchronized App getInstance() {
+        return instance;
     }
 }
