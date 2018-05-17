@@ -5,10 +5,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
@@ -29,7 +33,12 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainViewable, View.OnClickListener, ModelListener.OnNFCConnected, AsyncTaskCallBack.ReadCallBack, ModelListener.OnDataRecived {
+public class MainActivity extends AppCompatActivity implements MainViewable,
+        View.OnClickListener,
+        ModelListener.OnNFCConnected,
+        AsyncTaskCallBack.ReadCallBack,
+        ModelListener.OnDataRecived,
+        DetectInternetConnection.ConnectivityReceiverListener {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -40,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     private DeviceEntry currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
+    private IntentFilter intentFilter;
+    private DetectInternetConnection detectInternetConnection;
     Logger log = Logger.getInstance();
     private MainContentAdapter adapter;
     private RecyclerView recyclerView;
@@ -95,14 +106,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         progressBar = findViewById(R.id.MainProgressBar);
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
+
         //Connect presenter to main view
         //mainPresenter = new MainPresenter(((App) getApplication()).getModel());
         //mainPresenter.bind(this);
         // mainPresenter.fireUpdateDataForView();
 
         // WithoutPresenter
-        ((App) getApplication()).getModel().getEventManager().subscribeOnDataRecive(this);
-        ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+        App.getInstance().getModel().getEventManager().subscribeOnDataRecive(this);
+        App.getInstance().getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
         //getPremissionGPS();
         mAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mAdapter != null && mAdapter.isEnabled()) {
@@ -116,6 +128,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        detectInternetConnection = new DetectInternetConnection();
+        registerReceiver(detectInternetConnection, intentFilter);
+        App.getInstance().BindConnectivityListener(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         if (mAdapter != null) {
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
@@ -136,6 +153,19 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_REQUEST_CODE);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_NETWORK_STATE},
+                    PERMISSION_REQUEST_CODE);
+        }
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.INTERNET},
                     PERMISSION_REQUEST_CODE);
         }
     }
@@ -174,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
             Intent addEditIntent = new Intent(this, AddEditActivity.class);
             addEditIntent.putExtra(ADD_NEW_DEVICE_MODE, true);
             startActivity(addEditIntent);
+//            showSnack(DetectInternetConnection.isConnected(this));
         }
     }
 
@@ -205,5 +236,30 @@ public class MainActivity extends AppCompatActivity implements MainViewable, Vie
     @Override
     public void OnDataRecived(List<DeviceEntry> devList) {
         this.setContentForView(devList);
+    }
+
+    @Override
+    public void OnNetworkConnectionChanged(boolean isConnected) {
+        showSnack(isConnected);
+    }
+
+    private void showSnack(boolean isConnected) {
+        String message;
+        int color;
+        if (isConnected) {
+            message = getString(R.string.DetectInternetConnection);
+            color = Color.WHITE;
+        } else {
+            message = getString(R.string.ConnectivityChange);
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
     }
 }

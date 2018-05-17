@@ -142,6 +142,6 @@
     <string name="TransferStop">ERROR File Transfer! Cancel.</string>
     <string name="WriteSucessfull">successfully recorded</string>
     <string name="Incorrect">Invalid CRC or a new device</string>
-
-
+    <string name="DetectInternetConnection">is Connected</string>
+    <string name="ConnectivityChange">is Disconnected</string>
 </resources>
