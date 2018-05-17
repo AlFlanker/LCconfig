@@ -22,7 +22,7 @@ android {
 }
 
 greendao {
-    schemaVersion 33
+    schemaVersion 34
     targetGenDir 'src/main/java'
     daoPackage 'ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses'
 
