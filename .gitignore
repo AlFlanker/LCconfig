@@ -7,3 +7,16 @@
 /build
 /captures
 .externalNativeBuild
+/build
+*.jar
+build/
+MDevice.java
+Device.java
+MDeviceDAO.java
+DeviceDAO.java
+DataRead.java
+DataBaseMigrate.java
+AddEditPresentable.java
+AddEditPresenter.java
+MainPresentable.java
+MainPresenter.java
