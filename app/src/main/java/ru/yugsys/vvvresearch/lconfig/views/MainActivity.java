@@ -25,12 +25,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.widget.Toast;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
@@ -162,12 +166,18 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-        try {
-            test();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            test();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        new HttpRequestTask().execute();
     }
 
     private void getPremissionGPS() {
@@ -315,78 +325,42 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         new AsyncTaskRESTfunctions(AsyncTaskRESTfunctions.REST_FUNCTION.AppData, "").execute();
     }
 
-    class RestRequest extends AsyncTask<Void, Void, String> {
+    class HttpRequestTask extends AsyncTask<Void, Void, RESTData> {
 
-        String resultString = null;
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            try {
-                String myURL = "https://bs.net868.ru:20010/externalapi/";
-                String parammetrs = "appdata?token=1c68a488ec0d4dde80439e9627d23154&count=10&offset=0&startDate=2018-05-17T10:50:33Z&endDate=2018-05-18T10:50:33Z&order=desc";
-
-                byte[] data = null;
-                InputStream is = null;
-
-                try {
-                    URL url = new URL(myURL + parammetrs);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setDoInput(true);
-                    conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
-//                    OutputStream os = conn.getOutputStream();
-//                    data = parammetrs.getBytes("UTF-8");
-//                    os.write(data);
-//                    data = null;
-                    conn.connect();
-                    int responseCode = conn.getResponseCode();
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                    if (responseCode == 200) {
-                        is = conn.getInputStream();
-
-                        byte[] buffer = new byte[8192];
-                        int bytesRead;
-                        while ((bytesRead = is.read(buffer)) != -1) {
-                            baos.write(buffer, 0, bytesRead);
-                        }
-                        data = baos.toByteArray();
-                        resultString = new String(data, "UTF-8");
-                    } else {
-                    }
-
-
-                } catch (MalformedURLException e) {
-
-                    //resultString = "MalformedURLException:" + e.getMessage();
-                } catch (IOException e) {
-
-                    //resultString = "IOException:" + e.getMessage();
-                } catch (Exception e) {
-
-                    //resultString = "Exception:" + e.getMessage();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        protected RESTData doInBackground(Void... params) {
+//            try{
+//                final String url = "https://bs.net868.ru:20010/externalapi/appdata?token=1c68a488ec0d4dde80439e9627d23154&count=60&offset=0&order=desc";
+//                RestTemplate restTemplate = new RestTemplate();
+//                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+//                RESTData restData = restTemplate.getForObject(url,RESTData.class);
+//                return restData;
+//            }
+//            catch (Exception e){
+//                Log.e("MainActivity", e.getMessage(),e);
+//            }
             return null;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            if (resultString != null) {
-                Toast toast = Toast.makeText(getApplicationContext(), resultString, Toast.LENGTH_SHORT);
-                toast.show();
+        protected void onPostExecute(RESTData restData) {
+
+            try {
+                final String url = "https://bs.net868.ru:20010/externalapi/appdata?token=1c68a488ec0d4dde80439e9627d23154&count=60&offset=0&order=desc";
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                RESTData restData1 = restTemplate.getForObject(url, RESTData.class);
+                Log.d("Spring", restData1.deviceEUI);
+                Log.d("Spring", restData1.data);
+//                return restData;
+            } catch (Exception e) {
+                Log.e("MainActivity", e.getMessage(), e);
             }
 
         }
+    }
+
     }
 
 
@@ -394,4 +368,4 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 
 
 
-}
+
