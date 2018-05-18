@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,11 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -31,6 +34,11 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainViewable,
@@ -94,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getPremissionGPS();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -130,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        getPremissionGPS();
         /*Apps targeting Android 7.0 (API level 24) and higher
          do not receive CONNECTIVITY_ACTION broadcasts if they declare the broadcast receiver in their manifest.
          Apps will still receive CONNECTIVITY_ACTION broadcasts if they register their BroadcastReceiver
@@ -153,7 +162,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-
+        try {
+            test();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -297,4 +310,88 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         textView.setTextColor(color);
         snackbar.show();
     }
+
+    public void test() throws IOException {
+        new AsyncTaskRESTfunctions(AsyncTaskRESTfunctions.REST_FUNCTION.AppData, "").execute();
+    }
+
+    class RestRequest extends AsyncTask<Void, Void, String> {
+
+        String resultString = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                String myURL = "https://bs.net868.ru:20010/externalapi/";
+                String parammetrs = "appdata?token=1c68a488ec0d4dde80439e9627d23154&count=10&offset=0&startDate=2018-05-17T10:50:33Z&endDate=2018-05-18T10:50:33Z&order=desc";
+
+                byte[] data = null;
+                InputStream is = null;
+
+                try {
+                    URL url = new URL(myURL + parammetrs);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setDoInput(true);
+                    conn.setRequestProperty("Content-Length", "" + Integer.toString(parammetrs.getBytes().length));
+//                    OutputStream os = conn.getOutputStream();
+//                    data = parammetrs.getBytes("UTF-8");
+//                    os.write(data);
+//                    data = null;
+                    conn.connect();
+                    int responseCode = conn.getResponseCode();
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    if (responseCode == 200) {
+                        is = conn.getInputStream();
+
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = is.read(buffer)) != -1) {
+                            baos.write(buffer, 0, bytesRead);
+                        }
+                        data = baos.toByteArray();
+                        resultString = new String(data, "UTF-8");
+                    } else {
+                    }
+
+
+                } catch (MalformedURLException e) {
+
+                    //resultString = "MalformedURLException:" + e.getMessage();
+                } catch (IOException e) {
+
+                    //resultString = "IOException:" + e.getMessage();
+                } catch (Exception e) {
+
+                    //resultString = "Exception:" + e.getMessage();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (resultString != null) {
+                Toast toast = Toast.makeText(getApplicationContext(), resultString, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+        }
+    }
+
+
+
+
+
+
 }
