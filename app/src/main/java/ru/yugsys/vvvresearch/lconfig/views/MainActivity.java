@@ -18,13 +18,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.widget.Toast;
+import org.json.JSONException;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -34,7 +34,6 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -312,7 +311,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     }
 
     public void test() throws IOException {
-        new AsyncTaskRESTfunctions(AsyncTaskRESTfunctions.REST_FUNCTION.AppData, "").execute();
+        try {
+            new RestManager().new GetRequest("token=1c68a488ec0d4dde80439e9627d23154&count=60&offset=0&order=desc").execute();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     class RestRequest extends AsyncTask<Void, Void, String> {
