@@ -6,11 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,21 +23,20 @@ import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
+
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
-import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.RequestManager;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.RequestManager;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
+
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
-import java.io.*;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -170,20 +168,23 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
         TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        DeviceEntry dev = DeviceEntry.generate("74-e1-4a-4f-97-c4-3f-64", GPSTracker.getLastKnownLocation(this));
-        try {
-            RequestManager requestManager = RequestManager.newInstance().Build("https://bs.net868.ru:20010/externalapi/", RequestManager.REST_FUNCTION.CreateDevice)
-                    .addQueryParamets(REST.REST_PRM.token, "1c68a488ec0d4dde80439e9627d23154")
-                    .addQueryParamets(REST.REST_PRM.count, "1")
-                    .addQueryParamets(REST.REST_PRM.offset, "0")
-                    .addQueryParamets(REST.REST_PRM.order, "desc")
-                    .addQueryParamets(REST.REST_PRM.startDate, simpleDateFormat.parse("2018-05-12T10:50:33Z"))
-                    .addQueryParamets(REST.REST_PRM.endDate, simpleDateFormat.format(new Date()))
-                    .addDeviceEntry(dev);
-            requestManager.execute();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        DeviceEntry dev = DeviceEntry.generate("74e14a4f97c43f64", GPSTracker.getLastKnownLocation(this));
+//        dev.setDevadr(dev.getDevadr().substring(4));/*<<<<<<<<<<<---------------------------------*/
+//
+//        try {
+//
+//            RequestManager requestManager = RequestManager.newInstance().Build("https://bs.net868.ru:20010/externalapi/", RequestManager.REST_FUNCTION.CreateDevice)
+//                    .addQueryParamets(REST.REST_PRM.token, "1c68a488ec0d4dde80439e9627d23154")
+//                    .addQueryParamets(REST.REST_PRM.count, "1")
+//                    .addQueryParamets(REST.REST_PRM.offset, "0")
+//                    .addQueryParamets(REST.REST_PRM.order, "desc")
+//                    .addQueryParamets(REST.REST_PRM.startDate, simpleDateFormat.parse("2018-05-12T10:50:33Z"))
+//                    .addQueryParamets(REST.REST_PRM.endDate, simpleDateFormat.format(new Date()))
+//                    .addDeviceEntry(dev);
+//            requestManager.execute();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
 
 
     }

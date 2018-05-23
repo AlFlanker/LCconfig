@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
 
+import java.nio.charset.StandardCharsets;
 import java.security.spec.ECField;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -48,22 +49,20 @@ public class POST extends AsyncTask<JSONObject, Void, RESTData> implements REST 
 
     @Override
     protected RESTData doInBackground(JSONObject... params) {
-        String s = "{token:1c68a488ec0d4dde80439e9627d23154,device:{activationType:ABP,alias:LCTest,eui:74-e1-4a-4f-97-c4-3f-64,applicationEui:00-00-00-00-00-00-00-01,devAddr:64-3f-c4-97,networkSessionKey:2B7E151628AED2A6ABF7158809CF4F3C,applicationSessionKey:2B7E151628AED2A6ABF7158809CF4F3C,access:Private,loraClass:a,model:{name:LC5xx,version:1.0},address:{countryddress:Russia,region:Krd,city:Krasnodar,street:.....}}}";
+        String s = "{\"token\":\"1c68a488ec0d4dde80439e9627d23154\",\"device\":{\"activationType\":\"ABP\",\"alias\":\"LCTest\",\"eui\":\"74-e1-4a-4f-97-c4-3f-64\",\"applicationEui\":\"00-00-00-00-00-00-00-01\",\"devAddr\":\"64-3f-c4-97\",\"networkSessionKey\":\"2B7E151628AED2A6ABF7158809CF4F3C\",\"applicationSessionKey\":\"2B7E151628AED2A6ABF7158809CF4F3C\",\"access\":\"Private\",\"loraClass\":\"a\",\"model\":{\"name\":\"LC5xx\",\"version\":\"1.0\"},\"address\":{\"countryddress\":\"Russia\",\"region\":\"Krd\",\"city\":\"Krasnodar\",\"street\":\".....\"}}}";
         try {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 //        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
             HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            Log.d("TEST", String.valueOf(object.toString().length()));
-            HttpEntity<String> entity = new HttpEntity<String>(s, httpHeaders);
-            Log.d("TEST", entity.getHeaders().toString());
-            Log.d("TEST", entity.getBody().toString());
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<String>(params[0].toString(), httpHeaders);
+            Log.d("TEST", entity.getBody());
+            Log.d("TEST",params[0].toString());
+
             ResponseEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, entity, String.class);
-//        ResponseEntity<String> test = restTemplate.postForEntity(builder.build().encode().toUri(),entity,String.class);
-//        ResponseEntity<JSONObject> test = restTemplate.postForEntity(builder.build().encode().toUri(),entity,JSONObject.class);
-            Log.d("TEST", test.getBody().toString());
+            Log.d("TEST",String.valueOf(test.getStatusCode()));
+
         } catch (HttpClientErrorException e) {
             Log.d("TEST", e.toString());
         } catch (Exception e) {
