@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -23,27 +24,28 @@ import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import android.widget.Toast;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.RequestManager;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity implements MainViewable,
         View.OnClickListener,
@@ -166,18 +168,30 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-//        try {
-//            test();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DeviceEntry dev = DeviceEntry.generate("74-e1-4a-4f-97-c4-3f-64", GPSTracker.getLastKnownLocation(this));
+        try {
+            RequestManager requestManager = RequestManager.newInstance().Build("https://bs.net868.ru:20010/externalapi/", RequestManager.REST_FUNCTION.CreateDevice)
+                    .addQueryParamets(REST.REST_PRM.token, "1c68a488ec0d4dde80439e9627d23154")
+                    .addQueryParamets(REST.REST_PRM.count, "1")
+                    .addQueryParamets(REST.REST_PRM.offset, "0")
+                    .addQueryParamets(REST.REST_PRM.order, "desc")
+                    .addQueryParamets(REST.REST_PRM.startDate, simpleDateFormat.parse("2018-05-12T10:50:33Z"))
+                    .addQueryParamets(REST.REST_PRM.endDate, simpleDateFormat.format(new Date()))
+                    .addDeviceEntry(dev);
+            requestManager.execute();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        new HttpRequestTask().execute();
+
     }
 
     private void getPremissionGPS() {
@@ -321,45 +335,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         snackbar.show();
     }
 
-    public void test() throws IOException {
-        new AsyncTaskRESTfunctions(AsyncTaskRESTfunctions.REST_FUNCTION.AppData, "").execute();
-    }
-
-    class HttpRequestTask extends AsyncTask<Void, Void, RESTData> {
 
 
-        @Override
-        protected RESTData doInBackground(Void... params) {
-//            try{
-//                final String url = "https://bs.net868.ru:20010/externalapi/appdata?token=1c68a488ec0d4dde80439e9627d23154&count=60&offset=0&order=desc";
-//                RestTemplate restTemplate = new RestTemplate();
-//                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-//                RESTData restData = restTemplate.getForObject(url,RESTData.class);
-//                return restData;
-//            }
-//            catch (Exception e){
-//                Log.e("MainActivity", e.getMessage(),e);
-//            }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(RESTData restData) {
-
-            try {
-                final String url = "https://bs.net868.ru:20010/externalapi/appdata?token=1c68a488ec0d4dde80439e9627d23154&count=60&offset=0&order=desc";
-                RestTemplate restTemplate = new RestTemplate();
-                restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                RESTData restData1 = restTemplate.getForObject(url, RESTData.class);
-                Log.d("Spring", restData1.deviceEUI);
-                Log.d("Spring", restData1.data);
-//                return restData;
-            } catch (Exception e) {
-                Log.e("MainActivity", e.getMessage(), e);
-            }
-
-        }
-    }
 
     }
 
