@@ -144,6 +144,25 @@ public class RequestManager {
         JSONObject device = new JSONObject();
         JSONObject model = new JSONObject();
         JSONObject geo;
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i =0; i<dev.getAppeui().length()-2;i+=2){
+            stringBuilder.append(dev.getAppeui().substring(i,i+2)).append("-");
+        }
+        stringBuilder.append(dev.getAppeui().substring(dev.getAppeui().length()-2,dev.getAppeui().length()));
+        dev.setAppeui(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+        for(int i =0; i<dev.getEui().length()-2;i+=2){
+            stringBuilder.append(dev.getEui().substring(i,i+2)).append("-");
+        }
+        stringBuilder.append(dev.getEui().substring(dev.getEui().length()-2,dev.getEui().length()));
+        dev.setEui(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+//        dev.setDevadr(dev.getDevadrMSBtoLSB());
+        for(int i =0; i<dev.getDevadr().length()-2;i+=2){
+            stringBuilder.append(dev.getDevadr().substring(i,i+2)).append("-");
+        }
+        stringBuilder.append(dev.getDevadr().substring(dev.getDevadr().length()-2,dev.getDevadr().length()));
+        dev.setDevadr(stringBuilder.toString());
         try {
             if (!dev.getIsOTTA()) {
                 geo = new JSONObject();
@@ -159,7 +178,7 @@ public class RequestManager {
                 device.put("activationType", "ABP");
                 device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
                 device.put("eui", dev.getEui().toLowerCase());
-                device.put("applicationEui", dev.getAppeui().toLowerCase());
+                device.put("applicationEui",dev.getAppeui());
                 device.put("devAddr", dev.getDevadr());
                 device.put("networkSessionKey", dev.getNwkskey());
                 device.put("applicationSessionKey", dev.getAppskey());
