@@ -16,21 +16,35 @@ import java.util.regex.Pattern;
 
 
 public class RequestMaster {
+
     public REST getRequest() {
-        return request;
+        if (checkParameter()) {
+            switch (func) {
+                case AppData:
+                    this.request = new GET(hostAPI, parameters);
+                    break;
+                case CreateDevice:
+                    this.request = new POST(hostAPI, parameters, object);
+                    break;
+            }
+            return request;
+
+        }
+        return null;
+
     }
 
     public enum REST_FUNCTION {
         CreateDevice, DeleteDevice, AppData, CommandTypesOfDevice, SendCommand
     }
 
-    protected final static EnumMap<REST_FUNCTION, String> select;
+    protected final static EnumMap<REST_FUNCTION, String> net868API;
     private static String hostAPI;
 
     static {
-        select = new EnumMap<REST_FUNCTION, String>(REST_FUNCTION.class);
-        select.put(REST_FUNCTION.AppData, "appdata?");
-        select.put(REST_FUNCTION.CreateDevice, "createdevice?");
+        net868API = new EnumMap<REST_FUNCTION, String>(REST_FUNCTION.class);
+        net868API.put(REST_FUNCTION.AppData, "appdata?");
+        net868API.put(REST_FUNCTION.CreateDevice, "createdevice?");
     }
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
@@ -61,7 +75,7 @@ public class RequestMaster {
 
     public RequestMaster Build(String hostAPI, REST_FUNCTION function) {
         this.func = function;
-        this.hostAPI = (hostAPI + select.get(function));
+        this.hostAPI = (hostAPI + net868API.get(function));
         return this;
     }
 
@@ -215,6 +229,81 @@ public class RequestMaster {
         }
         return jsonObject;
     }
+
+    public static String convert2StringJSON(DeviceEntry dev) {
+        JSONObject jsonObject = new JSONObject();
+        JSONObject device = new JSONObject();
+        JSONObject model = new JSONObject();
+        JSONObject geo;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < dev.getAppeui().length() - 2; i += 2) {
+            stringBuilder.append(dev.getAppeui().substring(i, i + 2)).append("-");
+        }
+        stringBuilder.append(dev.getAppeui().substring(dev.getAppeui().length() - 2, dev.getAppeui().length()));
+        dev.setAppeui(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+        for (int i = 0; i < dev.getEui().length() - 2; i += 2) {
+            stringBuilder.append(dev.getEui().substring(i, i + 2)).append("-");
+        }
+        stringBuilder.append(dev.getEui().substring(dev.getEui().length() - 2, dev.getEui().length()));
+        dev.setEui(stringBuilder.toString());
+        stringBuilder = new StringBuilder();
+//        dev.setDevadr(dev.getDevadrMSBtoLSB());
+        for (int i = 0; i < dev.getDevadr().length() - 2; i += 2) {
+            stringBuilder.append(dev.getDevadr().substring(i, i + 2)).append("-");
+        }
+        stringBuilder.append(dev.getDevadr().substring(dev.getDevadr().length() - 2, dev.getDevadr().length()));
+        dev.setDevadr(stringBuilder.toString());
+        try {
+            if (!dev.getIsOTTA()) {
+                geo = new JSONObject();
+                //Add method to convert Location -> addres (Google API)
+                geo.put("countryddress", "Россия");
+                geo.put("region", "КраснодарскийКрай");
+                geo.put("city", "Краснодар");
+                geo.put("street", "Московская");
+
+                model.put("name", "LC5xx");
+                model.put("version", "1.0");
+
+                device.put("activationType", "ABP");
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
+                device.put("eui", dev.getEui().toLowerCase());
+                device.put("applicationEui", dev.getAppeui());
+                device.put("devAddr", dev.getDevadr());
+                device.put("networkSessionKey", dev.getNwkskey());
+                device.put("applicationSessionKey", dev.getAppskey());
+                device.put("access", "Private");
+                device.put("loraClass", "a");
+                device.put("model", model);
+                device.put("address", geo);
+
+                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("device", device);
+            } else {
+
+                model.put("name", "LC5xx");
+                model.put("version", "1.0");
+
+                device.put("activationType", "OTAA");
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
+                device.put("eui", dev.getEui().toLowerCase());
+                device.put("applicationEui", dev.getAppeui().toLowerCase());
+                device.put("appKey", dev.getAppkey());
+                device.put("access", "Private");
+                device.put("model", model);
+
+                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("device", device);
+            }
+
+        } catch (JSONException e) {
+            Log.e("json", e.getMessage());
+        }
+        return jsonObject.toString();
+    }
+
+
 }
 
 
