@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class POST extends AsyncTask<JSONObject, Void, RESTData> implements REST {
+
+
     /**
      * для callBack
      *
@@ -37,6 +39,33 @@ public class POST extends AsyncTask<JSONObject, Void, RESTData> implements REST 
     private EnumMap<REST.REST_PRM, String> parameters;
     private JSONObject object;
     private UriComponentsBuilder builder;
+
+
+    @Override
+    public String run() {
+        builder = UriComponentsBuilder.fromHttpUrl(hostAPI);
+        builder.queryParam("token", parameters.get(REST_PRM.token));
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+//        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<String>(object.toString(), httpHeaders);
+            Log.d("TEST", entity.getBody());
+            Log.d("TEST", object.toString());
+
+            ResponseEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, entity, String.class);
+            Log.d("TEST", String.valueOf(test.getStatusCode()));
+
+        } catch (HttpClientErrorException e) {
+            Log.d("TEST", e.toString());
+        } catch (Exception e) {
+            Log.d("TEST", e.toString());
+        }
+        return null;
+    }
+
 
     @Override
     protected void onPreExecute() {

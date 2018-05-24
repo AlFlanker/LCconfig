@@ -2,6 +2,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -9,7 +10,6 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -28,22 +28,13 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
-import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
-import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.RequestManager;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
-
-
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
+
 
 public class MainActivity extends AppCompatActivity implements MainViewable,
         View.OnClickListener,
@@ -69,7 +60,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final int ERROR = 0;
     private static final int MESSAGE = 1;
-
+    private ComponentName mService;
+    private int Job_ID = 0;
+    private ExternalRequestsReceiver externalRequestsReceiver;
     private ProgressBar progressBar;
     @Override
     protected void onPause() {
@@ -137,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
+//        Intent s = new Intent(this,RequestManager.class);
+//        startService(s);
+
     }
 
     @Override
@@ -152,6 +148,12 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         detectInternetConnection = new DetectInternetConnection();
         registerReceiver(detectInternetConnection, intentFilter);
+
+
+        IntentFilter iFilter = new IntentFilter();
+        iFilter.addAction(ExternalRequestsReceiver.ACTION);
+        externalRequestsReceiver = new ExternalRequestsReceiver();
+        registerReceiver(externalRequestsReceiver, iFilter);
         /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         App.getInstance().BindConnectivityListener(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -166,25 +168,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        DeviceEntry dev = DeviceEntry.generate("74e14a4f97c43f64", GPSTracker.getLastKnownLocation(this));
-//        dev.setDevadr(dev.getDevadr().substring(4));/*<<<<<<<<<<<---------------------------------*/
-//
-//        try {
-//
-//            RequestManager requestManager = RequestManager.newInstance().Build("https://bs.net868.ru:20010/externalapi/", RequestManager.REST_FUNCTION.CreateDevice)
-//                    .addQueryParamets(REST.REST_PRM.token, "1c68a488ec0d4dde80439e9627d23154")
-//                    .addQueryParamets(REST.REST_PRM.count, "1")
-//                    .addQueryParamets(REST.REST_PRM.offset, "0")
-//                    .addQueryParamets(REST.REST_PRM.order, "desc")
-//                    .addQueryParamets(REST.REST_PRM.startDate, simpleDateFormat.parse("2018-05-12T10:50:33Z"))
-//                    .addQueryParamets(REST.REST_PRM.endDate, simpleDateFormat.format(new Date()))
-//                    .addDeviceEntry(dev);
-//            requestManager.execute();
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+        Intent intent = new Intent();
+        intent.setAction(ExternalRequestsReceiver.ACTION);
+        Log.d("Broad", "send: " + ExternalRequestsReceiver.ACTION);
+        sendBroadcast(intent);
+
+
+
+
 
 
     }
@@ -192,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     protected void onStart() {
         super.onStart();
+
 
     }
 
