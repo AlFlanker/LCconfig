@@ -29,14 +29,14 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <!--<receiver
-                android:name=".Services.RequestsManager.ExternalRequestsReceiver"
-                android:enabled="true"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="ru.yugsys.vvvresearch.lconfig.Services.RequestsManager" />
-            </intent-filter>
-        </receiver> -->
+        <!--<receiver-->
+        <!--android:name=".Services.RequestsManager.CheckRequest"-->
+        <!--android:enabled="true"-->
+        <!--android:exported="true">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="ru.yugsys.vvvresearch.lconfig.Services.CHECKRESULT" />-->
+        <!--</intent-filter>-->
+        <!--</receiver>-->
         <service android:name=".Services.RequestsManager.RequestJob"
                  android:permission="android.permission.BIND_JOB_SERVICE"
                  android:enabled="true"

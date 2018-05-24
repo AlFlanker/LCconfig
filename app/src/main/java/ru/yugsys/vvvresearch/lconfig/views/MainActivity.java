@@ -28,6 +28,7 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         ModelListener.OnNFCConnected,
         AsyncTaskCallBack.ReadCallBack,
         ModelListener.OnDataRecived,
-        DetectInternetConnection.ConnectivityReceiverListener {
+        DetectInternetConnection.ConnectivityReceiverListener, CheckRequest.CheckRequestListener {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private PendingIntent mPendingIntent;
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
-    private DeviceEntry currentDevice;
     private DataDevice currentDataDevice;
     private byte[] systemInfo;
     private IntentFilter intentFilter;
@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private int Job_ID = 0;
     private ExternalRequestsReceiver externalRequestsReceiver;
     private ProgressBar progressBar;
+    private CheckRequest checkRequest;
     @Override
     protected void onPause() {
         super.onPause();
@@ -154,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         iFilter.addAction(ExternalRequestsReceiver.ACTION);
         externalRequestsReceiver = new ExternalRequestsReceiver();
         registerReceiver(externalRequestsReceiver, iFilter);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CheckRequest.ACTION);
+        checkRequest = new CheckRequest();
+        registerReceiver(checkRequest, intentFilter);
         /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
         App.getInstance().BindConnectivityListener(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -325,10 +331,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         View sbView = snackbar.getView();
         TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(color);
-        snackbar.show();
+//        snackbar.show();
     }
 
-
+    @Override
+    public void checkRequestChanged(long id) {
+        if (id > -1) {
+            ((App) getApplication()).getModel().DevSync(id);
+        }
+    }
 
 
 

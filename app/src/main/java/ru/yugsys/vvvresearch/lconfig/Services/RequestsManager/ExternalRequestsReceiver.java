@@ -38,7 +38,6 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setRequiresCharging(false)
                 .setRequiresDeviceIdle(false)
-                .setBackoffCriteria(TimeUnit.SECONDS.toMillis(1), JobInfo.BACKOFF_POLICY_EXPONENTIAL)
                 .build();
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
