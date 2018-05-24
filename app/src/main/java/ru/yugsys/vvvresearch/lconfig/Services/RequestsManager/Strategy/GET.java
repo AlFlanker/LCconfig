@@ -33,6 +33,21 @@ public class GET extends AsyncTask<Void, Void, Void> implements REST {
     private UriComponentsBuilder builder;
 
     @Override
+    public String run() {
+        builder = UriComponentsBuilder.fromHttpUrl(hostAPI);
+        for (Map.Entry<REST_PRM, String> e : parameters.entrySet()) {
+            if (e.getValue() != null) builder.queryParam(e.getKey().toString(), e.getValue());
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpEntity<?> entity = new HttpEntity<>(httpHeaders);
+        HttpEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.GET, entity, String.class);
+        Log.d("TEST", test.getBody());
+        return null;
+    }
+
+    @Override
     protected void onPreExecute() {
         builder = UriComponentsBuilder.fromHttpUrl(hostAPI);
         for (Map.Entry<REST_PRM, String> e : parameters.entrySet()) {
