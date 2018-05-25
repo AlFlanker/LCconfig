@@ -2,9 +2,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -66,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private ProgressBar progressBar;
     private CheckRequest checkRequest;
     private boolean iCheck;
+    private BroadcastReceiver listener;
+    private int numberOfUnregistered = 0;
+    public static String responseFromIS = "ru.yugsys.vvvresearch.lconfig.MainActivity";
 
     @Override
     protected void onPause() {
@@ -157,6 +158,23 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         intentFilter.addAction(CheckRequest.ACTION);
         checkRequest = new CheckRequest();
         registerReceiver(checkRequest, intentFilter);
+
+
+        listener = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(responseFromIS)) {
+                    String alias = intent.getStringExtra("alias");
+                    String eui = intent.getStringExtra("eui");
+                    Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(responseFromIS);
+        registerReceiver(listener, filter);
+
         /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 
@@ -173,6 +191,19 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
+
+
+        listener = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(responseFromIS)) {
+                    String alias = intent.getStringExtra("alias");
+                    String eui = intent.getStringExtra("eui");
+                    Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
 
 
 
@@ -290,6 +321,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 
     @Override
     public void OnDataRecived(List<DeviceEntry> devList) {
+        for (DeviceEntry dev : devList) {
+            if (!dev.getIsSyncServer()) numberOfUnregistered++;
+        }
         this.setContentForView(devList);
 
     }

@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
+import ru.yugsys.vvvresearch.lconfig.views.MainActivity;
 
 import java.util.EnumMap;
 
@@ -61,6 +62,19 @@ public class RequestManager extends IntentService {
                 check.putExtra("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1).replace("-", ""));
                 Log.d("net868", "send: " + ExternalRequestsReceiver.ACTION);
                 sendBroadcast(check);
+                Intent si = new Intent().setAction(MainActivity.responseFromIS).
+                        putExtra("alias", payload.
+                                substring(payload.indexOf("alias\":\"") + 8, payload.indexOf(",\"eui") - 1)).
+                        putExtra("eui", payload.
+                                substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
+                sendBroadcast(si);
+            } else if (test.getStatusCode() == HttpStatus.BAD_REQUEST) {
+//                Intent si = new Intent().setAction(MainActivity.responseFromIS).
+//                        putExtra("alias",
+//                                "already exist").
+//                        putExtra("eui",payload.
+//                                substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
+//                sendBroadcast(si);
             }
 
         } catch (HttpClientErrorException e) {
