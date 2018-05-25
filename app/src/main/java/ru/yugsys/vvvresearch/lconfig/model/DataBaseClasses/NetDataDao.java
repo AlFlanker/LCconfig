@@ -49,7 +49,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
      * Creates the underlying database table.
      */
     public static void createTable(Database db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"NetData\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"SERVICE_NAME\" TEXT NOT NULL ," + // 1: serviceName
@@ -59,9 +59,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
                 "\"ADDRESS\" TEXT NOT NULL );"); // 5: address
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(Database db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"NetData\"";
         db.execSQL(sql);
@@ -70,7 +68,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, NetData entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
@@ -85,7 +83,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, NetData entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
@@ -106,7 +104,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
     @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
-    }
+    }    
 
     @Override
     public NetData readEntity(Cursor cursor, int offset) {
@@ -120,7 +118,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         );
         return entity;
     }
-
+     
     @Override
     public void readEntity(Cursor cursor, NetData entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
@@ -129,14 +127,14 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         entity.setPassword(cursor.getString(offset + 3));
         entity.setToken(cursor.getString(offset + 4));
         entity.setAddress(cursor.getString(offset + 5));
-    }
-
+     }
+    
     @Override
     protected final Long updateKeyAfterInsert(NetData entity, long rowId) {
         entity.setId(rowId);
         return rowId;
     }
-
+    
     @Override
     public Long getKey(NetData entity) {
         if (entity != null) {
@@ -155,5 +153,5 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
     protected final boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }

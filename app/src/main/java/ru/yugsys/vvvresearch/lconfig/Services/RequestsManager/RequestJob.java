@@ -28,24 +28,24 @@ public class RequestJob extends JobService {
         int i = 0;
 //        RequestManager.startRequestManager(getApplicationContext());
         if (devsList != null) {
+            Log.d("net868", "quantity of devices: " + devsList.size());
             for (DeviceEntry dev : devsList) {
                 i++;
                 data.putExtra("hostAPI", netData.getAddress() + RequestMaster.net868API.get(RequestMaster.REST_FUNCTION.CreateDevice));
                 data.putExtra("token", netData.getToken());
-                data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev));
-
+                data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, netData.getToken()));
                 getApplicationContext().startService(data);
             }
             Log.d("onStartJob", " counter: " + String.valueOf(i));
         }
 
-        return true;
+        return false;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
 
-        Log.d("test", "onStopJob: " + params.getJobId());
+        Log.d("onStartJob", "onStopJob: " + params.getJobId());
         return false;
     }
 

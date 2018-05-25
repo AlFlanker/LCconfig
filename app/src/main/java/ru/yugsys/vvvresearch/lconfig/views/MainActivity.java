@@ -24,12 +24,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import android.widget.Toast;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         ModelListener.OnNFCConnected,
         AsyncTaskCallBack.ReadCallBack,
         ModelListener.OnDataRecived,
-        DetectInternetConnection.ConnectivityReceiverListener, CheckRequest.CheckRequestListener {
+        DetectInternetConnection.ConnectivityReceiverListener {
 
 
     public static final String ADD_NEW_DEVICE_MODE = "AddNewDeviceMode";
@@ -60,16 +62,19 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final int ERROR = 0;
     private static final int MESSAGE = 1;
-    private ComponentName mService;
-    private int Job_ID = 0;
     private ExternalRequestsReceiver externalRequestsReceiver;
     private ProgressBar progressBar;
     private CheckRequest checkRequest;
+    private boolean iCheck;
+
     @Override
     protected void onPause() {
         super.onPause();
         if (mAdapter != null) {
             mAdapter.disableForegroundDispatch(this);
+        }
+        if (externalRequestsReceiver.jobScheduler != null) {
+            externalRequestsReceiver.jobScheduler.cancelAll();
         }
 
     }
@@ -100,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -114,15 +118,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         progressBar = findViewById(R.id.MainProgressBar);
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
-
-        //Connect presenter to main view
-        //mainPresenter = new MainPresenter(((App) getApplication()).getModel());
-        //mainPresenter.bind(this);
-        // mainPresenter.fireUpdateDataForView();
-
         // WithoutPresenter
         App.getInstance().getModel().getEventManager().subscribeOnDataRecive(this);
-        App.getInstance().getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+//        App.getInstance().getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
         //getPremissionGPS();
         mAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mAdapter != null && mAdapter.isEnabled()) {
@@ -131,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
-//        Intent s = new Intent(this,RequestManager.class);
-//        startService(s);
+
 
     }
 
@@ -161,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         checkRequest = new CheckRequest();
         registerReceiver(checkRequest, intentFilter);
         /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+
         App.getInstance().BindConnectivityListener(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         if (mAdapter != null) {
@@ -174,13 +173,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-        Intent intent = new Intent();
-        intent.setAction(ExternalRequestsReceiver.ACTION);
-        Log.d("Broad", "send: " + ExternalRequestsReceiver.ACTION);
-        sendBroadcast(intent);
-
-
-
 
 
 
@@ -234,10 +226,23 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             startActivity(intent);
             return true;
         } else if (id == R.id.action_clearBD) {
-            ((App) getApplication()).getModel().clearDataBase();
+            List<DeviceEntry> list = ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.IsSyncServer.eq(true)).build().list();
+            if (list != null) {
+                for (DeviceEntry dev : list) {
+                    dev.setIsSyncServer(false);
+                    ((App) getApplication()).getDaoSession().getDeviceEntryDao().update(dev);
+                }
+            }
+            Toast.makeText(getApplicationContext(), "All devices are not registered! TEST!", Toast.LENGTH_SHORT).show();
+
+//            ((App) getApplication()).getModel().clearDataBase();
         }
         else if(id == R.id.action_CopyDB){
-            //new DataBaseMigrate(((App)getApplication()).getDaoSession()).migrate();
+            /*service launch point*/
+            Intent intent = new Intent();
+            intent.setAction(ExternalRequestsReceiver.ACTION);
+            Log.d("Broad", "send: " + ExternalRequestsReceiver.ACTION);
+            sendBroadcast(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -279,71 +284,30 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         else{
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            showDiffrentSnackBar(getString(R.string.Incorrect), ERROR);
-//            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void OnDataRecived(List<DeviceEntry> devList) {
         this.setContentForView(devList);
+
     }
 
     @Override
     public void OnNetworkConnectionChanged(boolean isConnected) {
-        showSnack(isConnected);
-    }
-
-    private void showSnack(boolean isConnected) {
-        String message;
-        int color;
-        if (isConnected) {
-            message = getString(R.string.DetectInternetConnection);
-            color = Color.WHITE;
-        } else {
-            message = getString(R.string.ConnectivityChange);
-            color = Color.RED;
-        }
-
-        Snackbar snackbar = Snackbar
-                .make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
-
-        View sbView = snackbar.getView();
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(color);
-        snackbar.show();
-    }
-
-    private void showDiffrentSnackBar(String msg, int me) {
-
-        int color;
-        if (me == 1) {
-
-            color = Color.WHITE;
-        } else {
-
-            color = Color.RED;
-        }
-
-        Snackbar snackbar = Snackbar
-                .make(findViewById(R.id.fab), msg, Snackbar.LENGTH_LONG);
-
-        View sbView = snackbar.getView();
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(color);
-//        snackbar.show();
-    }
-
-    @Override
-    public void checkRequestChanged(long id) {
-        if (id > -1) {
-            ((App) getApplication()).getModel().DevSync(id);
+        if (!isConnected) {
+            Toast.makeText(getApplicationContext(), "There is no network connection!\n" +
+                    "Synchronization is not possible!", Toast.LENGTH_SHORT).show();
+        } else if (isConnected) {
+            Toast.makeText(getApplicationContext(), "\n" +
+                    "There is a connection to the network!\n" +
+                    "Synchronization is possible!", Toast.LENGTH_SHORT).show();
         }
     }
 
 
-
-    }
+}
 
 
 

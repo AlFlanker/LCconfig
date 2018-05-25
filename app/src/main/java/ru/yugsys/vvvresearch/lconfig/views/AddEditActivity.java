@@ -267,7 +267,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         appEUIEdit.setText(device.getAppeui());
         appKeyEdit.setText(device.getAppkey());
         nwkIDEdit.setText(device.getNwkid());
-        devAdrEdit.setText(Util.getDevadrMSBtoLSB(device.getDevadr()));
+        devAdrEdit.setText(device.getDevadrMSBtoLSB());
         nwkSKeyEdit.setText(device.getNwkskey());
         appSKeyEdit.setText(device.getAppskey());
         isOTAASwitch.setChecked(device.getIsOTTA());

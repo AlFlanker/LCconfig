@@ -21,10 +21,10 @@ public class RequestMaster {
         if (checkParameter()) {
             switch (func) {
                 case AppData:
-                    this.request = new GET(hostAPI, parameters);
+                    this.request = new GET(HostAPI, parameters);
                     break;
                 case CreateDevice:
-                    this.request = new POST(hostAPI, parameters, object);
+                    this.request = new POST(HostAPI, parameters, object);
                     break;
             }
             return request;
@@ -39,7 +39,7 @@ public class RequestMaster {
     }
 
     protected final static EnumMap<REST_FUNCTION, String> net868API;
-    private static String hostAPI;
+    private static String HostAPI;
 
     static {
         net868API = new EnumMap<REST_FUNCTION, String>(REST_FUNCTION.class);
@@ -53,7 +53,8 @@ public class RequestMaster {
     private JSONObject object;
     private final static EnumMap<REST.REST_PRM, String> parameters = new EnumMap<>(REST.REST_PRM.class);
 
-    private REST_FUNCTION func;
+
+    private static REST_FUNCTION func;
 
     /**
      * Default constructor. Private to prevent direct instantiation.
@@ -73,10 +74,10 @@ public class RequestMaster {
         return new RequestMaster();
     }
 
-    public RequestMaster Build(String hostAPI, REST_FUNCTION function) {
-        this.func = function;
-        this.hostAPI = (hostAPI + net868API.get(function));
-        return this;
+    public static RequestMaster newInstance(String hostAPI, REST_FUNCTION function) {
+        func = function;
+        HostAPI = (hostAPI + net868API.get(function));
+        return new RequestMaster();
     }
 
     public RequestMaster addQueryParamets(REST.REST_PRM prm, String value) {
@@ -96,7 +97,7 @@ public class RequestMaster {
 
     public RequestMaster addDeviceEntry(DeviceEntry deviceEntry) {
         Assert.notNull(deviceEntry, "'deviceEntry' must not be null");
-        this.object = convert2JSON(deviceEntry);
+        this.object = convert2JSON(deviceEntry, parameters.get(REST.REST_PRM.token));
         return this;
     }
 
@@ -105,10 +106,10 @@ public class RequestMaster {
         if (checkParameter()) {
             switch (func) {
                 case AppData:
-                    this.request = new GET(hostAPI, parameters);
+                    this.request = new GET(HostAPI, parameters);
                     break;
                 case CreateDevice:
-                    this.request = new POST(hostAPI, parameters, object);
+                    this.request = new POST(HostAPI, parameters, object);
                     break;
             }
             this.request.send();
@@ -157,30 +158,12 @@ public class RequestMaster {
         return check;
     }
 
-    private JSONObject convert2JSON(DeviceEntry dev) {
+    private JSONObject convert2JSON(DeviceEntry dev, String token) {
         JSONObject jsonObject = new JSONObject();
         JSONObject device = new JSONObject();
         JSONObject model = new JSONObject();
         JSONObject geo;
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < dev.getAppeui().length() - 2; i += 2) {
-            stringBuilder.append(dev.getAppeui().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getAppeui().substring(dev.getAppeui().length() - 2, dev.getAppeui().length()));
-        dev.setAppeui(stringBuilder.toString());
-        stringBuilder = new StringBuilder();
-        for (int i = 0; i < dev.getEui().length() - 2; i += 2) {
-            stringBuilder.append(dev.getEui().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getEui().substring(dev.getEui().length() - 2, dev.getEui().length()));
-        dev.setEui(stringBuilder.toString());
-        stringBuilder = new StringBuilder();
-//        dev.setDevadr(dev.getDevadrMSBtoLSB());
-        for (int i = 0; i < dev.getDevadr().length() - 2; i += 2) {
-            stringBuilder.append(dev.getDevadr().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getDevadr().substring(dev.getDevadr().length() - 2, dev.getDevadr().length()));
-        dev.setDevadr(stringBuilder.toString());
+
         try {
             if (!dev.getIsOTTA()) {
                 geo = new JSONObject();
@@ -194,10 +177,10 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "ABP");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
-                device.put("eui", dev.getEui().toLowerCase());
-                device.put("applicationEui", dev.getAppeui());
-                device.put("devAddr", dev.getDevadr());
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("eui", correctField(dev.getEui().toLowerCase()));
+                device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
+                device.put("devAddr", correctField(dev.getDevadrMSBtoLSB()));
                 device.put("networkSessionKey", dev.getNwkskey());
                 device.put("applicationSessionKey", dev.getAppskey());
                 device.put("access", "Private");
@@ -205,7 +188,7 @@ public class RequestMaster {
                 device.put("model", model);
                 device.put("address", geo);
 
-                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("token", token);
                 jsonObject.put("device", device);
             } else {
 
@@ -213,14 +196,14 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "OTAA");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
-                device.put("eui", dev.getEui().toLowerCase());
-                device.put("applicationEui", dev.getAppeui().toLowerCase());
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("eui", correctField(dev.getEui().toLowerCase()));
+                device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("appKey", dev.getAppkey());
                 device.put("access", "Private");
                 device.put("model", model);
 
-                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("token", token);
                 jsonObject.put("device", device);
             }
 
@@ -230,47 +213,28 @@ public class RequestMaster {
         return jsonObject;
     }
 
-    public static String convert2StringJSON(DeviceEntry dev) {
+    public static String convert2StringJSON(DeviceEntry dev, String token) {
         JSONObject jsonObject = new JSONObject();
         JSONObject device = new JSONObject();
         JSONObject model = new JSONObject();
         JSONObject geo;
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < dev.getAppeui().length() - 2; i += 2) {
-            stringBuilder.append(dev.getAppeui().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getAppeui().substring(dev.getAppeui().length() - 2, dev.getAppeui().length()));
-        dev.setAppeui(stringBuilder.toString());
-        stringBuilder = new StringBuilder();
-        for (int i = 0; i < dev.getEui().length() - 2; i += 2) {
-            stringBuilder.append(dev.getEui().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getEui().substring(dev.getEui().length() - 2, dev.getEui().length()));
-        dev.setEui(stringBuilder.toString());
-        stringBuilder = new StringBuilder();
-//        dev.setDevadr(dev.getDevadrMSBtoLSB());
-        for (int i = 0; i < dev.getDevadr().length() - 2; i += 2) {
-            stringBuilder.append(dev.getDevadr().substring(i, i + 2)).append("-");
-        }
-        stringBuilder.append(dev.getDevadr().substring(dev.getDevadr().length() - 2, dev.getDevadr().length()));
-        dev.setDevadr(stringBuilder.toString());
         try {
             if (!dev.getIsOTTA()) {
                 geo = new JSONObject();
                 //Add method to convert Location -> addres (Google API)
-                geo.put("countryddress", "Россия");
-                geo.put("region", "КраснодарскийКрай");
-                geo.put("city", "Краснодар");
-                geo.put("street", "Московская");
+                geo.put("countryddress", "Russia");
+                geo.put("region", "Krd");
+                geo.put("city", "Krasnodar");
+                geo.put("street", "......");
 
                 model.put("name", "LC5xx");
                 model.put("version", "1.0");
 
                 device.put("activationType", "ABP");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
-                device.put("eui", dev.getEui().toLowerCase());
-                device.put("applicationEui", dev.getAppeui());
-                device.put("devAddr", dev.getDevadr());
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("eui", correctField(dev.getEui().toLowerCase()));
+                device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
+                device.put("devAddr", correctField(dev.getDevadrMSBtoLSB().toLowerCase()));
                 device.put("networkSessionKey", dev.getNwkskey());
                 device.put("applicationSessionKey", dev.getAppskey());
                 device.put("access", "Private");
@@ -278,7 +242,7 @@ public class RequestMaster {
                 device.put("model", model);
                 device.put("address", geo);
 
-                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("token", token);
                 jsonObject.put("device", device);
             } else {
 
@@ -286,14 +250,14 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "OTAA");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment());
-                device.put("eui", dev.getEui().toLowerCase());
-                device.put("applicationEui", dev.getAppeui().toLowerCase());
+                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("eui", correctField(dev.getEui().toLowerCase()));
+                device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("appKey", dev.getAppkey());
                 device.put("access", "Private");
                 device.put("model", model);
 
-                jsonObject.put("token", parameters.get(REST.REST_PRM.token));
+                jsonObject.put("token", token);
                 jsonObject.put("device", device);
             }
 
@@ -301,6 +265,15 @@ public class RequestMaster {
             Log.e("json", e.getMessage());
         }
         return jsonObject.toString();
+    }
+
+    private static String correctField(String field) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < field.length() - 2; i += 2) {
+            stringBuilder.append(field.substring(i, i + 2)).append("-");
+        }
+        stringBuilder.append(field.substring(field.length() - 2, field.length()));
+        return stringBuilder.toString();
     }
 
 

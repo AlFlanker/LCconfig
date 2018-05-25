@@ -2,7 +2,7 @@
     <string name="app_name">LConfig</string>
     <string name="action_settings">Settings</string>
     <string name="action_ClearBD">ClearBD</string>
-    <string name="action_CopyDB">CopyDataBase</string>
+    <string name="action_CopyDB">Synchronize</string>
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
