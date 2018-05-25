@@ -21,7 +21,7 @@ public class CheckRequest extends BroadcastReceiver {
             Log.d("CheckRequest", intent.getAction());
             if (intent.getBooleanExtra("result", false)) {
                 if (checkRequestListener != null)
-                    checkRequestListener.checkRequestChanged(intent.getLongExtra("id", -1));
+                    checkRequestListener.checkRequestChanged(intent.getStringExtra("eui"));
             }
         }
 
@@ -29,7 +29,7 @@ public class CheckRequest extends BroadcastReceiver {
 
 
     public interface CheckRequestListener {
-        void checkRequestChanged(long id);
+        void checkRequestChanged(String eui);
     }
 
 }

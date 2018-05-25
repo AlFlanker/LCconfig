@@ -6,6 +6,7 @@ import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
@@ -17,7 +18,7 @@ import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 import java.util.Objects;
 
 
-public class DataModel implements Model, GPScallback<Location> {
+public class DataModel implements Model, GPScallback<Location>, CheckRequest.CheckRequestListener {
 
 
     private EventManager eventManager = new EventManager();
@@ -94,6 +95,17 @@ public class DataModel implements Model, GPScallback<Location> {
         }
     }
 
+    @Override
+    public void DevSync(long id) {
+        DeviceEntry devFromDB;
+        DeviceEntryDao dataDao = this.daoSession.getDeviceEntryDao();
+        devFromDB = dataDao.queryBuilder().where(DeviceEntryDao.Properties.Id.eq(id)).build().unique();
+        if (devFromDB != null) {
+            devFromDB.setIsSyncServer(true);
+            dataDao.update(devFromDB);
+        }
+        ;
+    }
 
 
     public DataModel(DaoSession daoSession) {
@@ -244,5 +256,20 @@ public class DataModel implements Model, GPScallback<Location> {
         this.mCurrentLocation = location;
         log.d("GPS", "In Model: " + mCurrentLocation.toString());
         //eventManager.notifyOnGPS(mCurrentLocation);
+    }
+
+    @Override
+    public void checkRequestChanged(String eui) {
+        Log.d("onHandleIntent", eui);
+        if (eui != null) {
+            DeviceEntry dev = this.daoSession.getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(eui.toUpperCase())).build().unique();
+            if (dev != null) {
+                dev.setIsSyncServer(true);
+                this.daoSession.getDeviceEntryDao().update(dev);
+                Log.d("onHandleIntent", "update sync" + dev.getIsSyncServer());
+            }
+        }
+
+
     }
 }

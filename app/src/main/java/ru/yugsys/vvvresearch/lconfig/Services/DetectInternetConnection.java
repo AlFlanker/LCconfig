@@ -29,7 +29,7 @@ public class DetectInternetConnection extends BroadcastReceiver {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         boolean isConnected;
-        if (networkInfo != null) isConnected = networkInfo.isConnectedOrConnecting();
+        if (networkInfo != null) isConnected = networkInfo.isConnected();
         else isConnected = false;
         return isConnected;
     }

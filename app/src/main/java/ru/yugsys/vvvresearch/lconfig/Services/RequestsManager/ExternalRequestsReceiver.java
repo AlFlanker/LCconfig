@@ -17,6 +17,7 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
 
 
     private static int JobID = 1;
+    public JobScheduler jobScheduler;
     public static final String ACTION = "ru.yugsys.vvvresearch.lconfig.Services.RequestsManager";
 
     @Override
@@ -39,12 +40,16 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
                 .setRequiresCharging(false)
                 .setRequiresDeviceIdle(false)
                 .build();
-        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         int res = jobScheduler.schedule(jobInfo);
         Log.d("test", "JobID: " + String.valueOf(JobID));
         if (res == JobScheduler.RESULT_SUCCESS) {
             Log.d("test", "Job scheduled successfully!");
         }
+    }
+
+    private void stopSchedule() {
+
     }
 }

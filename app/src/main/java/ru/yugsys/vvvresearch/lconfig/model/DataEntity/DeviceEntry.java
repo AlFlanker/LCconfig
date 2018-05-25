@@ -392,6 +392,7 @@ public class DeviceEntry {
         newDev.setNwkid("00000000");
         //ConvertStringToHexBytesArray(String.valueOf(Integer.reverseBytes(Integer.parseInt(mEUI,16))));
         newDev.setDevadr(mEUI);
+
         newDev.setNwkskey("2B7E151628AED2A6ABF7158809CF4F3C");
         newDev.setAppskey("2B7E151628AED2A6ABF7158809CF4F3C");
         newDev.setLatitude(location != null ? location.getLatitude() : 0.0d);
@@ -400,7 +401,7 @@ public class DeviceEntry {
         newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
         newDev.setKI("991C");
         newDev.setDateOfLastChange(new Date());
-        newDev.setComment("");
+        newDev.setComment("test");
         newDev.setIsDeleted(false);
         newDev.setIsSyncServer(false);
         return newDev;
@@ -491,7 +492,7 @@ public class DeviceEntry {
             StringBuilder devText = new StringBuilder();
             int length = devadr.length();
             for (int i = 0; i < length; i += 2) {
-                devText = devText.insert(0, devadr.substring(i, i + 2));
+                devText.insert(0, devadr.substring(i, i + 2));
             }
             return devText.toString().toUpperCase();
         } else return null;

@@ -22,11 +22,14 @@ public interface Model {
 
     void setSession(DaoSession s);
 
+
     void loadAllDeviceData();
 
     void saveDevice(DeviceEntry t);
 
     void loadDeviceByEUI(String EUI);
+
+    void DevSync(long id);
 
 
     void writeAuthData(String login, String password, String server);
