@@ -15,6 +15,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
+import java.util.Date;
 import java.util.Objects;
 
 
@@ -86,10 +87,14 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
         DeviceEntry devFromDB;
         devFromDB = dataDao.queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(device.getEui())).build().unique();
         if (devFromDB == null) {
+            device.setDateOfLastChange(new Date());
+            device.setIsSyncServer(false);
             dataDao.insert(device);
             eventManager.notifyOnDevDataChecked(true);
         } else {
             device.setId(devFromDB.getId());
+            device.setIsSyncServer(false);
+            device.setDateOfLastChange(new Date());
             dataDao.update(device);
             eventManager.notifyOnDevDataChecked(true);
         }
