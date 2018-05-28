@@ -3,18 +3,26 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.springframework.http.*;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.LoginData;
 import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresentable;
 import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresenter;
+
+import java.util.Collections;
 
 public class LoginActivity extends AppCompatActivity implements LoginViewable {
     private EditText mLoginView;
@@ -70,6 +78,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                new AuthThread().execute();
                 presenter.attemptToLogin();
             }
         });
@@ -154,6 +163,48 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
     @Override
     public void fireCloseLoginView() {
         finish();
+    }
+
+    private class AuthThread extends AsyncTask<Void, Void, Void> {
+        private String name;
+        private String password;
+        private String body;
+
+        @Override
+        protected void onPreExecute() {
+            name = mLoginView.getText().toString();
+            password = mPasswordView.getText().toString();
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getApplicationContext(), body, Toast.LENGTH_SHORT).show();
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            final String url = "http://iot.net868.ru/auth";
+            HttpAuthentication httpAuthentication = new HttpBasicAuthentication("e1850@mail.ru"
+                    , "pfndh34g");
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setAuthorization(httpAuthentication);
+            httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+            Log.d("test", "before");
+            try {
+                ResponseEntity<String> r = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<Object>(httpHeaders), String.class);
+                Log.d("test", r.getBody());
+                Log.d("test", r.getStatusCode().toString());
+                body = r.getBody();
+
+            } catch (HttpClientErrorException e) {
+
+            }
+            return null;
+        }
     }
 }
 
