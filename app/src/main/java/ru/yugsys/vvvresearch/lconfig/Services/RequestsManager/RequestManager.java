@@ -4,8 +4,11 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.*;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +17,14 @@ import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.RESTData;
 import ru.yugsys.vvvresearch.lconfig.views.MainActivity;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 
 
@@ -33,16 +44,64 @@ public class RequestManager extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-//        Log.d("net868", "onHandleIntent : " + intent.getAction());
-        String s = "{\"token\":\"1c68a488ec0d4dde80439e9627d23154\",\"device\":{\"activationType\":\"ABP\",\"alias\":\"LCTest\",\"eui\":\"74-e1-4a-4f-97-c4-3f-64\",\"applicationEui\":\"00-00-00-00-00-00-00-01\",\"devAddr\":\"64-3f-c4-97\",\"networkSessionKey\":\"2B7E151628AED2A6ABF7158809CF4F3C\",\"applicationSessionKey\":\"2B7E151628AED2A6ABF7158809CF4F3C\",\"access\":\"Private\",\"loraClass\":\"a\",\"model\":{\"name\":\"LC5xx\",\"version\":\"1.0\"},\"address\":{\"countryddress\":\"Russia\",\"region\":\"Krd\",\"city\":\"Krasnodar\",\"street\":\".....\"}}}";
+
         String token = intent.getStringExtra("token");
         String hostAPI = intent.getStringExtra("hostAPI");
         final String payload = intent.getStringExtra("JSONobject");
-//        Log.d("net868: ", token);
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(hostAPI);
         builder.queryParam("token", token);
-//        Log.d("net868", "UriComponentsBuilder: " + builder.toUriString());
+        /*Spring does't work with method DELETE with BODY*/
+        /*body is left!!!*/
+        try {
+
+            HttpsURLConnection httpsURLConnection = null;
+            DataOutputStream dataOutputStream = null;
+            try {
+                Log.d("net868: ", "in");
+                URL url = new URL(hostAPI.replace("createdevice", "deletedevice") + "token=" + token);
+                Log.d("net868: ", url.toString());
+                httpsURLConnection = (HttpsURLConnection) url.openConnection();
+                httpsURLConnection.setRequestMethod("DELETE");
+                httpsURLConnection.setRequestProperty("Content-Type", "application/json");
+                httpsURLConnection.setDoOutput(true);
+                httpsURLConnection.setDoInput(true);
+                Log.d("net868", httpsURLConnection.getRequestMethod());
+                dataOutputStream = new DataOutputStream(httpsURLConnection.getOutputStream());
+                JSONObject ob = new JSONObject();
+
+                ob.put("token", token).put("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf("applicationEui") - 3));
+
+                Log.d("net868", ob.toString());
+
+                dataOutputStream.write(ob.toString().getBytes(StandardCharsets.UTF_8));
+                dataOutputStream.flush();
+                dataOutputStream.close();
+                httpsURLConnection.connect();
+                BufferedReader in = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                String temp;
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((temp = in.readLine()) != null) {
+                    stringBuilder.append(temp);
+                }
+                in.close();
+                Log.d("net868", stringBuilder.toString());
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /*For TEST!*/
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        /*end*/
+
         try {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -56,18 +115,7 @@ public class RequestManager extends IntentService {
             ResponseEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, entity, String.class);
             Log.d("net868", "result of request: " + String.valueOf(test.getStatusCode()));
             if (test.getStatusCode() == HttpStatus.NO_CONTENT) {
-                Intent check = new Intent();
-                check.setAction(CheckRequest.ACTION);
-                check.putExtra("result", true);
-                check.putExtra("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1).replace("-", ""));
-                Log.d("net868", "send: " + ExternalRequestsReceiver.ACTION);
-                sendBroadcast(check);
-                Intent si = new Intent().setAction(MainActivity.responseFromIS).
-                        putExtra("alias", payload.
-                                substring(payload.indexOf("alias\":\"") + 8, payload.indexOf(",\"eui") - 1)).
-                        putExtra("eui", payload.
-                                substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
-                sendBroadcast(si);
+                checkOK(payload);
             } else if (test.getStatusCode() == HttpStatus.BAD_REQUEST) {
 //                Intent si = new Intent().setAction(MainActivity.responseFromIS).
 //                        putExtra("alias",
@@ -78,12 +126,28 @@ public class RequestManager extends IntentService {
             }
 
         } catch (HttpClientErrorException e) {
-            Log.d("net868", e.toString());
+            Log.d("net868", e.getResponseBodyAsString());
+            checkOK(payload);
+
         } catch (Exception e) {
             Log.d("net868", e.toString());
         }
     }
 
+    private void checkOK(String payload) {
+        Intent check = new Intent();
+        check.setAction(CheckRequest.ACTION);
+        check.putExtra("result", true);
+        check.putExtra("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1).replace("-", ""));
+        Log.d("net868", "send: " + ExternalRequestsReceiver.ACTION);
+        sendBroadcast(check);
+        Intent si = new Intent().setAction(MainActivity.responseFromIS).
+                putExtra("alias", payload.
+                        substring(payload.indexOf("alias\":\"") + 8, payload.indexOf(",\"eui") - 1)).
+                putExtra("eui", payload.
+                        substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
+        sendBroadcast(si);
+    }
 
 
 }
