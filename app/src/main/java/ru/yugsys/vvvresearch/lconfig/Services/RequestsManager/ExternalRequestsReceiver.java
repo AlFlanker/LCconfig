@@ -35,7 +35,7 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
         Log.d("test", "scheduleJob");
 
         ComponentName mService = new ComponentName(context, RequestJob.class);
-        JobInfo jobInfo = new JobInfo.Builder(JobID++, mService)
+        JobInfo jobInfo = new JobInfo.Builder(JobID, mService)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setRequiresCharging(false)
                 .setRequiresDeviceIdle(false)

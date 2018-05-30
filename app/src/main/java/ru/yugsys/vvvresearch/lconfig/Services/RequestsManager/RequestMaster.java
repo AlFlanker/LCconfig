@@ -4,6 +4,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.Assert;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.DELETE;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.GET;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.POST;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
@@ -97,6 +98,16 @@ public class RequestMaster {
 
     public RequestMaster addDeviceEntry(DeviceEntry deviceEntry) {
         Assert.notNull(deviceEntry, "'deviceEntry' must not be null");
+        if (func.equals(REST_FUNCTION.DeleteDevice)) {
+            this.object = new JSONObject();
+            try {
+                object.put("token", parameters.get(REST.REST_PRM.token));
+                object.put("eui", parameters.get(REST.REST_PRM.deviceEui));
+                return this;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         this.object = convert2JSON(deviceEntry, parameters.get(REST.REST_PRM.token));
         return this;
     }
@@ -111,6 +122,8 @@ public class RequestMaster {
                 case CreateDevice:
                     this.request = new POST(HostAPI, parameters, object);
                     break;
+                case DeleteDevice:
+                    this.request = new DELETE(HostAPI, parameters, object);
             }
             this.request.send();
 
@@ -154,6 +167,16 @@ public class RequestMaster {
                 return pattern.matcher(parameters.get(REST.REST_PRM.token)).matches();
             }
             return false;
+        } else if (func.equals(REST_FUNCTION.DeleteDevice)) {
+            if (parameters.get(REST.REST_PRM.token) != null) {
+                Pattern pattern = Pattern.compile("((\\d|[a-f]|[A-F]){32})");
+                check = pattern.matcher(parameters.get(REST.REST_PRM.token)).matches();
+            }
+            if (parameters.get(REST.REST_PRM.deviceEui) != null) {
+                Pattern pattern = Pattern.compile("((\\d|[a-f]|[A-F])(\\d|[a-f]|[A-F])-){7}((\\d|[a-f]|[A-F])(\\d|[a-f]|[A-F])){1}");
+                check &= pattern.matcher(parameters.get(REST.REST_PRM.deviceEui)).matches();
+                return check;
+            }
         }
         return check;
     }
@@ -184,7 +207,7 @@ public class RequestMaster {
                 device.put("networkSessionKey", dev.getNwkskey());
                 device.put("applicationSessionKey", dev.getAppskey());
                 device.put("access", "Private");
-                device.put("loraClass", "a");
+                device.put("loraClass", "c");
                 device.put("model", model);
                 device.put("address", geo);
 
@@ -238,7 +261,7 @@ public class RequestMaster {
                 device.put("networkSessionKey", dev.getNwkskey());
                 device.put("applicationSessionKey", dev.getAppskey());
                 device.put("access", "Private");
-                device.put("loraClass", "a");
+                device.put("loraClass", "c");
                 device.put("model", model);
                 device.put("address", geo);
 
