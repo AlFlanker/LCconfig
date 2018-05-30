@@ -1,4 +1,4 @@
-package ru.yugsys.vvvresearch.lconfig.Services;
+package ru.yugsys.vvvresearch.lconfig.Services.GPS;
 
 import android.Manifest;
 import android.content.Context;
@@ -7,7 +7,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import com.google.android.gms.location.*;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 

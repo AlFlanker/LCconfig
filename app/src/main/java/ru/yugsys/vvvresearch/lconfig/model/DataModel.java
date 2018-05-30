@@ -5,7 +5,7 @@ import android.location.Location;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
-import ru.yugsys.vvvresearch.lconfig.Services.GPScallback;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
@@ -16,7 +16,6 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
 import java.util.Date;
-import java.util.Objects;
 
 
 public class DataModel implements Model, GPScallback<Location>, CheckRequest.CheckRequestListener {
@@ -260,7 +259,8 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
         log.d("GPS", "In Model: " + mCurrentLocation.toString());
-        //eventManager.notifyOnGPS(mCurrentLocation);
+
+        eventManager.notifyOnGPS(mCurrentLocation);
     }
 
     @Override

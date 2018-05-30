@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,9 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.Constant;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressService;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
@@ -163,6 +167,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
             mLocation = GPSTracker.getLastKnownLocation(this);
+            App.getInstance().getModel().getEventManager().subscribeOnGPS(this);
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -386,6 +391,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public void OnGPSdata(Location location) {
         if (location != null) {
             setLocationFields(location);
+            Log.d("geo", location.toString());
+            Intent intent = new Intent(getApplicationContext(), AddressService.class);
+            intent.putExtra(Constant.LOCATION_DATA_EXTRA, location);
+            startService(intent);
         }
     }
 

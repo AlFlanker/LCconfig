@@ -3,15 +3,18 @@ package ru.yugsys.vvvresearch.lconfig;
 import android.app.Application;
 import org.greenrobot.greendao.database.Database;
 import ru.yugsys.vvvresearch.lconfig.Services.DetectInternetConnection;
-import ru.yugsys.vvvresearch.lconfig.Services.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressResultReceiver;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
-import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoMaster;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 
 public class App extends Application {
+
+
     private Model model;
     public String out;
     private DaoSession daoSession;
@@ -46,6 +49,10 @@ public class App extends Application {
 
     public void BindRequestListener(CheckRequest.CheckRequestListener listener) {
         CheckRequest.checkRequestListener = listener;
+    }
+
+    public void BindAddressResult(GPScallback.AddresCallBack listener) {
+        AddressResultReceiver.callBack = listener;
     }
 
     public static synchronized App getInstance() {
