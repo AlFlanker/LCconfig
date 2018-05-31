@@ -51,9 +51,6 @@ public class App extends Application {
         CheckRequest.checkRequestListener = listener;
     }
 
-    public void BindAddressResult(GPScallback.AddresCallBack listener) {
-        AddressResultReceiver.callBack = listener;
-    }
 
     public static synchronized App getInstance() {
         return instance;
