@@ -10,10 +10,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
+import android.os.*;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -33,17 +30,17 @@ import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
-import ru.yugsys.vvvresearch.lconfig.Services.GPS.Constant;
-import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressService;
-import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.*;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected,
+        GPScallback.AddresCallBack {
 
 
     private Vibrator vibrator;
@@ -78,6 +75,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private String comment;
     private static final int ERROR = 0;
     private static final int MESSAGE = 1;
+    private AddressResultReceiver receiver;
 
 
     @Override
@@ -245,6 +243,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        receiver = new AddressResultReceiver(new Handler());
+        receiver.setCallBack(this);
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
@@ -262,6 +262,12 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (NfcAdapter.getDefaultAdapter(this) != null) {
             NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
         }
+        receiver.setCallBack(null);
+    }
+
+    @Override
+    public void OnAddressSuccess(List<String> list) {
+        Log.d("OnAddressSuccess", list.toString());
     }
 
     @Override
@@ -393,6 +399,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             setLocationFields(location);
             Log.d("geo", location.toString());
             Intent intent = new Intent(getApplicationContext(), AddressService.class);
+            intent.putExtra(Constant.RECEIVER, receiver);
             intent.putExtra(Constant.LOCATION_DATA_EXTRA, location);
             startService(intent);
         }

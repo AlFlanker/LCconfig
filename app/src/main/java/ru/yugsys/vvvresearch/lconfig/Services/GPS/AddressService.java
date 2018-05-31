@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static ru.yugsys.vvvresearch.lconfig.Services.GPS.Constant.RECEIVER;
+
 public class AddressService extends IntentService {
-    ResultReceiver resultReceiver;
+
 
     public AddressService(String name) {
         super(name);
@@ -33,6 +35,7 @@ public class AddressService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        final ResultReceiver resultReceiver = intent.getParcelableExtra(RECEIVER);
         Log.d("geo", "in service");
         if (intent == null) return;
         String error = "";
