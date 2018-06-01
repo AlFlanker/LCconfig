@@ -303,32 +303,17 @@ public class DataModel implements Model,
     @Override
     public void OnAddressSuccess(List<String> list) {
         Log.d("geoService", "OnAddressSuccess from Model ");
-        StringBuilder stringBuilder = new StringBuilder();
-        GeoData geoData = daoSession.getGeoDataDao().queryBuilder().where(GeoDataDao.Properties.Eui.eq(list.get(0))).build().unique();
-        if (geoData == null) {
-            geoData = new GeoData();
-            geoData.setAddress(list.get(3) == null ? " " : list.get(3));
-            geoData.setChangeDate(new Date());
-            geoData.setCity(list.get(4) == null ? " " : list.get(4));
-            stringBuilder.append(list.get(1));
-            stringBuilder.append("\t");
-            stringBuilder.append(list.get(2));
-            geoData.setCounty(stringBuilder.toString() == null ? " " : stringBuilder.toString());
-            geoData.setEui(list.get(0));
-            Log.d("geoService", "OnAddressSuccess; Insert dev with eui: " + list.get(0));
-            daoSession.getGeoDataDao().insert(geoData);
-
-        } else {
-            geoData.setId(geoData.getId());
-            geoData.setAddress(list.get(3) == null ? " " : list.get(3));
-            geoData.setChangeDate(new Date());
-            geoData.setCity(list.get(4) == null ? " " : list.get(4));
-            stringBuilder.append(list.get(1));
-            stringBuilder.append("\t");
-            stringBuilder.append(list.get(2));
-            geoData.setCounty(stringBuilder.toString() == null ? " " : stringBuilder.toString());
+        DeviceEntry devEntry = daoSession.getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(list.get(0))).build().unique();
+        if (devEntry != null) {
+            devEntry.setId(devEntry.getId());
+            devEntry.setAddress(list.get(3) == null ? " " : list.get(3));
+            devEntry.setDateOfLastChange(new Date());
+            devEntry.setCity(list.get(4) == null ? " " : list.get(4));
+            devEntry.setCounty(list.get(1));
+            devEntry.setRegion(list.get(2));
+            devEntry.setIsGeoOK(true);
             Log.d("geoService", "OnAddressSuccess; Update dev with eui: " + list.get(0));
-            daoSession.getGeoDataDao().update(geoData);
+            daoSession.getDeviceEntryDao().update(devEntry);
 
         }
 

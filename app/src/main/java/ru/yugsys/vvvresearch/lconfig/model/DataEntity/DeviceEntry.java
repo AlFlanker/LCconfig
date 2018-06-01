@@ -69,6 +69,16 @@ public class DeviceEntry {
     private Boolean isDeleted;
     @NotNull
     private Boolean isSyncServer;
+    @NotNull
+    private Boolean isGeoOK;
+    @NotNull
+    private String county;
+    @NotNull
+    private String city;
+    @NotNull
+    private String address;
+    @NotNull
+    private String region;
 
 
     /**
@@ -82,11 +92,12 @@ public class DeviceEntry {
     @Generated(hash = 502908221)
     private transient DeviceEntryDao myDao;
 
-    @Generated(hash = 1743064902)
+    @Generated(hash = 1320470701)
     public DeviceEntry(Long id, @NotNull String type, boolean isOTTA, String eui, @NotNull String appeui, @NotNull String appkey,
-                       @NotNull String nwkid, @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey, double Latitude,
-                       double Longitude, @NotNull String outType, @NotNull String kV, @NotNull String kI, @NotNull String comment,
-                       @NotNull Date dateOfLastChange, @NotNull Boolean isDeleted, @NotNull Boolean isSyncServer) {
+                       @NotNull String nwkid, @NotNull String devadr, @NotNull String nwkskey, @NotNull String appskey, double Latitude, double Longitude,
+                       @NotNull String outType, @NotNull String kV, @NotNull String kI, @NotNull String comment, @NotNull Date dateOfLastChange,
+                       @NotNull Boolean isDeleted, @NotNull Boolean isSyncServer, @NotNull Boolean isGeoOK, @NotNull String county, @NotNull String city,
+                       @NotNull String address, @NotNull String region) {
         this.id = id;
         this.type = type;
         this.isOTTA = isOTTA;
@@ -106,6 +117,11 @@ public class DeviceEntry {
         this.dateOfLastChange = dateOfLastChange;
         this.isDeleted = isDeleted;
         this.isSyncServer = isSyncServer;
+        this.isGeoOK = isGeoOK;
+        this.county = county;
+        this.city = city;
+        this.address = address;
+        this.region = region;
     }
 
     @Generated(hash = 105489907)
@@ -410,6 +426,11 @@ public class DeviceEntry {
         newDev.setComment("test");
         newDev.setIsDeleted(false);
         newDev.setIsSyncServer(false);
+        newDev.setIsGeoOK(false);
+        newDev.setAddress("address");
+        newDev.setRegion("region");
+        newDev.setCounty("Russia");
+        newDev.setCity("city");
         return newDev;
 //		newDev.setEui();
     }
@@ -699,6 +720,46 @@ public class DeviceEntry {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getDeviceEntryDao() : null;
+    }
+
+    public Boolean getIsGeoOK() {
+        return this.isGeoOK;
+    }
+
+    public void setIsGeoOK(Boolean isGeoOK) {
+        this.isGeoOK = isGeoOK;
+    }
+
+    public String getCounty() {
+        return this.county;
+    }
+
+    public void setCounty(String county) {
+        this.county = county;
+    }
+
+    public String getCity() {
+        return this.city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getRegion() {
+        return this.region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
 
