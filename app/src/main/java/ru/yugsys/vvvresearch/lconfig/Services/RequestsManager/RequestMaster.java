@@ -9,6 +9,7 @@ import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.GET;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.POST;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.Strategy.REST;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.GeoData;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -236,20 +237,29 @@ public class RequestMaster {
         return jsonObject;
     }
 
-    public static String convert2StringJSON(DeviceEntry dev, String token) {
+    public static String convert2StringJSON(DeviceEntry dev, String token, GeoData geoData) {
         JSONObject jsonObject = new JSONObject();
         JSONObject device = new JSONObject();
         JSONObject model = new JSONObject();
         JSONObject geo;
         try {
+            Log.d("geoService", "convert2StringJSON");
             if (!dev.getIsOTTA()) {
                 geo = new JSONObject();
                 //Add method to convert Location -> addres (Google API)
-                geo.put("countryddress", "Russia");
-                geo.put("region", "Krd");
-                geo.put("city", "Krasnodar");
-                geo.put("street", "......");
+                if (geoData == null) {
+                    geo.put("countryddress", "Russia");
+                    geo.put("region", " ");
+                    geo.put("city", " ");
+                    geo.put("street", " ");
 
+                } else {
+                    geo.put("countryaddress", geoData.getCounty().split("\t")[0]);
+                    geo.put("region", geoData.getCounty().split("\t")[1]);
+                    geo.put("city", geoData.getCity());
+                    geo.put("street", geoData.getAddress());
+                    Log.d("geoService", "geodata: " + geoData.getEui() + ", " + geoData.getCity());
+                }
                 model.put("name", "LC5xx");
                 model.put("version", "1.0");
 
@@ -287,6 +297,7 @@ public class RequestMaster {
         } catch (JSONException e) {
             Log.e("json", e.getMessage());
         }
+        Log.d("geoService", "return jsonObject");
         return jsonObject.toString();
     }
 

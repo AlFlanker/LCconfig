@@ -22,9 +22,9 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("test", "OnReceiver: ");
+        Log.d("net868", "OnReceiver: ");
         if (intent.getAction().equals(ACTION)) {
-            Log.d("test", "OnReceiver in if: " + intent.getAction());
+            Log.d("net868", "OnReceiver in if: " + intent.getAction());
             scheduleJob(context);
         } else {
             throw new IllegalArgumentException("No supporting action");
@@ -32,7 +32,7 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
     }
 
     private void scheduleJob(Context context) {
-        Log.d("test", "scheduleJob");
+        Log.d("net868", "scheduleJob");
 
         ComponentName mService = new ComponentName(context, RequestJob.class);
         JobInfo jobInfo = new JobInfo.Builder(JobID, mService)
@@ -43,9 +43,9 @@ public class ExternalRequestsReceiver extends BroadcastReceiver {
         jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         int res = jobScheduler.schedule(jobInfo);
-        Log.d("test", "JobID: " + String.valueOf(JobID));
+        Log.d("net868", "JobID: " + String.valueOf(JobID));
         if (res == JobScheduler.RESULT_SUCCESS) {
-            Log.d("test", "Job scheduled successfully!");
+            Log.d("net868", "Job scheduled successfully!");
         }
     }
 

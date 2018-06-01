@@ -2,29 +2,47 @@ package ru.yugsys.vvvresearch.lconfig.model;
 
 
 import android.location.Location;
+import android.os.Handler;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressResultReceiver;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.GeoDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.GeoData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
+import java.util.ArrayDeque;
 import java.util.Date;
+import java.util.List;
+import java.util.Queue;
 
 
-public class DataModel implements Model, GPScallback<Location>, CheckRequest.CheckRequestListener {
+public class DataModel implements Model,
+        GPScallback<Location>,
+        CheckRequest.CheckRequestListener,
+        GPScallback.AddresCallBack {
+    public Queue<DeviceEntry> getDevQueue() {
+        return devQueue;
+    }
 
+    public void setDevQueue(Queue<DeviceEntry> devQueue) {
+        this.devQueue = devQueue;
+    }
 
     private EventManager eventManager = new EventManager();
     private Location mCurrentLocation;
     private DeviceEntry currentDevice;
+    private Queue<DeviceEntry> devQueue = new ArrayDeque<DeviceEntry>();
     private Logger log = Logger.getInstance();
+    public final AddressResultReceiver receiver;
 
 
     /*------------------------------------------------------------------------*/
@@ -80,6 +98,7 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
 
     @Override
     public void saveDevice(DeviceEntry device) {
+        this.devQueue.add(device);
         Log.d("BD", "datamodel -> saveDevice ->" + device.getType());
         DeviceEntryDao dataDao = this.daoSession.getDeviceEntryDao();
         Log.d("BD", "device.type = " + device.getType());
@@ -97,6 +116,7 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
             dataDao.update(device);
             eventManager.notifyOnDevDataChecked(true);
         }
+
     }
 
     @Override
@@ -114,6 +134,8 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
 
     public DataModel(DaoSession daoSession) {
         this.daoSession = daoSession;
+        receiver = new AddressResultReceiver(new Handler());
+        receiver.setCallBack(this);
 
     }
 
@@ -275,6 +297,40 @@ public class DataModel implements Model, GPScallback<Location>, CheckRequest.Che
             }
         }
 
+
+    }
+
+    @Override
+    public void OnAddressSuccess(List<String> list) {
+        Log.d("geoService", "OnAddressSuccess from Model ");
+        StringBuilder stringBuilder = new StringBuilder();
+        GeoData geoData = daoSession.getGeoDataDao().queryBuilder().where(GeoDataDao.Properties.Eui.eq(list.get(0))).build().unique();
+        if (geoData == null) {
+            geoData = new GeoData();
+            geoData.setAddress(list.get(3) == null ? " " : list.get(3));
+            geoData.setChangeDate(new Date());
+            geoData.setCity(list.get(4) == null ? " " : list.get(4));
+            stringBuilder.append(list.get(1));
+            stringBuilder.append("\t");
+            stringBuilder.append(list.get(2));
+            geoData.setCounty(stringBuilder.toString() == null ? " " : stringBuilder.toString());
+            geoData.setEui(list.get(0));
+            Log.d("geoService", "OnAddressSuccess; Insert dev with eui: " + list.get(0));
+            daoSession.getGeoDataDao().insert(geoData);
+
+        } else {
+            geoData.setId(geoData.getId());
+            geoData.setAddress(list.get(3) == null ? " " : list.get(3));
+            geoData.setChangeDate(new Date());
+            geoData.setCity(list.get(4) == null ? " " : list.get(4));
+            stringBuilder.append(list.get(1));
+            stringBuilder.append("\t");
+            stringBuilder.append(list.get(2));
+            geoData.setCounty(stringBuilder.toString() == null ? " " : stringBuilder.toString());
+            Log.d("geoService", "OnAddressSuccess; Update dev with eui: " + list.get(0));
+            daoSession.getGeoDataDao().update(geoData);
+
+        }
 
     }
 }

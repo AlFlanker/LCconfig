@@ -27,9 +27,11 @@ import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPSTracker;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import java.util.List;
@@ -136,6 +138,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     protected void onPostResume() {
         super.onPostResume();
         getPremissionGPS();
+//        NetData netData = new NetData();
+//        netData.setToken("1c68a488ec0d4dde80439e9627d23154");
+//        netData.setServiceName("net868");
+//        netData.setLogin(" ");
+//        netData.setPassword(" ");
+//        netData.setAddress("https://bs.net868.ru:20010/externalapi/");
+//
+//        ((App)getApplication()).getDaoSession().getNetDataDao().insert(netData);
         /*Apps targeting Android 7.0 (API level 24) and higher
          do not receive CONNECTIVITY_ACTION broadcasts if they declare the broadcast receiver in their manifest.
          Apps will still receive CONNECTIVITY_ACTION broadcasts if they register their BroadcastReceiver
@@ -329,12 +339,12 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     @Override
     public void OnNetworkConnectionChanged(boolean isConnected) {
         if (!isConnected) {
-            Toast.makeText(getApplicationContext(), "There is no network connection!\n" +
-                    "Synchronization is not possible!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "There is no network connection!\n" +
+//                    "Synchronization is not possible!", Toast.LENGTH_SHORT).show();
         } else if (isConnected) {
-            Toast.makeText(getApplicationContext(), "\n" +
-                    "There is a connection to the network!\n" +
-                    "Synchronization is possible!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "\n" +
+//                    "There is a connection to the network!\n" +
+//                    "Synchronization is possible!", Toast.LENGTH_SHORT).show();
         }
     }
 

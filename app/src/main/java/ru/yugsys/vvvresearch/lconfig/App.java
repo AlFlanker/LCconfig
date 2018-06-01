@@ -9,14 +9,16 @@ import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoMaster;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 
 public class App extends Application {
 
 
-    private Model model;
+    private DataModel model;
     public String out;
+
     private DaoSession daoSession;
     private static App instance;
 
@@ -39,7 +41,7 @@ public class App extends Application {
         return daoSession;
     }
 
-    public Model getModel() {
+    public DataModel getModel() {
         return model;
     }
 
