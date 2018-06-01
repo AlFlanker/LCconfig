@@ -36,10 +36,9 @@ public class RequestJob extends JobService {
             Log.d("net868", "quantity of devices: " + devsList.size());
             for (DeviceEntry dev : devsList) {
                 i++;
-                geoData = getGeoData(dev.getEui());
                 data.putExtra("hostAPI", netData.getAddress() + RequestMaster.net868API.get(RequestMaster.REST_FUNCTION.CreateDevice));
                 data.putExtra("token", netData.getToken());
-                data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, netData.getToken(), geoData));
+                data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, netData.getToken()));
                 getApplicationContext().startService(data);
             }
             Log.d("net868", " counter: " + String.valueOf(i));
@@ -61,14 +60,6 @@ public class RequestJob extends JobService {
 
     }
 
-    private GeoData getGeoData(String eui) {
-        return ((App) getApplication()).getDaoSession().
-                getGeoDataDao().
-                queryBuilder().
-                where(GeoDataDao.Properties.Eui.eq(eui)).
-                build().
-                unique();
-    }
 
     private NetData getNetData() {
         return ((App) getApplication()).

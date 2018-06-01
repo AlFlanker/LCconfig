@@ -2,6 +2,8 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -25,6 +27,7 @@ import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPSTracker;
+import ru.yugsys.vvvresearch.lconfig.Services.GPS.GeoCoderJob;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.ExternalRequestsReceiver;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
@@ -342,9 +345,23 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 //            Toast.makeText(getApplicationContext(), "There is no network connection!\n" +
 //                    "Synchronization is not possible!", Toast.LENGTH_SHORT).show();
         } else if (isConnected) {
-//            Toast.makeText(getApplicationContext(), "\n" +
-//                    "There is a connection to the network!\n" +
-//                    "Synchronization is possible!", Toast.LENGTH_SHORT).show();
+            startJob();
+        }
+    }
+
+    private void startJob() {
+        JobScheduler jobScheduler;
+        ComponentName mService = new ComponentName(getApplicationContext(), GeoCoderJob.class);
+        JobInfo jobInfo = new JobInfo.Builder(1, mService)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(false)
+                .build();
+        jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int res = jobScheduler.schedule(jobInfo);
+
+        if (res == JobScheduler.RESULT_SUCCESS) {
+            Log.d("geoService", "Job scheduled successfully!");
         }
     }
 

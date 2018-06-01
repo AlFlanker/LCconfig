@@ -44,6 +44,11 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         public final static Property DateOfLastChange = new Property(16, java.util.Date.class, "dateOfLastChange", false, "DATE_OF_LAST_CHANGE");
         public final static Property IsDeleted = new Property(17, Boolean.class, "isDeleted", false, "IS_DELETED");
         public final static Property IsSyncServer = new Property(18, Boolean.class, "isSyncServer", false, "IS_SYNC_SERVER");
+        public final static Property IsGeoOK = new Property(19, Boolean.class, "isGeoOK", false, "IS_GEO_OK");
+        public final static Property County = new Property(20, String.class, "county", false, "COUNTY");
+        public final static Property City = new Property(21, String.class, "city", false, "CITY");
+        public final static Property Address = new Property(22, String.class, "address", false, "ADDRESS");
+        public final static Property Region = new Property(23, String.class, "region", false, "REGION");
     }
 
     private DaoSession daoSession;
@@ -80,7 +85,12 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
                 "\"COMMENT\" TEXT NOT NULL ," + // 15: comment
                 "\"DATE_OF_LAST_CHANGE\" INTEGER NOT NULL ," + // 16: dateOfLastChange
                 "\"IS_DELETED\" INTEGER NOT NULL ," + // 17: isDeleted
-                "\"IS_SYNC_SERVER\" INTEGER NOT NULL );"); // 18: isSyncServer
+                "\"IS_SYNC_SERVER\" INTEGER NOT NULL ," + // 18: isSyncServer
+                "\"IS_GEO_OK\" INTEGER NOT NULL ," + // 19: isGeoOK
+                "\"COUNTY\" TEXT NOT NULL ," + // 20: county
+                "\"CITY\" TEXT NOT NULL ," + // 21: city
+                "\"ADDRESS\" TEXT NOT NULL ," + // 22: address
+                "\"REGION\" TEXT NOT NULL );"); // 23: region
     }
 
     /** Drops the underlying database table. */
@@ -119,6 +129,11 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         stmt.bindLong(17, entity.getDateOfLastChange().getTime());
         stmt.bindLong(18, entity.getIsDeleted() ? 1L: 0L);
         stmt.bindLong(19, entity.getIsSyncServer() ? 1L : 0L);
+        stmt.bindLong(20, entity.getIsGeoOK() ? 1L : 0L);
+        stmt.bindString(21, entity.getCounty());
+        stmt.bindString(22, entity.getCity());
+        stmt.bindString(23, entity.getAddress());
+        stmt.bindString(24, entity.getRegion());
     }
 
     @Override
@@ -151,6 +166,11 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         stmt.bindLong(17, entity.getDateOfLastChange().getTime());
         stmt.bindLong(18, entity.getIsDeleted() ? 1L: 0L);
         stmt.bindLong(19, entity.getIsSyncServer() ? 1L : 0L);
+        stmt.bindLong(20, entity.getIsGeoOK() ? 1L : 0L);
+        stmt.bindString(21, entity.getCounty());
+        stmt.bindString(22, entity.getCity());
+        stmt.bindString(23, entity.getAddress());
+        stmt.bindString(24, entity.getRegion());
     }
 
     @Override
@@ -185,7 +205,12 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
             cursor.getString(offset + 15), // comment
             new java.util.Date(cursor.getLong(offset + 16)), // dateOfLastChange
                 cursor.getShort(offset + 17) != 0, // isDeleted
-                cursor.getShort(offset + 18) != 0 // isSyncServer
+                cursor.getShort(offset + 18) != 0, // isSyncServer
+                cursor.getShort(offset + 19) != 0, // isGeoOK
+                cursor.getString(offset + 20), // county
+                cursor.getString(offset + 21), // city
+                cursor.getString(offset + 22), // address
+                cursor.getString(offset + 23) // region
         );
         return entity;
     }
@@ -211,6 +236,11 @@ public class DeviceEntryDao extends AbstractDao<DeviceEntry, Long> {
         entity.setDateOfLastChange(new java.util.Date(cursor.getLong(offset + 16)));
         entity.setIsDeleted(cursor.getShort(offset + 17) != 0);
         entity.setIsSyncServer(cursor.getShort(offset + 18) != 0);
+        entity.setIsGeoOK(cursor.getShort(offset + 19) != 0);
+        entity.setCounty(cursor.getString(offset + 20));
+        entity.setCity(cursor.getString(offset + 21));
+        entity.setAddress(cursor.getString(offset + 22));
+        entity.setRegion(cursor.getString(offset + 23));
      }
     
     @Override

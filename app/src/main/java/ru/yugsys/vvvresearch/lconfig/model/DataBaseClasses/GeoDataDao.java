@@ -49,7 +49,7 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
      * Creates the underlying database table.
      */
     public static void createTable(Database db, boolean ifNotExists) {
-        String constraint = ifNotExists ? "IF NOT EXISTS " : "";
+        String constraint = ifNotExists ? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"GeoTable\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"EUI\" TEXT NOT NULL UNIQUE ," + // 1: eui
@@ -59,9 +59,7 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
                 "\"CHANGE_DATE\" INTEGER NOT NULL );"); // 5: changeDate
     }
 
-    /**
-     * Drops the underlying database table.
-     */
+    /** Drops the underlying database table. */
     public static void dropTable(Database db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"GeoTable\"";
         db.execSQL(sql);
@@ -70,23 +68,23 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, GeoData entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getEui());
-
+ 
         String county = entity.getCounty();
         if (county != null) {
             stmt.bindString(3, county);
         }
-
+ 
         String city = entity.getCity();
         if (city != null) {
             stmt.bindString(4, city);
         }
-
+ 
         String address = entity.getAddress();
         if (address != null) {
             stmt.bindString(5, address);
@@ -97,23 +95,23 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, GeoData entity) {
         stmt.clearBindings();
-
+ 
         Long id = entity.getId();
         if (id != null) {
             stmt.bindLong(1, id);
         }
         stmt.bindString(2, entity.getEui());
-
+ 
         String county = entity.getCounty();
         if (county != null) {
             stmt.bindString(3, county);
         }
-
+ 
         String city = entity.getCity();
         if (city != null) {
             stmt.bindString(4, city);
         }
-
+ 
         String address = entity.getAddress();
         if (address != null) {
             stmt.bindString(5, address);
@@ -130,7 +128,7 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
     @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
-    }
+    }    
 
     @Override
     public GeoData readEntity(Cursor cursor, int offset) {
@@ -144,7 +142,7 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
         );
         return entity;
     }
-
+     
     @Override
     public void readEntity(Cursor cursor, GeoData entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
@@ -153,14 +151,14 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
         entity.setCity(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setAddress(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setChangeDate(new java.util.Date(cursor.getLong(offset + 5)));
-    }
-
+     }
+    
     @Override
     protected final Long updateKeyAfterInsert(GeoData entity, long rowId) {
         entity.setId(rowId);
         return rowId;
     }
-
+    
     @Override
     public Long getKey(GeoData entity) {
         if (entity != null) {
@@ -179,5 +177,5 @@ public class GeoDataDao extends AbstractDao<GeoData, Long> {
     protected final boolean isEntityUpdateable() {
         return true;
     }
-
+    
 }

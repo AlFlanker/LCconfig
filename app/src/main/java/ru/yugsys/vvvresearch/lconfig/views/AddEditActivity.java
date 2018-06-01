@@ -322,6 +322,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         device.setDateOfLastChange(new Date());
         device.setIsDeleted(false);
         device.setIsSyncServer(false);
+        device.setIsGeoOK(false);
+        device.setCity("city");
+        device.setCounty("Russia");
+        device.setRegion("region");
+        device.setAddress("address");
         return device;
     }
 
@@ -431,7 +436,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private void startJob() {
         JobScheduler jobScheduler;
         ComponentName mService = new ComponentName(getApplicationContext(), GeoCoderJob.class);
-        JobInfo jobInfo = new JobInfo.Builder(JobID++, mService)
+        JobInfo jobInfo = new JobInfo.Builder(JobID, mService)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setRequiresCharging(false)
                 .setRequiresDeviceIdle(false)

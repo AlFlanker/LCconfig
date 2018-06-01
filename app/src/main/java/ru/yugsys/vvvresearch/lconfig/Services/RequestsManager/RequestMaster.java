@@ -237,7 +237,7 @@ public class RequestMaster {
         return jsonObject;
     }
 
-    public static String convert2StringJSON(DeviceEntry dev, String token, GeoData geoData) {
+    public static String convert2StringJSON(DeviceEntry dev, String token) {
         JSONObject jsonObject = new JSONObject();
         JSONObject device = new JSONObject();
         JSONObject model = new JSONObject();
@@ -247,19 +247,12 @@ public class RequestMaster {
             if (!dev.getIsOTTA()) {
                 geo = new JSONObject();
                 //Add method to convert Location -> addres (Google API)
-                if (geoData == null) {
-                    geo.put("countryddress", "Russia");
-                    geo.put("region", " ");
-                    geo.put("city", " ");
-                    geo.put("street", " ");
+                geo.put("countryaddress", dev.getCounty());
+                geo.put("region", dev.getRegion());
+                geo.put("city", dev.getCity());
+                geo.put("street", dev.getAddress());
 
-                } else {
-                    geo.put("countryaddress", geoData.getCounty().split("\t")[0]);
-                    geo.put("region", geoData.getCounty().split("\t")[1]);
-                    geo.put("city", geoData.getCity());
-                    geo.put("street", geoData.getAddress());
-                    Log.d("geoService", "geodata: " + geoData.getEui() + ", " + geoData.getCity());
-                }
+
                 model.put("name", "LC5xx");
                 model.put("version", "1.0");
 

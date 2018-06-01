@@ -6,11 +6,15 @@ import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
 import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
 
+import java.util.List;
+
 
 public class GeoCoderJob extends JobService {
+    private List<DeviceEntry> devList;
 
     public GeoCoderJob() {
 
@@ -20,22 +24,21 @@ public class GeoCoderJob extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         Log.d("geoService", "start GeoService");
-        DeviceEntry dev = ((App) getApplication()).getModel().getDevQueue().poll();
-
+//        DeviceEntry dev = ((App) getApplication()).getModel().getDevQueue().poll();
+        devList = getUntracketDevice();
+        Log.d("geoService", "quantity of device: " + devList.size());
         Location location;
-        if (dev != null) {
+        for (DeviceEntry dev : devList) {
             location = new Location("");
-            location.setLatitude(dev.getLatitude());
             location.setLongitude(dev.getLongitude());
-
-            if (location != null) {
+            location.setLatitude(dev.getLatitude());
                 Intent intent = new Intent(getApplicationContext(), AddressService.class);
                 intent.putExtra(Constant.RECEIVER, ((App) getApplication()).getModel().receiver);
                 intent.putExtra(Constant.LOCATION_DATA_DEVICE_EUI, dev.getEui());
                 intent.putExtra(Constant.LOCATION_DATA_EXTRA, location);
-                Log.d("geoService", "start GeoService");
+            Log.d("geoService", "send device with eui: " + dev.getEui());
                 startService(intent);
-            }
+
         }
 
 
@@ -45,5 +48,10 @@ public class GeoCoderJob extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         return false;
+    }
+
+    private List<DeviceEntry> getUntracketDevice() {
+        return ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.IsGeoOK.eq(false)).build().list();
+
     }
 }
