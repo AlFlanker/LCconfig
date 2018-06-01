@@ -36,19 +36,18 @@ public class AddressService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         final ResultReceiver resultReceiver = intent.getParcelableExtra(RECEIVER);
-        Log.d("geo", "in service");
+        Log.d("geoService", "in service");
         if (intent == null) return;
         String error = "";
         String eui = intent.getStringExtra(Constant.LOCATION_DATA_DEVICE_EUI);
         Location location = intent.getParcelableExtra(Constant.LOCATION_DATA_EXTRA);
         List<Address> addresses = null;
-        Log.d("geo", "in servuce: " + location.toString());
+        Log.d("geo", "in service: " + location.toString());
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             addresses = geocoder.getFromLocation(
                     location.getLatitude(),
                     location.getLongitude(), 1);
-            eui = intent.getStringExtra(Constant.LOCATION_DATA_DEVICE_EUI);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,11 +65,13 @@ public class AddressService extends IntentService {
             bundle.putString(Constant.LOCATION_DATA_DEVICE_EUI, eui);
             bundle.putString(Constant.LOCATION_DATA_COUNTRY, address.getCountryName());
             bundle.putString(Constant.LOCATION_DATA_REGION, address.getAdminArea());
+            bundle.putString(Constant.LOCATION_DATA_CITY, address.getLocality());
             bundle.putString(Constant.LOCATION_DATA_ADDRESS, street == null ? address.getAddressLine(0).split(",")[0] : street);
             resultReceiver.send(Constant.SUCCESS_RESULT, bundle);
-            Log.d("LOCATION_DATA_COUNTRY", address.getCountryName());
-            Log.d("LOCATION_DATA_REGION", address.getAdminArea());
-            Log.d("LOCATION_DATA_ADDRESS", street == null ? address.getAddressLine(0).split(",")[0] : street);
+//            Log.d("LOCATION_DATA_COUNTRY", address.getCountryName());
+//            Log.d("LOCATION_DATA_REGION", address.getAdminArea());
+            Log.d("geoService", address.getLocality());
+            Log.d("geoService", street == null ? address.getAddressLine(0).split(",")[0] : street);
 
         }
     }

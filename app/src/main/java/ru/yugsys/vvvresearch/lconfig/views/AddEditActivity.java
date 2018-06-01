@@ -2,6 +2,9 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.Manifest;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -31,6 +34,7 @@ import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.*;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.*;
+import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.RequestJob;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
@@ -38,9 +42,9 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected,
-        GPScallback.AddresCallBack {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
 
 
     private Vibrator vibrator;
@@ -75,7 +79,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private String comment;
     private static final int ERROR = 0;
     private static final int MESSAGE = 1;
-    private AddressResultReceiver receiver;
+    private static int JobID = 1;
 
 
     @Override
@@ -220,20 +224,22 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 createNewDevice = false;
 
             }
-            if (readyToWriteDevice && currentDev.getUid() != null) {
-                scrollView.setVisibility(View.GONE);
-                progressBar.setVisibility(View.VISIBLE);
-                currentDevice = fieldToDevice();
-                String jpref = getString(R.string.pref_JUG_SYSTEMA);
-                String muid = currentDev.getUid().replace(" ", "");
-                muid = muid.substring(8);
-                currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8).toUpperCase());
-                currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
-                setDeviceFields(currentDevice);
-                WriteTask task = new WriteTask(currentDev);
-                task.subscribe(this);
-                task.execute(currentDevice);
-                readyToWriteDevice = false;
+            if (currentDev != null) {
+                if (readyToWriteDevice && currentDev.getUid() != null) {
+                    scrollView.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    currentDevice = fieldToDevice();
+                    String jpref = getString(R.string.pref_JUG_SYSTEMA);
+                    String muid = currentDev.getUid().replace(" ", "");
+                    muid = muid.substring(8);
+                    currentDevice.setDevadr(currentDev.getUid().replace(" ", "").substring(8).toUpperCase());
+                    currentDevice.setEui(new StringBuilder().append(jpref).append(muid).toString().toUpperCase());
+                    setDeviceFields(currentDevice);
+                    WriteTask task = new WriteTask(currentDev);
+                    task.subscribe(this);
+                    task.execute(currentDevice);
+                    readyToWriteDevice = false;
+                }
             }
 
         }
@@ -243,8 +249,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        receiver = new AddressResultReceiver(new Handler());
-        receiver.setCallBack(this);
+
         mPendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
@@ -262,13 +267,9 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (NfcAdapter.getDefaultAdapter(this) != null) {
             NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
         }
-        receiver.setCallBack(null);
     }
 
-    @Override
-    public void OnAddressSuccess(List<String> list) {
-        Log.d("OnAddressSuccess", list.toString());
-    }
+
 
     @Override
     public void setDeviceFields(DeviceEntry device) {
@@ -379,6 +380,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 //            showDiffrentSnackBar(getString(R.string.WriteSucessfull),MESSAGE);
 
             ((App) getApplication()).getModel().saveDevice(currentDevice);
+            startJob(); // for GeoService!
             readyToWriteDevice = false;
             if (Build.VERSION.SDK_INT >= 26) {
                 vibrator.vibrate(VibrationEffect.createOneShot(500, 100));
@@ -398,10 +400,6 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (location != null) {
             setLocationFields(location);
             Log.d("geo", location.toString());
-            Intent intent = new Intent(getApplicationContext(), AddressService.class);
-            intent.putExtra(Constant.RECEIVER, receiver);
-            intent.putExtra(Constant.LOCATION_DATA_EXTRA, location);
-            startService(intent);
         }
     }
 
@@ -429,4 +427,21 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         textView.setTextColor(color);
         snackbar.show();
     }
+
+    private void startJob() {
+        JobScheduler jobScheduler;
+        ComponentName mService = new ComponentName(getApplicationContext(), GeoCoderJob.class);
+        JobInfo jobInfo = new JobInfo.Builder(JobID++, mService)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(false)
+                .build();
+        jobScheduler = (JobScheduler) getApplicationContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int res = jobScheduler.schedule(jobInfo);
+        Log.d("geoService ", "JobID: " + String.valueOf(JobID));
+        if (res == JobScheduler.RESULT_SUCCESS) {
+            Log.d("geoService", "Job scheduled successfully!");
+        }
+    }
+
 }

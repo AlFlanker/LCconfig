@@ -16,9 +16,9 @@ public class CheckRequest extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("CheckRequest", intent.getAction());
+        Log.d("net868", "Check Reciver " + intent.getAction());
         if (intent.getAction().equals(ACTION)) {
-            Log.d("CheckRequest", intent.getAction());
+            Log.d("net868", "Check Reciver " + intent.getAction());
             if (intent.getBooleanExtra("result", false)) {
                 if (checkRequestListener != null)
                     checkRequestListener.checkRequestChanged(intent.getStringExtra("eui"));
