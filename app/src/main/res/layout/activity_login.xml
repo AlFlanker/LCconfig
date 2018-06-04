@@ -61,6 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_typeServer"
+                    android:entries="@array/serviceList"
                     android:id="@+id/typeServer"/>
             <Button
                     android:id="@+id/sign_in_button"

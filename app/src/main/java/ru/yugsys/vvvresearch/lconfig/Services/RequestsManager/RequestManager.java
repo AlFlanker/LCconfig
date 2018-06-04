@@ -141,6 +141,8 @@ public class RequestManager extends IntentService {
         check.putExtra("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1).replace("-", ""));
         Log.d("net868", "send: " + ExternalRequestsReceiver.ACTION);
         sendBroadcast(check);
+
+
         Intent si = new Intent().setAction(MainActivity.responseFromIS).
                 putExtra("alias", payload.
                         substring(payload.indexOf("alias\":\"") + 8, payload.indexOf(",\"eui") - 1)).
