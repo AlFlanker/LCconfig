@@ -8,14 +8,17 @@ import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressResultReceiver;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
+
 import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.GeoDataDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.GeoData;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
 
@@ -29,6 +32,19 @@ public class DataModel implements Model,
         GPScallback<Location>,
         CheckRequest.CheckRequestListener,
         GPScallback.AddresCallBack {
+    @Override
+    public void addNetData(NetData netData) {
+        NetData tmp = daoSession.getNetDataDao().queryBuilder().where(NetDataDao.Properties.Token.eq(netData.getToken())).unique();
+        if (tmp == null) {
+            daoSession.getNetDataDao().insert(netData);
+        } else {
+            tmp.setId(netData.getId());
+            tmp.setAddress(netData.getAddress());
+            daoSession.getNetDataDao().update(netData);
+        }
+
+    }
+
     public Queue<DeviceEntry> getDevQueue() {
         return devQueue;
     }
@@ -98,7 +114,7 @@ public class DataModel implements Model,
 
     @Override
     public void saveDevice(DeviceEntry device) {
-        this.devQueue.add(device);
+//        this.devQueue.add(device);
         Log.d("BD", "datamodel -> saveDevice ->" + device.getType());
         DeviceEntryDao dataDao = this.daoSession.getDeviceEntryDao();
         Log.d("BD", "device.type = " + device.getType());
@@ -136,6 +152,7 @@ public class DataModel implements Model,
         this.daoSession = daoSession;
         receiver = new AddressResultReceiver(new Handler());
         receiver.setCallBack(this);
+
 
     }
 
@@ -318,4 +335,5 @@ public class DataModel implements Model,
         }
 
     }
+
 }

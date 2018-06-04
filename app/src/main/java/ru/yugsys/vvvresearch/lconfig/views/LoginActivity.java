@@ -12,17 +12,19 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.LoginData;
-import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresentable;
-import ru.yugsys.vvvresearch.lconfig.presenters.LoginPresenter;
+
 
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity implements LoginViewable {
     private EditText mLoginView;
@@ -31,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
     private View mProgressView;
     private View mLoginFormView;
     private Spinner typeOfServerSpinner;
-    private LoginPresentable presenter;
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -44,30 +46,46 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         setContentView(R.layout.activity_login);
         mLoginView = (EditText) findViewById(R.id.login);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mServerView = (EditText) findViewById(R.id.connectServer);
+
         typeOfServerSpinner = (Spinner) findViewById(R.id.typeServer);
-        presenter = new LoginPresenter(((App) getApplication()).getModel());
-        presenter.bind(this);
-        LoginData loginData = presenter.loadLoginData();
-        if (loginData != null) {
-            mLoginView.setText(loginData.getLogin());
-            mPasswordView.setText("");
-            mServerView.setText(loginData.getTypeOfServer());
-            String[] arrayTypeOfServer = loginData.getArrayTypeOfServer();
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, arrayTypeOfServer);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            typeOfServerSpinner.setAdapter(adapter);
-            String currentTypeServer = loginData.getTypeOfServer();
-            ArrayAdapter adapter1 = (ArrayAdapter) typeOfServerSpinner.getAdapter();
-            int position = adapter1.getPosition(currentTypeServer);
-            typeOfServerSpinner.setSelection(position);
-        }
+        typeOfServerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent,
+                                       View view, int position, long id) {
+                String[] type = getResources().getStringArray(R.array.serviceList);
+                switch (type[position]) {
+                    case "net868.ru":
+                        mLoginView.setHint((CharSequence) "token");
+                        mPasswordView.setVisibility(View.GONE);
+                        mLoginView.setText("");
+
+                        break;
+                    case "Вега":
+                        mLoginView.setHint((CharSequence) "login");
+                        mPasswordView.setHint((CharSequence) "pass");
+                        mLoginView.setText("");
+                        mPasswordView.setText("");
+                        mPasswordView.setVisibility(View.VISIBLE);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mServerView = (EditText) findViewById(R.id.connectServer);
+
+
 
         mServerView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    presenter.attemptToLogin();
+//                    presenter.attemptToLogin();
                     return true;
                 }
                 return false;
@@ -78,8 +96,32 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AuthThread().execute();
-                presenter.attemptToLogin();
+
+                String[] type = getResources().getStringArray(R.array.serviceList);
+                switch ((String) typeOfServerSpinner.getAdapter().getItem(typeOfServerSpinner.getSelectedItemPosition())) {
+                    case "net868.ru":
+                        Toast.makeText(getApplicationContext(), "net868.ru", Toast.LENGTH_SHORT).show();
+                        if (checkToken(mLoginView.getText().toString()) &&
+                                checkUrl(mServerView.getText().toString())) {
+                            NetData net = new NetData();
+                            net.setAddress(mServerView.getText().toString());
+                            net.setToken(mLoginView.getText().toString());
+                            net.setPassword("pass");
+                            net.setLogin("login");
+                            net.setServiceName("net868.ru");
+                            Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT);
+                            ((App) getApplication()).getModel().addNetData(net);
+                        } else {
+                            Toast.makeText(getApplicationContext(), getString(R.string.incorrectlyToken) + " or URL", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        break;
+                    case "Вега":
+                        Toast.makeText(getApplicationContext(), "Вега", Toast.LENGTH_SHORT).show();
+
+                        break;
+                }
             }
         });
         mLoginFormView = findViewById(R.id.login_form);
@@ -90,7 +132,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        presenter.unBind();
+
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -205,6 +247,16 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
             }
             return null;
         }
+    }
+
+    private boolean checkToken(String token) {
+        Pattern pattern = Pattern.compile("[\\d|\\w]{32}");
+        return pattern.matcher(token).matches();
+    }
+
+    private boolean checkUrl(String url) {
+        Pattern pattern = Pattern.compile("^((https://)|(http://))\\S+");
+        return pattern.matcher(url).matches();
     }
 }
 

@@ -55,7 +55,10 @@
         <item>0</item>
         <item>-1</item>
     </string-array>
-
+    <string-array name="serviceList">
+        <item>net868.ru</item>
+        <item>Вега</item>
+    </string-array>
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
@@ -144,4 +147,6 @@
     <string name="Incorrect">Invalid CRC or a new device</string>
     <string name="DetectInternetConnection">is Connected</string>
     <string name="ConnectivityChange">is Disconnected</string>
+
+    <string name="incorrectlyToken">Incorrectly token!</string>
 </resources>
