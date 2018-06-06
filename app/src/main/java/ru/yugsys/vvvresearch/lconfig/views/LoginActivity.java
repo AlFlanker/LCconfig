@@ -3,6 +3,9 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,26 +16,40 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
+import org.greenrobot.greendao.query.Query;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
+import ru.yugsys.vvvresearch.lconfig.Services.WebSocketListener;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
+import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.LoginData;
 
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class LoginActivity extends AppCompatActivity implements LoginViewable {
+public class LoginActivity extends AppCompatActivity {
     private EditText mLoginView;
     private EditText mServerView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private Spinner typeOfServerSpinner;
+    private List<NetData> netList;
 
 
     @Override
@@ -43,29 +60,53 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final String[] type = getResources().getStringArray(R.array.serviceList);
         setContentView(R.layout.activity_login);
         mLoginView = (EditText) findViewById(R.id.login);
         mPasswordView = (EditText) findViewById(R.id.password);
-
         typeOfServerSpinner = (Spinner) findViewById(R.id.typeServer);
+        netList = getAllService();
+        String service = "";
+        for (NetData netData : netList) {
+            if (netData.getCheckMain() == true) {
+                service = netData.getServiceName();
+                break;
+            }
+        }
+
+        for (int i = 0; i < type.length; i++) {
+            if (service.equals(type[i]))
+                typeOfServerSpinner.setSelection(i);
+        }
         typeOfServerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent,
                                        View view, int position, long id) {
-                String[] type = getResources().getStringArray(R.array.serviceList);
+                netList = getAllService();
+                NetData currentService = new NetData();
+                for (NetData nd : netList) {
+                    if (nd.getServiceName().equals(type[position])) {
+                        currentService = nd;
+                    }
+                }
                 switch (type[position]) {
                     case "net868.ru":
                         mLoginView.setHint((CharSequence) "token");
+                        mLoginView.setText(currentService.getToken(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.GONE);
-                        mLoginView.setText("");
+                        mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
+                        chosenService(currentService);
 
+//                        mLoginView.setText("");
                         break;
                     case "Вега":
                         mLoginView.setHint((CharSequence) "login");
                         mPasswordView.setHint((CharSequence) "pass");
-                        mLoginView.setText("");
-                        mPasswordView.setText("");
+                        mLoginView.setText(currentService.getLogin(), TextView.BufferType.EDITABLE);
+                        mPasswordView.setText(currentService.getPassword(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.VISIBLE);
+                        mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
+                        chosenService(currentService);
                         break;
                 }
 
@@ -85,7 +126,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-//                    presenter.attemptToLogin();
+//                  Toast.makeText(getApplicationContext(), "Sign button!", Toast.LENGTH_SHORT);
                     return true;
                 }
                 return false;
@@ -93,24 +134,29 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         });
 
         Button mSignInButton = (Button) findViewById(R.id.sign_in_button);
+
         mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                final NetData net;
 
+                JSONObject jsonObject = new JSONObject();
                 String[] type = getResources().getStringArray(R.array.serviceList);
                 switch ((String) typeOfServerSpinner.getAdapter().getItem(typeOfServerSpinner.getSelectedItemPosition())) {
                     case "net868.ru":
                         Toast.makeText(getApplicationContext(), "net868.ru", Toast.LENGTH_SHORT).show();
                         if (checkToken(mLoginView.getText().toString()) &&
                                 checkUrl(mServerView.getText().toString())) {
-                            NetData net = new NetData();
+                            net = new NetData();
                             net.setAddress(mServerView.getText().toString());
                             net.setToken(mLoginView.getText().toString());
                             net.setPassword("pass");
                             net.setLogin("login");
                             net.setServiceName("net868.ru");
                             Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT);
+
                             ((App) getApplication()).getModel().addNetData(net);
+                            chosenService(net);
                         } else {
                             Toast.makeText(getApplicationContext(), getString(R.string.incorrectlyToken) + " or URL", Toast.LENGTH_SHORT).show();
                         }
@@ -118,8 +164,15 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
 
                         break;
                     case "Вега":
-                        Toast.makeText(getApplicationContext(), "Вега", Toast.LENGTH_SHORT).show();
 
+                        net = new NetData();
+                        net.setServiceName("Вега");
+                        net.setLogin(mLoginView.getText().toString());
+                        net.setPassword(mPasswordView.getText().toString());
+                        net.setAddress(mServerView.getText().toString());
+                        net.setToken("emptyToken");
+                        ((App) getApplication()).getModel().addNetData(net);
+                        chosenService(net);
                         break;
                 }
             }
@@ -163,49 +216,7 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         }
     }
 
-    //LoginViewable implements section
-    @Override
-    public String getLogin() {
-        return mLoginView.getText().toString();
-    }
 
-    @Override
-    public String getPassword() {
-        return mPasswordView.getText().toString();
-    }
-
-    @Override
-    public String getServer() {
-        return mServerView.getText().toString();
-    }
-
-    @Override
-    public void fireLoginError(int resIDErrorMessage) {
-        mLoginView.setError(getString(resIDErrorMessage));
-        mLoginView.requestFocus();
-    }
-
-    @Override
-    public void firePasswordError(int resIDErrorMessage) {
-        mPasswordView.setError(getString(resIDErrorMessage));
-        mPasswordView.requestFocus();
-    }
-
-    @Override
-    public void fireServerError(int resIDErrorMessage) {
-        mServerView.setError(getString(resIDErrorMessage));
-        mServerView.requestFocus();
-    }
-
-    @Override
-    public void fireShowSignProgress(boolean isShow) {
-        showProgressBar(isShow);
-    }
-
-    @Override
-    public void fireCloseLoginView() {
-        finish();
-    }
 
     private class AuthThread extends AsyncTask<Void, Void, Void> {
         private String name;
@@ -258,6 +269,37 @@ public class LoginActivity extends AppCompatActivity implements LoginViewable {
         Pattern pattern = Pattern.compile("^((https://)|(http://))\\S+");
         return pattern.matcher(url).matches();
     }
+
+    private static boolean isConnected(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected;
+        if (networkInfo != null) isConnected = networkInfo.isConnected();
+        else isConnected = false;
+        return isConnected;
+    }
+
+    private List<NetData> getAllService() {
+        return ((App) getApplication()).getModel().daoSession.getNetDataDao().queryBuilder().build().list();
+    }
+
+    private void chosenService(NetData netData) {
+        List<NetData> list = getAllService();
+        for (NetData nd : list) {
+            if (!nd.getServiceName().equals(netData.getServiceName())) {
+                nd.setCheckMain(false);
+                ((App) getApplication()).getModel().addNetData(nd);
+            } else {
+                nd.setCheckMain(true);
+                ((App) getApplication()).getModel().addNetData(nd);
+
+            }
+        }
+        Log.d("Service:", "chosen Service: " + netData.getServiceName());
+    }
+
+
 }
 
 

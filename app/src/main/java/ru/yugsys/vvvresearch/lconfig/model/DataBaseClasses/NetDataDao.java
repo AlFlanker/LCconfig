@@ -31,6 +31,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         public final static Property Password = new Property(3, String.class, "password", false, "PASSWORD");
         public final static Property Token = new Property(4, String.class, "token", false, "TOKEN");
         public final static Property Address = new Property(5, String.class, "address", false, "ADDRESS");
+        public final static Property CheckMain = new Property(6, Boolean.class, "checkMain", false, "CHECK_MAIN");
     }
 
     private DaoSession daoSession;
@@ -56,7 +57,8 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
                 "\"LOGIN\" TEXT NOT NULL ," + // 2: login
                 "\"PASSWORD\" TEXT NOT NULL ," + // 3: password
                 "\"TOKEN\" TEXT NOT NULL ," + // 4: token
-                "\"ADDRESS\" TEXT NOT NULL );"); // 5: address
+                "\"ADDRESS\" TEXT NOT NULL ," + // 5: address
+                "\"CHECK_MAIN\" INTEGER);"); // 6: checkMain
     }
 
     /** Drops the underlying database table. */
@@ -78,6 +80,11 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         stmt.bindString(4, entity.getPassword());
         stmt.bindString(5, entity.getToken());
         stmt.bindString(6, entity.getAddress());
+
+        Boolean checkMain = entity.getCheckMain();
+        if (checkMain != null) {
+            stmt.bindLong(7, checkMain ? 1L : 0L);
+        }
     }
 
     @Override
@@ -93,6 +100,11 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         stmt.bindString(4, entity.getPassword());
         stmt.bindString(5, entity.getToken());
         stmt.bindString(6, entity.getAddress());
+
+        Boolean checkMain = entity.getCheckMain();
+        if (checkMain != null) {
+            stmt.bindLong(7, checkMain ? 1L : 0L);
+        }
     }
 
     @Override
@@ -114,7 +126,8 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
                 cursor.getString(offset + 2), // login
                 cursor.getString(offset + 3), // password
                 cursor.getString(offset + 4), // token
-                cursor.getString(offset + 5) // address
+                cursor.getString(offset + 5), // address
+                cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0 // checkMain
         );
         return entity;
     }
@@ -127,6 +140,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         entity.setPassword(cursor.getString(offset + 3));
         entity.setToken(cursor.getString(offset + 4));
         entity.setAddress(cursor.getString(offset + 5));
+        entity.setCheckMain(cursor.isNull(offset + 6) ? null : cursor.getShort(offset + 6) != 0);
      }
     
     @Override

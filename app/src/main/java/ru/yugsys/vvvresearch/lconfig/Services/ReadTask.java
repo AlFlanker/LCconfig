@@ -128,5 +128,6 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
         }
 
     }
+
 }
 

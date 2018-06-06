@@ -22,6 +22,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
 import android.widget.Toast;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 import ru.yugsys.vvvresearch.lconfig.R;
@@ -133,7 +136,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
-
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder().url("ws://192.168.5.141:8002").build();
+//        WebSocketListener listener = new WebSocketListener();
+//        WebSocket ws = client.newWebSocket(request,listener);
+//        client.dispatcher().executorService().shutdown();
 
     }
 
@@ -141,13 +148,14 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     protected void onPostResume() {
         super.onPostResume();
         getPremissionGPS();
+//        ((App)getApplication()).getDaoSession().getNetDataDao().deleteByKey(1l);
 //        NetData netData = new NetData();
 //        netData.setToken("1c68a488ec0d4dde80439e9627d23154");
-//        netData.setServiceName("net868");
+//        netData.setServiceName("net868.ru");
 //        netData.setLogin(" ");
 //        netData.setPassword(" ");
 //        netData.setAddress("https://bs.net868.ru:20010/externalapi/");
-//
+//        netData.setCheckMain(true);
 //        ((App)getApplication()).getDaoSession().getNetDataDao().insert(netData);
         /*Apps targeting Android 7.0 (API level 24) and higher
          do not receive CONNECTIVITY_ACTION broadcasts if they declare the broadcast receiver in their manifest.
@@ -202,21 +210,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
         }
-
-
-        listener = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(responseFromIS)) {
-                    String alias = intent.getStringExtra("alias");
-                    String eui = intent.getStringExtra("eui");
-                    Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-
-
 
     }
 

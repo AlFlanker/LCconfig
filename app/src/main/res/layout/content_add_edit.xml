@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:tileMode="repeat"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@drawable/background"
+        android:background="@color/cardview_light_background"
         tools:showIn="@layout/activity_add_edit"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"

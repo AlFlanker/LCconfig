@@ -34,7 +34,7 @@ public class DataModel implements Model,
         GPScallback.AddresCallBack {
     @Override
     public void addNetData(NetData netData) {
-        NetData tmp = daoSession.getNetDataDao().queryBuilder().where(NetDataDao.Properties.Token.eq(netData.getToken())).unique();
+        NetData tmp = daoSession.getNetDataDao().queryBuilder().where(NetDataDao.Properties.ServiceName.eq(netData.getServiceName())).unique();
         if (tmp == null) {
             daoSession.getNetDataDao().insert(netData);
         } else {
