@@ -117,12 +117,7 @@ public class RequestManager extends IntentService {
             if (test.getStatusCode() == HttpStatus.NO_CONTENT) {
                 checkOK(payload);
             } else if (test.getStatusCode() == HttpStatus.BAD_REQUEST) {
-//                Intent si = new Intent().setAction(MainActivity.responseFromIS).
-//                        putExtra("alias",
-//                                "already exist").
-//                        putExtra("eui",payload.
-//                                substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
-//                sendBroadcast(si);
+
             }
 
         } catch (HttpClientErrorException e) {

@@ -7,7 +7,7 @@
         android:layout_height="match_parent"
         android:tileMode="repeat"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="@drawable/background"
+        android:background="@color/cardview_light_background"
         tools:showIn="@layout/activity_main"
         tools:context="ru.yugsys.vvvresearch.lconfig.views.MainActivity">
     <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"

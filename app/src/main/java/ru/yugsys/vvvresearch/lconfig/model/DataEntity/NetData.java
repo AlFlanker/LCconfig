@@ -33,6 +33,7 @@ public class NetData {
     private String token;
     @NotNull
     private String address;
+    private Boolean checkMain;
     /**
      * Used to resolve relations
      */
@@ -44,16 +45,17 @@ public class NetData {
     @Generated(hash = 1798268359)
     private transient NetDataDao myDao;
 
-    @Generated(hash = 276784716)
+    @Generated(hash = 1974359946)
     public NetData(Long id, @NotNull String serviceName, @NotNull String login,
-                   @NotNull String password, @NotNull String token,
-                   @NotNull String address) {
+                   @NotNull String password, @NotNull String token, @NotNull String address,
+                   Boolean checkMain) {
         this.id = id;
         this.serviceName = serviceName;
         this.login = login;
         this.password = password;
         this.token = token;
         this.address = address;
+        this.checkMain = checkMain;
     }
 
     @Generated(hash = 22099944)
@@ -151,5 +153,13 @@ public class NetData {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getNetDataDao() : null;
+    }
+
+    public Boolean getCheckMain() {
+        return this.checkMain;
+    }
+
+    public void setCheckMain(Boolean checkMain) {
+        this.checkMain = checkMain;
     }
 }

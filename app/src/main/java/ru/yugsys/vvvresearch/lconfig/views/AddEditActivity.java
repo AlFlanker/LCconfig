@@ -393,6 +393,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 vibrator.vibrate(500);
             }
             finish();
+
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
 //            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
