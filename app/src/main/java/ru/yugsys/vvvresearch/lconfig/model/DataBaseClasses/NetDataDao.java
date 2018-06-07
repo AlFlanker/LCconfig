@@ -80,7 +80,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         stmt.bindString(4, entity.getPassword());
         stmt.bindString(5, entity.getToken());
         stmt.bindString(6, entity.getAddress());
-
+ 
         Boolean checkMain = entity.getCheckMain();
         if (checkMain != null) {
             stmt.bindLong(7, checkMain ? 1L: 0L);
@@ -100,7 +100,7 @@ public class NetDataDao extends AbstractDao<NetData, Long> {
         stmt.bindString(4, entity.getPassword());
         stmt.bindString(5, entity.getToken());
         stmt.bindString(6, entity.getAddress());
-
+ 
         Boolean checkMain = entity.getCheckMain();
         if (checkMain != null) {
             stmt.bindLong(7, checkMain ? 1L: 0L);

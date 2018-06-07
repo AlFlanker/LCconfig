@@ -4,6 +4,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -12,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ru.yugsys.vvvresearch.lconfig.App;
+import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
@@ -42,7 +44,8 @@ public class RequestJob extends JobService {
         data.setAction(RequestManager.SEND_REST_REQUEST);
         int i = 0;
         if (currentService != null) {
-            if (currentService.getServiceName().equals("net868.ru")) {
+            if (currentService.getServiceName().equals("net868.ru") && !currentService.getToken().equals("")
+                    && !currentService.getAddress().equals("")) {
                 Log.d("Sync", "selected service: " + currentService.getServiceName());
                 if (devsList != null) {
                     Log.d("Sync", "quantity of devices: " + devsList.size());
@@ -56,7 +59,10 @@ public class RequestJob extends JobService {
                     Log.d("Sync", " counter: " + String.valueOf(i));
 
                 }
-            } else if (currentService.getServiceName().equals("Вега")) {
+            } else if (currentService.getServiceName().equals("Вега") &&
+                    !currentService.getAddress().equals("") &&
+                    !currentService.getLogin().equals("") &&
+                    !currentService.getPassword().equals("")) {
                 Log.d("Sync", "selected service: " + currentService.getServiceName());
 
                 final JSONObject dataForVega = getDataForVega(devsList);
@@ -104,6 +110,8 @@ public class RequestJob extends JobService {
                 client.dispatcher().executorService().shutdown();
                 /* ВЕГА API!*/
 
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.AddService), Toast.LENGTH_SHORT);
             }
         }
 

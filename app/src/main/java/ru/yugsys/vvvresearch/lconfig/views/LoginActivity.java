@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                         mLoginView.setText(currentService.getToken(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.GONE);
                         mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
-                        chosenService(currentService);
+//                        chosenService(currentService);
 
 //                        mLoginView.setText("");
                         break;
@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                         mPasswordView.setText(currentService.getPassword(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.VISIBLE);
                         mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
-                        chosenService(currentService);
+//                        chosenService(currentService);
                         break;
                 }
 
