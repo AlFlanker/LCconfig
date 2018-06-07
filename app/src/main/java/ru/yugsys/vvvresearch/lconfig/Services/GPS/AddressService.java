@@ -42,7 +42,7 @@ public class AddressService extends IntentService {
         String eui = intent.getStringExtra(Constant.LOCATION_DATA_DEVICE_EUI);
         Location location = intent.getParcelableExtra(Constant.LOCATION_DATA_EXTRA);
         List<Address> addresses = null;
-        Log.d("geo", "in service: " + location.toString());
+        Log.d("geoService", "in service: " + location.toString());
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             addresses = geocoder.getFromLocation(
