@@ -16,11 +16,12 @@ public class CheckRequest extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("net868", "Check Reciver " + intent.getAction());
+        Log.d("Sync:", "Check Reciver " + intent.getAction());
         if (intent.getAction().equals(ACTION)) {
-            Log.d("net868", "Check Reciver " + intent.getAction());
-            if (intent.getBooleanExtra("result", false)) {
+            Log.d("Sync:", "Check Reciver " + intent.getStringExtra("result"));
+            if (intent.getStringExtra("result").equals("true")) {
                 if (checkRequestListener != null)
+                    Log.d("Sync:", "Callback ok");
                     checkRequestListener.checkRequestChanged(intent.getStringExtra("eui"));
             }
         }

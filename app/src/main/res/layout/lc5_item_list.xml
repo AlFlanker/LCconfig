@@ -78,7 +78,7 @@
             <TextView
                     android:id="@+id/lc5_out_type"
                     app:layout_gravity="fill"
-                    android:hint="@string/prompt_outType"
+                    android:hint="@string/prompt_isSync"
                     android:maxLines="1"
                     style="@style/BaseTextView.Body"
             />

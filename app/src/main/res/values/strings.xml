@@ -19,6 +19,7 @@
     <string name="prompt_devEUI">Device EUI</string>
     <string name="prompt_appEUI">App EUI</string>
     <string name="prompt_outType">Type output</string>
+    <string name="prompt_isSync">synchronized</string>
     <string name="prompt_gps_latitude">Latitude</string>
     <string name="prompt_gps_longitude">Longitude</string>
     <string name="prompt_appSKey">App session key</string>
