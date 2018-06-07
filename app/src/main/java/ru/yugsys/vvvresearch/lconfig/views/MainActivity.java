@@ -136,12 +136,6 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
-//        OkHttpClient client = new OkHttpClient();
-//        Request request = new Request.Builder().url("ws://192.168.5.141:8002").build();
-//        WebSocketListener listener = new WebSocketListener();
-//        WebSocket ws = client.newWebSocket(request,listener);
-//        client.dispatcher().executorService().shutdown();
-
     }
 
     @Override
@@ -183,10 +177,12 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.d("Sync:", "sync in MAIN " + intent.getStringExtra("eui"));
                 if (intent.getAction().equals(responseFromIS)) {
                     String alias = intent.getStringExtra("alias");
                     String eui = intent.getStringExtra("eui");
                     Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+                    ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
                 }
             }
         };
@@ -269,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
                 }
             }
             Toast.makeText(getApplicationContext(), "All devices are not registered! TEST!", Toast.LENGTH_SHORT).show();
-
+            ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
 //            ((App) getApplication()).getModel().clearDataBase();
         }
         else if(id == R.id.action_CopyDB){

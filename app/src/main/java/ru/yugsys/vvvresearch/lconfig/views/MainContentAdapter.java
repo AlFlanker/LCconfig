@@ -3,7 +3,6 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.github.aakira.expandablelayout.ExpandableLayout;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
@@ -62,7 +60,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
-            holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
+            holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
             holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
@@ -79,12 +77,12 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.appSKeyLabel.setVisibility(View.GONE);
             holder.appSKey.setVisibility(View.GONE);
             holder.nwkSKeyLabel.setVisibility(View.GONE);
-            holder.nwkSKey.setVisibility(View.GONE);;
+            holder.nwkSKey.setVisibility(View.GONE);
 
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
-            holder.outType.setText(String.format("%s %s", context.getText(R.string.out_type_device_is), devices.get(finalPosition).getOutType()));
+            holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
             holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
@@ -158,7 +156,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView nwkSKey;
         public TextView appSKey;
         public TextView gps;
-        public TextView outType;
+        public TextView isSync;
         public TextView date;
         public TextView comment;
         public TextView nwkSKeyLabel;
@@ -185,7 +183,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             nwkSKey = itemView.findViewById(R.id.lc5_nwkSKey);
             appSKey = itemView.findViewById(R.id.lc5_appSKey);
             gps = itemView.findViewById(R.id.lc5_gps);
-            outType = itemView.findViewById(R.id.lc5_out_type);
+            isSync = itemView.findViewById(R.id.lc5_out_type);
             buttonLayout = (LinearLayout) itemView.findViewById(R.id.button);
             triangleView = itemView.findViewById(R.id.button_triangle);
             expandableLayout = (ExpandableLinearLayout) itemView.findViewById(R.id.expandableLayout);

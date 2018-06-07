@@ -7,19 +7,19 @@ import android.util.Log;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ru.yugsys.vvvresearch.lconfig.App;
-import ru.yugsys.vvvresearch.lconfig.Services.WebSocketListener;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.GeoDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.GeoData;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
+import ru.yugsys.vvvresearch.lconfig.views.MainActivity;
 
-import java.text.DecimalFormat;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,25 +35,25 @@ public class RequestJob extends JobService {
     public boolean onStartJob(JobParameters params) {
 
         List<DeviceEntry> devsList = getList();
-        NetData netData = getNetData();
+        Log.d("Sync", "quantity: " + devsList.size());
+
         NetData currentService = getCurrentService();
         Intent data = new Intent(getApplicationContext(), RequestManager.class);
         data.setAction(RequestManager.SEND_REST_REQUEST);
         int i = 0;
-//        RequestManager.startRequestManager(getApplicationContext());
         if (currentService != null) {
             if (currentService.getServiceName().equals("net868.ru")) {
                 Log.d("Sync", "selected service: " + currentService.getServiceName());
                 if (devsList != null) {
-                    Log.d("net868", "quantity of devices: " + devsList.size());
+                    Log.d("Sync", "quantity of devices: " + devsList.size());
                     for (DeviceEntry dev : devsList) {
                         i++;
-                        data.putExtra("hostAPI", netData.getAddress() + RequestMaster.net868API.get(RequestMaster.REST_FUNCTION.CreateDevice));
-                        data.putExtra("token", netData.getToken());
-                        data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, netData.getToken()));
+                        data.putExtra("hostAPI", currentService.getAddress() + RequestMaster.net868API.get(RequestMaster.REST_FUNCTION.CreateDevice));
+                        data.putExtra("token", currentService.getToken());
+                        data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, currentService.getToken()));
                         getApplicationContext().startService(data);
                     }
-                    Log.d("net868", " counter: " + String.valueOf(i));
+                    Log.d("Sync", " counter: " + String.valueOf(i));
 
                 }
             } else if (currentService.getServiceName().equals("Вега")) {
@@ -62,30 +62,45 @@ public class RequestJob extends JobService {
                 final JSONObject dataForVega = getDataForVega(devsList);
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().url(currentService.getAddress()).build();
-//            WebSocketListener listener = new WebSocketListener();
-                WebSocket ws = client.newWebSocket(request, new okhttp3.WebSocketListener() {
+
+                WebSocket ws = client.newWebSocket(request, new WebSocketListener() {
+                    @Override
+                    public void onClosing(WebSocket webSocket, int code, String reason) {
+                        Log.d("Sync", reason);
+                    }
+
                     @Override
                     public void onMessage(WebSocket webSocket, String text) {
                         Log.d("Sync", text);
                         if (text.indexOf("token") != -1) {
                             webSocket.send(dataForVega.toString());
                             Log.d("Sync", "send data: ");
-                            Log.d("Sync", "---> " + dataForVega.toString());
+                            Log.d("Sync", "-> " + dataForVega.toString());
                         } else {
-                            JSONObject resp = new JSONObject();
+                            JSONObject resp = null;
                             try {
-                                resp.getJSONObject(text);
+                                resp = new JSONObject(text);
+                                if (resp.getString("cmd").equals("manage_devices_resp")) {
+                                    /*if there are registered device - create new JSONObject without OTTA/ABP data
+                                    and send again*/
+                                    JSONObject existing = analizeResponse(DevStatus(text));
+                                    if (existing.getJSONArray("devices_list").length() > 0) {
+                                        Log.d("Sync", "existing devices: " + existing.toString());
+                                        webSocket.send(existing.toString());
+                                    } else if (existing.getJSONArray("devices_list").length() == 0) {
+                                        webSocket.close(1000, "closing");
+                                    }
+
+                                }
                                 Log.d("Sync", resp.toString());
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+
                         }
-//                    webSocket.close(1000,"closing");
                     }
                 });
                 ws.send(getAuthData(currentService));
-
-
                 client.dispatcher().executorService().shutdown();
                 /* ВЕГА API!*/
 
@@ -122,6 +137,11 @@ public class RequestJob extends JobService {
 
     }
 
+    private DeviceEntry getExistingDevice(String eui) {
+        return ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(eui)).build().unique();
+
+    }
+
 
     private NetData getNetData() {
         return ((App) getApplication()).
@@ -129,7 +149,7 @@ public class RequestJob extends JobService {
                 getNetDataDao().
                 queryBuilder().
                 where(NetDataDao.
-                        Properties.ServiceName.eq("net868")).
+                        Properties.ServiceName.eq("net868.ru")).
                 build().
                 unique();
     }
@@ -137,6 +157,7 @@ public class RequestJob extends JobService {
     private List<NetData> getAllService() {
         return ((App) getApplication()).getDaoSession().getNetDataDao().queryBuilder().build().list();
     }
+
 
     private NetData getCurrentService() {
         List<NetData> services = getAllService();
@@ -170,7 +191,7 @@ public class RequestJob extends JobService {
             inner.put("devName", dev.getComment());
             typeReq = new JSONObject();
             if (!dev.getIsOTTA()) {
-                typeReq.put("devAddress", dev.getDevadr());
+                typeReq.put("devAddress", new BigInteger(dev.getDevadr().trim(), 16));
                 typeReq.put("appsKey", dev.getAppskey());
                 typeReq.put("nwksKey", dev.getNwkskey());
                 inner.put("ABP", typeReq);
@@ -189,7 +210,110 @@ public class RequestJob extends JobService {
         return jsonArray;
     }
 
+    private JSONObject getDataForVegaWithoutRegInfo(List<DeviceEntry> devices) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("cmd", "manage_devices_req");
+            body.put("devices_list", getJSONArrayWithoutRegInfo(devices));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return body;
+    }
 
+    private JSONArray getJSONArrayWithoutRegInfo(List<DeviceEntry> devices) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject inner;
+        JSONObject geo;
+        for (DeviceEntry dev : devices) {
+            inner = new JSONObject();
+            inner.put("devEui", dev.getEui());
+            inner.put("devName", dev.getComment());
+
+            geo = new JSONObject();
+            geo.put("longitude", dev.getLongitude());
+            geo.put("latitude", dev.getLatitude());
+            inner.put("position", geo);
+            inner.put("class", "CLASS_C");
+            jsonArray.put(inner);
+        }
+        return jsonArray;
+    }
+
+
+    private JSONObject getResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            return jsonObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<JSONObject> DevStatus(String response) {
+        JSONObject object;
+        object = getResponse(response);
+        List<JSONObject> devs = new ArrayList<>();
+        try {
+            if ((Boolean) object.get("status")) {
+                JSONArray arr = object.getJSONArray("device_add_status");
+                for (int i = 0; i < arr.length(); i++) {
+                    devs.add(arr.getJSONObject(i));
+                }
+                return devs;
+            } else return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private JSONObject analizeResponse(List<JSONObject> list) {
+        List<DeviceEntry> existingDev = new ArrayList<>();
+        for (JSONObject obj : list) {
+            try {
+                if (obj.getString("status").equals("added") ||
+                        obj.getString("status").equals("updated") ||
+                        obj.getString("status").equals("nothingToUpdate") ||
+                        obj.getString("status").equals("updateViaMacBuffer")
+                        )
+                    checkOK("true", obj.getString("devEui"));
+                else if (obj.getString("status").
+                        equals("abpReginfoAlreadyExist") ||
+                        obj.getString("status").
+                                equals("otaaReginfoAlreadyExist"))
+
+                {
+                    existingDev.add(getExistingDevice(obj.getString("devEui")));
+                } else {
+                    checkOK("fasle", obj.getString("devEui"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return getDataForVegaWithoutRegInfo(existingDev);
+    }
+
+    private void checkOK(String result, String eui) {
+        Intent check = new Intent();
+        check.setAction(CheckRequest.ACTION);
+        check.putExtra("result", result);
+        check.putExtra("eui", eui);
+        Log.d("Sync", "send broadcast: result - " + result + "; eui - " + eui);
+
+        sendBroadcast(check);
+
+        if (result.equals("true")) {
+            Intent si = new Intent().setAction(MainActivity.responseFromIS).
+                    putExtra("alias", "device").
+                    putExtra("eui", eui);
+            sendBroadcast(si);
+        }
+    }
 
 
 }

@@ -38,8 +38,9 @@ public class DataModel implements Model,
         if (tmp == null) {
             daoSession.getNetDataDao().insert(netData);
         } else {
-            tmp.setId(netData.getId());
-            tmp.setAddress(netData.getAddress());
+            netData.setId(tmp.getId());
+            netData.setCheckMain(tmp.getCheckMain());
+
             daoSession.getNetDataDao().update(netData);
         }
 

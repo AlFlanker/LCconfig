@@ -351,7 +351,7 @@ public class DeviceEntry {
                 device.setLongitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 //				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
             }
-            if (field.getName().equals("outType")) {    //refactor!
+            if (field.getName().equals("isSync")) {    //refactor!
                 buf = new byte[5];
                 System.arraycopy(raw, 86, buf, 0, 5);
                 stringBuilder = new StringBuilder();

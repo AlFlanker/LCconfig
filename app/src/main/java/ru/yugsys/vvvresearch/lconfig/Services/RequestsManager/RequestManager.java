@@ -57,21 +57,21 @@ public class RequestManager extends IntentService {
             HttpsURLConnection httpsURLConnection = null;
             DataOutputStream dataOutputStream = null;
             try {
-                Log.d("net868: ", "in");
+                Log.d("Sync: ", "in");
                 URL url = new URL(hostAPI.replace("createdevice", "deletedevice") + "token=" + token);
-                Log.d("net868: ", url.toString());
+                Log.d("Sync: ", url.toString());
                 httpsURLConnection = (HttpsURLConnection) url.openConnection();
                 httpsURLConnection.setRequestMethod("DELETE");
                 httpsURLConnection.setRequestProperty("Content-Type", "application/json");
                 httpsURLConnection.setDoOutput(true);
                 httpsURLConnection.setDoInput(true);
-                Log.d("net868", httpsURLConnection.getRequestMethod());
+                Log.d("Sync", httpsURLConnection.getRequestMethod());
                 dataOutputStream = new DataOutputStream(httpsURLConnection.getOutputStream());
                 JSONObject ob = new JSONObject();
 
                 ob.put("token", token).put("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf("applicationEui") - 3));
 
-                Log.d("net868", ob.toString());
+                Log.d("Sync", ob.toString());
 
                 dataOutputStream.write(ob.toString().getBytes(StandardCharsets.UTF_8));
                 dataOutputStream.flush();
@@ -84,7 +84,7 @@ public class RequestManager extends IntentService {
                     stringBuilder.append(temp);
                 }
                 in.close();
-                Log.d("net868", stringBuilder.toString());
+                Log.d("Sync", stringBuilder.toString());
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
@@ -108,12 +108,12 @@ public class RequestManager extends IntentService {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<String>(payload, httpHeaders);
-            Log.d("net868: ", payload);
-            Log.d("net868: ", entity.getHeaders().toString());
+            Log.d("Sync: ", payload);
+            Log.d("Sync: ", entity.getHeaders().toString());
 
 // для теста отключил 2 строчки ниже:
             ResponseEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, entity, String.class);
-            Log.d("net868", "result of request: " + String.valueOf(test.getStatusCode()));
+            Log.d("Sync", "result of request: " + String.valueOf(test.getStatusCode()));
             if (test.getStatusCode() == HttpStatus.NO_CONTENT) {
                 checkOK(payload);
             } else if (test.getStatusCode() == HttpStatus.BAD_REQUEST) {
@@ -121,20 +121,20 @@ public class RequestManager extends IntentService {
             }
 
         } catch (HttpClientErrorException e) {
-            Log.d("net868", e.getResponseBodyAsString());
+            Log.d("Sync", e.getResponseBodyAsString());
             checkOK(payload);
 
         } catch (Exception e) {
-            Log.d("net868", e.toString());
+            Log.d("Sync", e.toString());
         }
     }
 
     private void checkOK(String payload) {
         Intent check = new Intent();
         check.setAction(CheckRequest.ACTION);
-        check.putExtra("result", true);
+        check.putExtra("result", "true");
         check.putExtra("eui", payload.substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1).replace("-", ""));
-        Log.d("net868", "send: " + ExternalRequestsReceiver.ACTION);
+        Log.d("Sync", "send: " + ExternalRequestsReceiver.ACTION);
         sendBroadcast(check);
 
 

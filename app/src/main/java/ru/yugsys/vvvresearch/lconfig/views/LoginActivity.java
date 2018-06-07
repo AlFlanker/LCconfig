@@ -15,12 +15,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.WebSocket;
-import org.greenrobot.greendao.query.Query;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,18 +22,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
-import ru.yugsys.vvvresearch.lconfig.Services.WebSocketListener;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
-import ru.yugsys.vvvresearch.lconfig.model.LoginData;
-
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
