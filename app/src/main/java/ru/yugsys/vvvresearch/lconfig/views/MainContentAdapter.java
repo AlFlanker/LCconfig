@@ -123,7 +123,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             }
         });
 
-        setAnimation(holder.itemView,finalPosition);
+//        setAnimation(holder.itemView,finalPosition);
 
     }
 

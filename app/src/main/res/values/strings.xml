@@ -150,4 +150,5 @@
     <string name="ConnectivityChange">is Disconnected</string>
 
     <string name="incorrectlyToken">Incorrectly token!</string>
+    <string name="AddService">Check connection data!</string>
 </resources>
