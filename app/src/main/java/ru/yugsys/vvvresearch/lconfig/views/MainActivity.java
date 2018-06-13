@@ -180,9 +180,15 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
                 Log.d("Sync:", "sync in MAIN " + intent.getStringExtra("eui"));
                 if (intent.getAction().equals(responseFromIS)) {
                     String alias = intent.getStringExtra("alias");
-                    String eui = intent.getStringExtra("eui");
-                    Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
-                    ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+                    if (!alias.equals("false")) {
+                        String eui = intent.getStringExtra("message");
+                        Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+                        ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+                    } else if (alias.equals("false")) {
+                        String eui = intent.getStringExtra("message");
+                        Toast.makeText(getApplicationContext(), "Error: " + "\n" + eui, Toast.LENGTH_SHORT).show();
+
+                    }
                 }
             }
         };

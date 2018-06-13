@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
+import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressResultReceiver;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 
@@ -307,12 +308,14 @@ public class DataModel implements Model,
     public void checkRequestChanged(String eui) {
         Log.d("onHandleIntent", eui);
         if (eui != null) {
+
             DeviceEntry dev = this.daoSession.getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.Eui.eq(eui.toUpperCase())).build().unique();
             if (dev != null) {
                 dev.setIsSyncServer(true);
                 this.daoSession.getDeviceEntryDao().update(dev);
                 Log.d("onHandleIntent", "update sync" + dev.getIsSyncServer());
             }
+
         }
 
 

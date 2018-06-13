@@ -141,7 +141,7 @@ public class RequestManager extends IntentService {
         Intent si = new Intent().setAction(MainActivity.responseFromIS).
                 putExtra("alias", payload.
                         substring(payload.indexOf("alias\":\"") + 8, payload.indexOf(",\"eui") - 1)).
-                putExtra("eui", payload.
+                putExtra("message", payload.
                         substring(payload.indexOf("eui\":\"") + 6, payload.indexOf(",\"applicationEui") - 1));
         sendBroadcast(si);
     }
