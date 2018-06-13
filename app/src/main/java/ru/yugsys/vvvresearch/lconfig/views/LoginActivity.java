@@ -124,12 +124,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 final NetData net;
-
                 JSONObject jsonObject = new JSONObject();
                 String[] type = getResources().getStringArray(R.array.serviceList);
                 switch ((String) typeOfServerSpinner.getAdapter().getItem(typeOfServerSpinner.getSelectedItemPosition())) {
                     case "net868.ru":
-                        Toast.makeText(getApplicationContext(), "net868.ru", Toast.LENGTH_SHORT).show();
+
                         if (checkToken(mLoginView.getText().toString()) &&
                                 checkUrl(mServerView.getText().toString())) {
                             net = new NetData();
@@ -281,6 +280,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         }
+        Toast.makeText(getApplicationContext(), netData.getServiceName(), Toast.LENGTH_SHORT).show();
         Log.d("Service:", "chosen Service: " + netData.getServiceName());
     }
 
