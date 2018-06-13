@@ -209,7 +209,7 @@ public class RequestJob extends JobService {
             } else {
                 typeReq.put("appEui", dev.getAppeui());
                 typeReq.put("appKey", dev.getAppkey());
-                inner.put("OTTA", typeReq);
+                inner.put("OTAA", typeReq);
             }
             geo = new JSONObject();
             geo.put("longitude", dev.getLongitude());
