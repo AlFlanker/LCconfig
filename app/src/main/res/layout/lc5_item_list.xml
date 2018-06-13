@@ -276,6 +276,23 @@
                         style="@style/BaseTextView.Caption.Expandable"
                 />
                 <TextView
+                        android:id="@+id/lc5_outputType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prompt_outType"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFieldsCaption"
+                />
+                <TextView
+                        android:id="@+id/lc5_outputType_ch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_outType"
+                        android:maxLines="2"
+                        style="@style/BaseTextView.Body.ExpandFields"
+                />
+
+                <TextView
                         android:id="@+id/lc5_commentLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

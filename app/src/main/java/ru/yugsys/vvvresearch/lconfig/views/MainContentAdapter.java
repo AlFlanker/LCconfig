@@ -61,6 +61,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
             holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
+            holder.outputType.setText(devices.get(finalPosition).getOutType());
             holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
@@ -78,6 +79,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.appSKey.setVisibility(View.GONE);
             holder.nwkSKeyLabel.setVisibility(View.GONE);
             holder.nwkSKey.setVisibility(View.GONE);
+            holder.outputType.setText(devices.get(finalPosition).getOutType());
 
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
@@ -157,6 +159,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
         public TextView appSKey;
         public TextView gps;
         public TextView isSync;
+        public TextView outputType;
         public TextView date;
         public TextView comment;
         public TextView nwkSKeyLabel;
@@ -184,6 +187,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             appSKey = itemView.findViewById(R.id.lc5_appSKey);
             gps = itemView.findViewById(R.id.lc5_gps);
             isSync = itemView.findViewById(R.id.lc5_out_type);
+            outputType = itemView.findViewById(R.id.lc5_outputType_ch);
             buttonLayout = (LinearLayout) itemView.findViewById(R.id.button);
             triangleView = itemView.findViewById(R.id.button_triangle);
             expandableLayout = (ExpandableLinearLayout) itemView.findViewById(R.id.expandableLayout);
