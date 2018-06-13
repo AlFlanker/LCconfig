@@ -148,7 +148,7 @@
     <string name="Incorrect">Invalid CRC or a new device</string>
     <string name="DetectInternetConnection">is Connected</string>
     <string name="ConnectivityChange">is Disconnected</string>
-
+    <string name="Invalid_login_or_password">invalid login or password</string>
     <string name="incorrectlyToken">Incorrectly token!</string>
     <string name="AddService">Check connection data!</string>
 </resources>

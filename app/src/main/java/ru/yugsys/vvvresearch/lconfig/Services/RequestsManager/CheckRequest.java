@@ -23,6 +23,8 @@ public class CheckRequest extends BroadcastReceiver {
                 if (checkRequestListener != null)
                     Log.d("Sync:", "Callback ok");
                     checkRequestListener.checkRequestChanged(intent.getStringExtra("eui"));
+            } else if (intent.getStringExtra("result").equals("false")) {
+                checkRequestListener.checkRequestChanged(intent.getStringExtra("eui"));
             }
         }
 

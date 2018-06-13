@@ -98,6 +98,9 @@ public class RequestJob extends JobService {
                                     }
 
                                 }
+                                if (resp.getString("err_string").equals("invalid_login_or_password")) {
+                                    sendToMain("false", getString(R.string.Invalid_login_or_password));
+                                }
                                 Log.d("Sync", resp.toString());
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -315,10 +318,19 @@ public class RequestJob extends JobService {
 
         sendBroadcast(check);
 
+        sendToMain(result, eui);
+    }
+
+    private void sendToMain(String result, String message) {
         if (result.equals("true")) {
             Intent si = new Intent().setAction(MainActivity.responseFromIS).
                     putExtra("alias", "device").
-                    putExtra("eui", eui);
+                    putExtra("message", message);
+            sendBroadcast(si);
+        } else if (result.equals("false")) {
+            Intent si = new Intent().setAction(MainActivity.responseFromIS).
+                    putExtra("alias", "false").
+                    putExtra("message", message);
             sendBroadcast(si);
         }
     }
