@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
                     String alias = intent.getStringExtra("alias");
                     if (!alias.equals("false")) {
                         String eui = intent.getStringExtra("message");
-                        Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
                         ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
                     } else if (alias.equals("false")) {
                         String eui = intent.getStringExtra("message");
