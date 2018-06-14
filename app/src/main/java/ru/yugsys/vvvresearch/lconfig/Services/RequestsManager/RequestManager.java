@@ -94,13 +94,6 @@ public class RequestManager extends IntentService {
             e.printStackTrace();
         }
 
-        /*For TEST!*/
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        /*end*/
 
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -111,7 +104,7 @@ public class RequestManager extends IntentService {
             Log.d("Sync: ", payload);
             Log.d("Sync: ", entity.getHeaders().toString());
 
-// для теста отключил 2 строчки ниже:
+
             ResponseEntity<String> test = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, entity, String.class);
             Log.d("Sync", "result of request: " + String.valueOf(test.getStatusCode()));
             if (test.getStatusCode() == HttpStatus.NO_CONTENT) {

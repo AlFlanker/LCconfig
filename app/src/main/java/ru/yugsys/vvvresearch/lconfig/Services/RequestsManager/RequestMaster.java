@@ -279,7 +279,7 @@ public class RequestMaster {
                 device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
                 device.put("eui", correctField(dev.getEui().toLowerCase()));
                 device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
-                device.put("appKey", dev.getAppkey());
+                device.put("appKey", dev.getAppkey().toLowerCase());
                 device.put("access", "Private");
                 device.put("model", model);
 
