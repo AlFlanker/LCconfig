@@ -2,6 +2,7 @@ package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -61,6 +62,11 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
             holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
+            if (devices.get(finalPosition).getIsSyncServer()) {
+                holder.isSync.setTextColor(Color.BLUE);
+            } else {
+                holder.isSync.setTextColor(Color.RED);
+            }
             holder.outputType.setText(devices.get(finalPosition).getOutType());
             holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
@@ -85,6 +91,11 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
             holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
+            if (devices.get(finalPosition).getIsSyncServer()) {
+                holder.isSync.setTextColor(Color.BLUE);
+            } else {
+                holder.isSync.setTextColor(Color.RED);
+            }
             holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
