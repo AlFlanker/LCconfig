@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -205,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         }
         recyclerView.scrollToPosition(0);
+
         ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
        recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -262,18 +264,19 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
-        } else if (id == R.id.action_clearBD) {
-            List<DeviceEntry> list = ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.IsSyncServer.eq(true)).build().list();
-            if (list != null) {
-                for (DeviceEntry dev : list) {
-                    dev.setIsSyncServer(false);
-                    ((App) getApplication()).getDaoSession().getDeviceEntryDao().update(dev);
-                }
-            }
-            Toast.makeText(getApplicationContext(), "All devices are not registered! TEST!", Toast.LENGTH_SHORT).show();
-            ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
-//            ((App) getApplication()).getModel().clearDataBase();
         }
+//        else if (id == R.id.action_clearBD) {
+//            List<DeviceEntry> list = ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.IsSyncServer.eq(true)).build().list();
+//            if (list != null) {
+//                for (DeviceEntry dev : list) {
+//                    dev.setIsSyncServer(false);
+//                    ((App) getApplication()).getDaoSession().getDeviceEntryDao().update(dev);
+//                }
+//            }
+//            Toast.makeText(getApplicationContext(), "All devices are not registered! TEST!", Toast.LENGTH_SHORT).show();
+//            ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+////            ((App) getApplication()).getModel().clearDataBase();
+//        }
         else if(id == R.id.action_CopyDB){
             /*service launch point*/
             Intent intent = new Intent();
