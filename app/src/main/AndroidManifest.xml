@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--suppress AndroidDomInspection -->
+<!-- suppress AndroidDomInspection -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="ru.yugsys.vvvresearch.lconfig">
 
@@ -8,15 +8,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- NFC -->
     <uses-permission android:name="android.permission.NFC"/>
-    <!--Vibrate-->
+    <!-- Vibrate -->
     <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!--Network-->
-    <uses-permission android:name="android.permission.INTERNET"/>"
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>"
-
-
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Network -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    "
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    "
     <uses-feature
             android:name="android.hardware.nfc"
             android:required="true"/>
@@ -29,28 +28,32 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <service android:name=".Services.RequestsManager.RequestJob"
-                 android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:enabled="true"
-                 android:exported="true"/>
-        <service android:name=".Services.GPS.GeoCoderJob"
-                 android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:enabled="true"
-                 android:exported="true"/>
-        <service android:name=".Services.RequestsManager.RequestManager"
-                 android:enabled="true"
-        />
-        <service android:name=".Services.GPS.AddressService"
-                 android:exported="false"/>
+        <service
+                android:name=".Services.RequestsManager.RequestJob"
+                android:enabled="true"
+                android:exported="true"
+                android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service
+                android:name=".Services.GPS.GeoCoderJob"
+                android:enabled="true"
+                android:exported="true"
+                android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service
+                android:name=".Services.RequestsManager.RequestManager"
+                android:enabled="true"/>
+        <service
+                android:name=".Services.GPS.AddressService"
+                android:exported="false"/>
+
         <activity
                 android:name=".views.MainActivity"
                 android:label="@string/app_name"
                 android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+            <!--<intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+              <category android:name="android.intent.category.LAUNCHER"/>
+          </intent-filter> -->
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
 
@@ -66,9 +69,10 @@
                 android:label="@string/title_activity_login"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".views.AddEditActivity"
-                  android:label="@string/title_activity_add_edit"
-                  android:theme="@style/AppTheme.NoActionBar">
+        <activity
+                android:name=".views.AddEditActivity"
+                android:label="@string/title_activity_add_edit"
+                android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED"/>
 
@@ -81,7 +85,7 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
@@ -90,6 +94,14 @@
         <activity
                 android:name=".views.MapsActivity"
                 android:label="@string/title_activity_maps">
+        </activity>
+        <activity
+                android:name=".views.Welcome_Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

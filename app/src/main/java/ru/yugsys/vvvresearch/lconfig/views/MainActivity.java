@@ -41,6 +41,8 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
+import ru.yugsys.vvvresearch.lconfig.views.Intro.PrefManager;
+
 import java.util.List;
 
 
@@ -264,20 +266,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             return true;
-        }
-//        else if (id == R.id.action_clearBD) {
-//            List<DeviceEntry> list = ((App) getApplication()).getDaoSession().getDeviceEntryDao().queryBuilder().where(DeviceEntryDao.Properties.IsSyncServer.eq(true)).build().list();
-//            if (list != null) {
-//                for (DeviceEntry dev : list) {
-//                    dev.setIsSyncServer(false);
-//                    ((App) getApplication()).getDaoSession().getDeviceEntryDao().update(dev);
-//                }
-//            }
-//            Toast.makeText(getApplicationContext(), "All devices are not registered! TEST!", Toast.LENGTH_SHORT).show();
-//            ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
-////            ((App) getApplication()).getModel().clearDataBase();
-//        }
-        else if(id == R.id.action_CopyDB){
+        } else if (id == R.id.action_Firstlauch) {
+            PrefManager prefManager = new PrefManager(this);
+            prefManager.setFirstTimeLaunch(true);
+        } else if(id == R.id.action_CopyDB){
             /*service launch point*/
             Intent intent = new Intent();
             intent.setAction(ExternalRequestsReceiver.ACTION);
