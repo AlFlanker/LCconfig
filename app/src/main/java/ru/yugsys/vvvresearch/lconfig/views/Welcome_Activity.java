@@ -30,7 +30,6 @@ public class Welcome_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Checking for first time launch - before calling setContentView()
         prefManager = new PrefManager(this);
         if (!prefManager.isFirstTimeLaunch()) {
             launchHomeScreen();
@@ -50,15 +49,17 @@ public class Welcome_Activity extends AppCompatActivity {
         btnNext = (Button) findViewById(R.id.btn_next);
 
 
-        // layouts of all welcome sliders
-        // add few more layouts if you want
+
         layouts = new int[]{
                 R.layout.welcome_slide1,
                 R.layout.welcome_slide2,
                 R.layout.welcome_slide3,
                 R.layout.welcome_slide4,
                 R.layout.welcome_slide5,
-                R.layout.welcome_slide6};
+                R.layout.welcome_slide6,
+                R.layout.welcome_slide7,
+                R.layout.welcome_slide8
+        };
 
         // adding bottom dots
         addBottomDots(0);

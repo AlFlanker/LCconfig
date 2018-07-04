@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 //        netData.setAddress("https://bs.net868.ru:20010/externalapi/");
 //        netData.setCheckMain(true);
 //        ((App)getApplication()).getDaoSession().getNetDataDao().insert(netData);
+
+
         /*Apps targeting Android 7.0 (API level 24) and higher
          do not receive CONNECTIVITY_ACTION broadcasts if they declare the broadcast receiver in their manifest.
          Apps will still receive CONNECTIVITY_ACTION broadcasts if they register their BroadcastReceiver
@@ -273,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         } else if (id == R.id.action_Firstlauch) {
             PrefManager prefManager = new PrefManager(this);
             prefManager.setFirstTimeLaunch(true);
+            Intent intent = new Intent(this, Welcome_Activity.class);
+            startActivity(intent);
         } else if(id == R.id.action_CopyDB){
             /*service launch point*/
             Intent intent = new Intent();
