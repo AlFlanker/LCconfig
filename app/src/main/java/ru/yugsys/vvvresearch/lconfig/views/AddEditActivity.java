@@ -60,7 +60,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText nwkSKeyEdit;
     private EditText appSKeyEdit;
     private Switch isOTAASwitch;
-    private EditText gpsEditLongitude;
+    private TextView gpsEditLongitude;
     private Spinner out_typeSpinner;
     private Spinner typeSpinner;
     private NfcAdapter mAdapter;
@@ -70,7 +70,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private DeviceEntry currentDevice;
     private View buttonLayout;
     private View triangleButton;
-    private EditText gpsEditLatitude;
+    private TextView gpsEditLatitude;
     private DataDevice currentDev;
     private byte[] systemInfo;
     private boolean createNewDevice;
@@ -94,7 +94,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();//
+                onBackPressed();
             }
         });
         FloatingActionButton fab = findViewById(R.id.fab_nfc);
@@ -125,10 +125,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 //        nwkSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
 //        appSKeyEdit.setFilters(new InputFilter[]{new LengthFilter((short) 32)});
 //        commentEdit.setFilters(new InputFilter[]{new LengthFilter((short) 50)});
-        gpsEditLatitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        gpsEditLongitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        gpsEditLongitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
-        gpsEditLatitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
+//
+//        gpsEditLatitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+//        gpsEditLongitude.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+//        gpsEditLongitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
+//        gpsEditLatitude.setFilters(new InputFilter[]{new HEXfilter(2, 7)});
 
         expandableLinearLayout = findViewById(R.id.expandableLayoutAddEdit);
         expandableLinearLayout.setInterpolator(Utils.createInterpolator(Utils.DECELERATE_INTERPOLATOR));
