@@ -162,7 +162,7 @@
     <string name="slide_1_desc">Please read short guide about this application</string>
 
     <string name="slide_2_title">Step 1</string>
-    <string name="slide_2_desc">Tap on red application button or apply to davice(LC50x)!</string>
+    <string name="slide_2_desc">Tap on red application button or apply to device(LC50x)!</string>
 
     <string name="slide_3_title">Step 2</string>
     <string name="slide_3_desc">Input some data.</string>
@@ -176,6 +176,11 @@
 
     <string name="slide_6_title">Step 5</string>
     <string name="slide_6_desc">Tap on Syncronize from Setting for send data to choosed servise</string>
+
+    <string name="slide_7_title">Step 6</string>
+    <string name="slide_7_desc">If you need adding some changes to exist device, just touch to device being in the main
+        windows. Then you will need synchronize data.
+    </string>
 
 
     <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear
