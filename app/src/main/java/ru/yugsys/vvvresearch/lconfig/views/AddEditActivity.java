@@ -17,14 +17,18 @@ import android.os.*;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
@@ -43,6 +47,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
 
@@ -59,6 +65,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     private EditText devAdrEdit;
     private EditText nwkSKeyEdit;
     private EditText appSKeyEdit;
+
     private Switch isOTAASwitch;
     private TextView gpsEditLongitude;
     private Spinner out_typeSpinner;
@@ -111,6 +118,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         gpsEditLongitude = findViewById(R.id.lc5_edit_gps_longitude);
         gpsEditLatitude = findViewById(R.id.lc5_edit_gps_latitude);
         deveuiEdit = findViewById(R.id.lc5_edit_deveui);
+        deveuiEdit.setVisibility(View.GONE);
+
         buttonLayout = findViewById(R.id.buttonExpand);
         triangleButton = findViewById(R.id.button_triangle_add_edit);
         scrollView = findViewById(R.id.lc5_scrollView);
@@ -212,9 +221,11 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             currentDev.setCurrentTag(tagFromIntent);
             systemInfo = NFCCommand.SendGetSystemInfoCommandCustom(tagFromIntent, currentDev);
             currentDev = DataDevice.DecodeGetSystemInfoResponse(systemInfo, currentDev);
-            Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.TagDetected),MESSAGE);
+//            Toast.makeText(getApplicationContext(), getString(R.string.TagDetected), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.TagDetected), MESSAGE);
+            if (currentDev != null) {
             if (createNewDevice && currentDev.getUid() != null) {
+
                 currentDevice = fieldToDevice();
                 String jpref = getString(R.string.pref_JUG_SYSTEMA);
                 String muid = currentDev.getUid().replace(" ", "");
@@ -224,11 +235,13 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                 setDeviceFields(currentDevice);
                 createNewDevice = false;
 
+
             }
-            if (currentDev != null) {
+
                 if (readyToWriteDevice && currentDev.getUid() != null) {
                     scrollView.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
+
                     currentDevice = fieldToDevice();
                     String jpref = getString(R.string.pref_JUG_SYSTEMA);
                     String muid = currentDev.getUid().replace(" ", "");
@@ -240,12 +253,14 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     task.subscribe(this);
                     task.execute(currentDevice);
                     readyToWriteDevice = false;
+
                 }
             }
 
         }
 
     }
+
 
     @Override
     protected void onPostResume() {
@@ -305,6 +320,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     }
 
     private DeviceEntry fieldToDevice() {
+
         DeviceEntry device = new DeviceEntry();
         device.setType(typeSpinner.getSelectedItem().toString().trim().toUpperCase());
         device.setEui(deveuiEdit.getText().toString().toUpperCase());
@@ -334,17 +350,26 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
 
     @Override
     public void onClick(View view) {
+        /*      Hide keyboard!      */
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+        /*--------------------------*/
         //  currentDevice = fieldToDevice(); // In OnNewIntent()
-        readyToWriteDevice = true;
+        if (checkFields()) {
+            readyToWriteDevice = true;
 
 
-        Snackbar snackbar = Snackbar
-                .make(view, getString(R.string.TouchToDevice), Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar
+                    .make(view, getString(R.string.TouchToDevice), Snackbar.LENGTH_LONG);
 
-        View sbView = snackbar.getView();
-        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
-        textView.setTextColor(Color.WHITE);
-        snackbar.show();
+            View sbView = snackbar.getView();
+            TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+            textView.setTextColor(Color.WHITE);
+            snackbar.show();
+        } else {
+            readyToWriteDevice = false;
+        }
 
 
     }
@@ -381,17 +406,17 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         progressBar.setVisibility(View.GONE);
         if (writeResult == null) {
         } else if (writeResult == (byte) 0x01) {
-            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
+//            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer), ERROR);
         } else if (writeResult== (byte) 0xFF) {
-            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
+//            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer), ERROR);
         } else if (writeResult == (byte) 0xE1) {
-            Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.TransferStop),ERROR);
+//            Toast.makeText(getApplicationContext(), getString(R.string.TransferStop), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.TransferStop), ERROR);
         } else if (writeResult == (byte) 0x00) {
-            Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.WriteSucessfull),MESSAGE);
+//            Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.WriteSucessfull), MESSAGE);
 
             ((App) getApplication()).getModel().saveDevice(currentDevice);
             startJob(); // for GeoService!
@@ -404,8 +429,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             finish();
 
         } else {
-            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
-//            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer),ERROR);
+//            Toast.makeText(getApplicationContext(), getString(R.string.ERRORFileTransfer), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.ERRORFileTransfer), ERROR);
         }
 
     }
@@ -435,7 +460,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         }
 
         Snackbar snackbar = Snackbar
-                .make(findViewById(R.id.fab), msg, Snackbar.LENGTH_LONG);
+                .make(scrollView, msg, Snackbar.LENGTH_LONG);
 
         View sbView = snackbar.getView();
         TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
@@ -458,5 +483,87 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
             Log.d("geoService", "Job scheduled successfully!");
         }
     }
+
+    private boolean checkFields() {
+        int errorColor;
+        int successColor;
+        boolean check = true;
+        if (Build.VERSION.SDK_INT >= 23) {
+            errorColor = ContextCompat.getColor(getApplicationContext(), R.color.errorColor);
+            successColor = ContextCompat.getColor(getApplicationContext(), R.color.successColor);
+        } else {
+            errorColor = getResources().getColor(R.color.errorColor);
+            successColor = getResources().getColor(R.color.successColor);
+        }
+        ForegroundColorSpan errorColorSpan = new ForegroundColorSpan(errorColor);
+        ForegroundColorSpan successColorSpan = new ForegroundColorSpan(successColor);
+        SpannableStringBuilder successSB;
+        SpannableStringBuilder spannableStringBuilder;
+        // Check AppEUI
+        Pattern pattern = Pattern.compile("[A-Fa-f0-9]{16}");
+        Matcher matcher = pattern.matcher(appEUIEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.AppEUI_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.AppEUI_error).length(), 0);
+            appEUIEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+
+        // check AppCode
+        pattern = Pattern.compile("[A-Fa-f0-9]{32}");
+        matcher = pattern.matcher(appKeyEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.AppCode_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.AppCode_error).length(), 0);
+            appKeyEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+        // check NetworkID
+        pattern = Pattern.compile("[A-Fa-f0-9]{8}");
+        matcher = pattern.matcher(nwkIDEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.NetworkID_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.NetworkID_error).length(), 0);
+            nwkIDEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+        // check LocalAddress
+        pattern = Pattern.compile("[A-Fa-f0-9]{8}");
+        matcher = pattern.matcher(devAdrEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.LocalAddress_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.LocalAddress_error).length(), 0);
+            devAdrEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+        // check nwkSKeyEdit
+        pattern = Pattern.compile("[A-Fa-f0-9]{32}");
+        matcher = pattern.matcher(nwkSKeyEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.NetSessionKey_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.NetSessionKey_error).length(), 0);
+            nwkSKeyEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+        // check lc5_edit_appSKey
+        pattern = Pattern.compile("[A-Fa-f0-9]{32}");
+        matcher = pattern.matcher(appSKeyEdit.getText().toString().toUpperCase());
+        if (!matcher.matches()) {
+            spannableStringBuilder = new SpannableStringBuilder(getString(R.string.AppSessionKey_error));
+            spannableStringBuilder.setSpan(errorColorSpan, 0, getString(R.string.AppSessionKey_error).length(), 0);
+            appSKeyEdit.setError(spannableStringBuilder);
+            return false;
+
+        }
+        return true;
+
+
+    }
+
 
 }

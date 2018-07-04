@@ -6,12 +6,14 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.*;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +24,7 @@ import android.view.*;
 import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 
+import android.widget.TextView;
 import android.widget.Toast;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private BroadcastReceiver listener;
     private int numberOfUnregistered = 0;
     public static String responseFromIS = "ru.yugsys.vvvresearch.lconfig.MainActivity";
+
 
     @Override
     protected void onPause() {
@@ -189,8 +193,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
                         ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
                     } else if (alias.equals("false")) {
                         String eui = intent.getStringExtra("message");
-                        Toast.makeText(getApplicationContext(), "Error: " + "\n" + eui, Toast.LENGTH_SHORT).show();
-
+//                        Toast.makeText(getApplicationContext(), "Error: " + "\n" + eui, Toast.LENGTH_SHORT).show();
+                        showDiffrentSnackBar("Error: " + "\n" + eui, ERROR);
                     }
                 }
             }
@@ -316,7 +320,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         else{
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
+            showDiffrentSnackBar(getString(R.string.Incorrect), ERROR);
         }
     }
 
@@ -353,6 +358,26 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         if (res == JobScheduler.RESULT_SUCCESS) {
             Log.d("geoService", "Job scheduled successfully!");
         }
+    }
+
+    private void showDiffrentSnackBar(String msg, int me) {
+
+        int color;
+        if (me == 1) {
+
+            color = Color.WHITE;
+        } else {
+
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(recyclerView, msg, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
     }
 
 

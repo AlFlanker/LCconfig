@@ -423,7 +423,7 @@ public class DeviceEntry {
         newDev.setKV("EC03CE03D003E103E30304040E04B9096C09CE080F087407A6060506");
         newDev.setKI("991C");
         newDev.setDateOfLastChange(new Date());
-        newDev.setComment("test");
+        newDev.setComment("");
         newDev.setIsDeleted(false);
         newDev.setIsSyncServer(false);
         newDev.setIsGeoOK(false);

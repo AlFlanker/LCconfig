@@ -6,6 +6,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark">#FF000000</color>
 
+    <!-- For EdiText-->
+    <color name="successColor">#00FF00</color>
+    <color name="errorColor">#d1395c</color>
+    <!-- End-->
     <!-- Screens background color-->
     <color name="bg_screen1">#303F9F</color>
     <color name="bg_screen2">#303F9F</color>
