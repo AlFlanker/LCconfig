@@ -171,14 +171,17 @@
     <string name="slide_4_desc">Write data by tap on red application button</string>
 
     <string name="slide_5_title">Step 4</string>
-    <string name="slide_5_desc">Choose service type by tap on Setting from menu</string>
-
+    <string name="slide_5_desc">Wait until the data is recorded!</string>
 
     <string name="slide_6_title">Step 5</string>
-    <string name="slide_6_desc">Tap on Syncronize from Setting for send data to choosed servise</string>
+    <string name="slide_6_desc">Choose service type by tap on Setting from menu</string>
+
 
     <string name="slide_7_title">Step 6</string>
-    <string name="slide_7_desc">If you need adding some changes to exist device, just touch to device being in the main
+    <string name="slide_7_desc">Tap on Syncronize from menu for send data to choosed servise(need internet).</string>
+
+    <string name="slide_8_title">Step 7</string>
+    <string name="slide_8_desc">If you need adding some changes to exist device, just touch to device being in the main
         windows. Then you will need synchronize data.
     </string>
 
