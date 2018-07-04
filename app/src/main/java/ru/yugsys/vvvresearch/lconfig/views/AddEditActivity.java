@@ -300,7 +300,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
         int i = adapter.getPosition(value);
         if (spinner == typeSpinner) this.typeSpinner.setSelection(i);
-        else if (spinner == out_typeSpinner) this.out_typeSpinner.setSelection(i);
+        else if (spinner == out_typeSpinner)
+            this.out_typeSpinner.setSelection(i);
     }
 
     private DeviceEntry fieldToDevice() {
@@ -335,8 +336,15 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     public void onClick(View view) {
         //  currentDevice = fieldToDevice(); // In OnNewIntent()
         readyToWriteDevice = true;
-        Toast.makeText(getApplicationContext(), getString(R.string.TouchToDevice), Toast.LENGTH_SHORT).show();
-//        showDiffrentSnackBar(getString(R.string.TouchToDevice),MESSAGE);
+
+
+        Snackbar snackbar = Snackbar
+                .make(view, getString(R.string.TouchToDevice), Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(Color.WHITE);
+        snackbar.show();
 
 
     }
