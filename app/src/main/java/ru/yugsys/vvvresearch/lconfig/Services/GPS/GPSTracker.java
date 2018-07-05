@@ -44,8 +44,8 @@ public class GPSTracker {
         this.locationRequest = new LocationRequest();
         this.locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-     //   this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         // точность +-100 метров
         log.d(TAG, "GPSt request compl");
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();

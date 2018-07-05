@@ -115,8 +115,12 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             }
             if (tagFromIntent != null) {
                 ReadTask readTask = new ReadTask(null, null);
+                Log.d("NFC", tagFromIntent.toString());
+                Log.d("NFC", tagFromIntent.getId().toString());
+                Log.d("NFC", String.valueOf(tagFromIntent.describeContents()));
                 readTask.subscribe(this);
                 readTask.execute(currentDataDevice);
+
             }
         }
 

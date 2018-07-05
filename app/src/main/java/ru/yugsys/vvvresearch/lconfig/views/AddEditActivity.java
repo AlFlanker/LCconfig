@@ -50,7 +50,11 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AddEditActivity extends AppCompatActivity implements AddEditViewable, View.OnClickListener, AsyncTaskCallBack.WriteCallback, ModelListener.OnGPSdata, ModelListener.OnNFCConnected {
+public class AddEditActivity extends AppCompatActivity implements AddEditViewable,
+        View.OnClickListener,
+        AsyncTaskCallBack.WriteCallback,
+        ModelListener.OnGPSdata,
+        ModelListener.OnNFCConnected {
 
 
     private Vibrator vibrator;
