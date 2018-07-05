@@ -21,7 +21,7 @@
     <string name="prompt_devEUI">EUI устройства</string>
     <string name="prompt_appEUI">App EUI</string>
     <string name="prompt_outType">Тип выхода</string>
-    <string name="prompt_isSync">синхронизированно</string>
+    <string name="prompt_isSync">Синхронизированно</string>
     <string name="prompt_gps_latitude">Широта</string>
     <string name="prompt_gps_longitude">Долгота</string>
     <string name="prompt_appSKey">App session key</string>
@@ -108,6 +108,7 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="Synchronized">Синхронизированно:</string>
     <string name="action_addedit">Добавить</string>
     <string name="prompt_isotaa">Over the Air Activation</string>
     <string name="label_isotaa">OTAA</string>
@@ -156,11 +157,11 @@
 
     <string name="title_activity_welcome">Home Screen</string>
     <string name="next">Дальше</string>
-    <string name="skip">сброс</string>
+    <string name="skip">Назад</string>
     <string name="start">Завершить</string>
 
     <string name="slide_1_title">Привет, пользователь!</string>
-    <string name="slide_1_desc">Прочитай короткое руководство по исползованию приложения</string>
+    <string name="slide_1_desc">Прочитай короткое руководство по использованию приложением</string>
 
     <string name="slide_2_title">Шаг 1</string>
     <string name="slide_2_desc">Нажми на красную кнопки или прислони к устройству(LC50x)!</string>
