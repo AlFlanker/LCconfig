@@ -35,12 +35,16 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
 
     @Override
     protected DeviceEntry doInBackground(DataDevice... params) {
+        Log.d("NFC", "start doInBackground");
             currentDataDevice = params[0];
+        if (currentDataDevice == null) return null;
             int cpt=0;
             byte[] readMultipleBlockAnswer = null;
             if (currentDataDevice.isMultipleReadSupported() && ByteBuffer.wrap(numberOfBlockToRead).getShort() > 1) {
                 if (Util.Convert2bytesHexaFormatToInt(numberOfBlockToRead) < 32) {
                     while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
+                        if (isCancelled()) return null;
+                        Log.d("NFC", "start SendReadMultipleBlockCommandCustom");
                         readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead[1], currentDataDevice);
                         cpt++;
                     }
@@ -48,6 +52,8 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
                     cpt = 0;
                 } else {
                     while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
+                        if (isCancelled()) return null;
+                        Log.d("NFC", "start SendReadMultipleBlockCommandCustom2");
                         readMultipleBlockAnswer = NFCCommand.SendReadMultipleBlockCommandCustom2(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
                         cpt++;
                     }
@@ -57,6 +63,8 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
 
             } else {
                 while ((readMultipleBlockAnswer == null || readMultipleBlockAnswer[0] == 1) && cpt <= 10) {
+                    if (isCancelled()) return null;
+                    Log.d("NFC", "start Send_several_ReadSingleBlockCommands_NbBlocks");
                     readMultipleBlockAnswer = NFCCommand.Send_several_ReadSingleBlockCommands_NbBlocks(currentDataDevice.getCurrentTag(), addressStart, numberOfBlockToRead, currentDataDevice);
                     cpt++;
                 }
@@ -64,13 +72,15 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
                 cpt = 0;
             }
 
-
+        Log.d("NFC", "all readedNFC");
         try {
                 StringBuilder sb = new StringBuilder();
                 for(byte ch: readMultipleBlockAnswer){
                     sb.append(String.format("%02x ",ch));
                 }
                 Log.d("NFC_READ",sb.toString());
+            /*!!!!*/
+            if (sb.length() < 121) return null;
             return decode(readMultipleBlockAnswer);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -85,6 +95,7 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
 
     @Override
     protected void onPostExecute(DeviceEntry dev ) {
+        Log.d("NFC", "onPostExecute");
         OnRead(dev);
     }
 
@@ -97,6 +108,7 @@ public class ReadTask extends AsyncTask<DataDevice, Void, DeviceEntry> {
     }
 
     private  DeviceEntry decode(byte[] raw) throws IllegalAccessException, IOException, NoSuchFieldException {
+        if (raw == null) return null;
         StringBuilder sb;
         byte[] crc = new byte[121];
         ByteArrayOutputStream data = new ByteArrayOutputStream();

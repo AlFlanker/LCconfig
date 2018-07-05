@@ -14,4 +14,8 @@
           android:title="@string/action_Firstlauch"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+    <item android:id="@+id/show_All"
+          android:title="@string/Show_All"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
 </menu>

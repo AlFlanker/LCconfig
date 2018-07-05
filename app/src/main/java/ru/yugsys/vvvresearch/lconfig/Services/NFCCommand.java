@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.Services;
 
 import android.nfc.Tag;
 import android.nfc.tech.NfcV;
+import android.util.Log;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DataDevice;
 
 
@@ -375,6 +376,7 @@ public class NFCCommand {
                  response = nfcvTag.transceive(readSingleBlockFrame);
 				 if(response[0] == (byte) 0x00 || response[0] == (byte) 0x01)//response 01 = error sent back by tag (new Android 4.2.2) or BC
 				 {
+					 Log.d("NFC_tag", Byte.toString(response[0]));
 					 errorOccured = 0;
                      //Used for DEBUG : Log.i("NFCCOmmand", "SENDED Frame : " + Util.ConvertHexByteArrayToString(readSingleBlockFrame));
 				 }
@@ -404,6 +406,7 @@ public class NFCCommand {
 	 //***********************************************************************/
      public static byte[] SendReadMultipleBlockCommandCustom(Tag myTag, byte[] StartAddress, byte numOfBlockToRead, DataDevice dataDevice)
 	 {
+		 Log.d("NFC", "SendReadMultipleBlockCommandCustom in");
 		long cpt =0;
 		boolean checkCorrectAnswer = true;
 
@@ -419,8 +422,10 @@ public class NFCCommand {
 			temp = null;
 			while (temp == null || temp[0] == 1 && cpt <= 2)
 			{
+
                 temp = ReadSingleBlockCommand(myTag, new byte[]{(byte) incrementAddressStart0, (byte) incrementAddressStart1}, dataDevice);
-				cpt ++;
+
+				cpt++;
 			}
 			cpt =0;
 			

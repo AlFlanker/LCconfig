@@ -47,6 +47,10 @@ import ru.yugsys.vvvresearch.lconfig.model.Interfaces.ModelListener;
 import ru.yugsys.vvvresearch.lconfig.views.Intro.PrefManager;
 
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 public class MainActivity extends AppCompatActivity implements MainViewable,
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         if (externalRequestsReceiver.jobScheduler != null) {
             externalRequestsReceiver.jobScheduler.cancelAll();
         }
-
+        unregisterReceiver(listener);
     }
 
     @Override
@@ -109,9 +113,11 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             if (!DataDevice.DecodeSystemInfoResponse(systemInfo, currentDataDevice)) {
                 return;
             }
-            ReadTask readTask = new ReadTask(null,null);
-            readTask.subscribe(this);
-            readTask.execute(currentDataDevice);
+            if (tagFromIntent != null) {
+                ReadTask readTask = new ReadTask(null, null);
+                readTask.subscribe(this);
+                readTask.execute(currentDataDevice);
+            }
         }
 
     }
@@ -181,26 +187,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         checkRequest = new CheckRequest();
         registerReceiver(checkRequest, intentFilter);
 
+        listener = new Listener();
 
-        listener = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d("Sync:", "sync in MAIN " + intent.getStringExtra("eui"));
-                if (intent.getAction().equals(responseFromIS)) {
-                    String alias = intent.getStringExtra("alias");
-                    if (!alias.equals("false")) {
-                        String eui = intent.getStringExtra("message");
-//                        Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
-                        ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
-                    } else if (alias.equals("false")) {
-                        String eui = intent.getStringExtra("message");
-//                        Toast.makeText(getApplicationContext(), "Error: " + "\n" + eui, Toast.LENGTH_SHORT).show();
-                        showDiffrentSnackBar("Error: " + "\n" + eui, ERROR);
-                    }
-                }
-            }
-        };
         IntentFilter filter = new IntentFilter();
         filter.addAction(responseFromIS);
         registerReceiver(listener, filter);
@@ -216,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         recyclerView.scrollToPosition(0);
 
         ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
-       recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
+        recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             GPSTracker gpsTracker = GPSTracker.instance();
             gpsTracker.setContext(this);
@@ -283,6 +271,10 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             intent.setAction(ExternalRequestsReceiver.ACTION);
             Log.d("Broad", "send: " + ExternalRequestsReceiver.ACTION);
             sendBroadcast(intent);
+        } else if (id == R.id.show_All) {
+            Intent mapsInt = new Intent(this, MapsActivity.class);
+            mapsInt.putExtra(MapsActivity.SHOW_MODE_ALL, true);
+            startActivity(mapsInt);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -320,8 +312,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
             startActivity(addActivity);
-        }
-        else{
+        } else{
             progressBar.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
 //            Toast.makeText(getApplicationContext(), getString(R.string.Incorrect), Toast.LENGTH_SHORT).show();
@@ -335,7 +326,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             if (!dev.getIsSyncServer()) numberOfUnregistered++;
         }
         this.setContentForView(devList);
-
+//        devList.get(1).setLatitude(45.071878);
+//        devList.get(1).setLongitude(39.000531);
+//        ((App) getApplication()).getModel().saveDevice(devList.get(1));
     }
 
     @Override
@@ -384,8 +377,28 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
         snackbar.show();
     }
 
-
+    class Listener extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Sync:", "sync in MAIN " + intent.getStringExtra("eui"));
+            if (intent.getAction().equals(responseFromIS)) {
+                String alias = intent.getStringExtra("alias");
+                if (!alias.equals("false")) {
+                    String eui = intent.getStringExtra("message");
+//                        Toast.makeText(getApplicationContext(), "Synchonize Device: " + alias + "\n" + "EUI: " + eui, Toast.LENGTH_SHORT).show();
+                    ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
+                } else if (alias.equals("false")) {
+                    String eui = intent.getStringExtra("message");
+//                        Toast.makeText(getApplicationContext(), "Error: " + "\n" + eui, Toast.LENGTH_SHORT).show();
+                    showDiffrentSnackBar("Error: " + "\n" + eui, ERROR);
+                }
+            }
+        }
+    }
 }
+
+
+
 
 
 

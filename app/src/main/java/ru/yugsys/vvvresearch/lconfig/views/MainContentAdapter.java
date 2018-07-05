@@ -129,8 +129,10 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, MapsActivity.class);
+                intent.putExtra(MapsActivity.SHOW_MODE_ALL, false);
                 intent.putExtra(MapsActivity.LOGITUDE,devices.get(finalPosition).getLongitude());
                 intent.putExtra(MapsActivity.LATITUDE,devices.get(finalPosition).getLatitude());
+                intent.putExtra(MapsActivity.COMMENT, devices.get(finalPosition).getComment());
                 context.startActivity(intent);
 
             }

@@ -4,6 +4,7 @@
     <string name="action_ClearBD">ClearBD</string>
     <string name="action_CopyDB">Synchronize</string>
     <string name="action_Firstlauch">Introduce</string>
+    <string name="Show_All">Show all devices on map</string>
     <string name="title_activity_login">Sign in</string>
 
     <!-- Strings related to login -->
