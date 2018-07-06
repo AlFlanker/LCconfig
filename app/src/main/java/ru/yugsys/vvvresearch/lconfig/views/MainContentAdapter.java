@@ -3,6 +3,8 @@ package ru.yugsys.vvvresearch.lconfig.views;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -61,7 +63,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
-            holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
+            holder.isSync.setText(context.getText(R.string.Synchronized) + " " + devices.get(finalPosition).getIsSyncServer().toString());
             if (devices.get(finalPosition).getIsSyncServer()) {
                 holder.isSync.setTextColor(Color.BLUE);
             } else {
@@ -90,7 +92,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
                     devices.get(finalPosition).getLongitude(),
                     devices.get(finalPosition).getLatitude()));
-            holder.isSync.setText("Synchronized: " + devices.get(finalPosition).getIsSyncServer().toString());
+            holder.isSync.setText(context.getText(R.string.Synchronized) + " " + devices.get(finalPosition).getIsSyncServer().toString());
             if (devices.get(finalPosition).getIsSyncServer()) {
                 holder.isSync.setTextColor(Color.BLUE);
             } else {
