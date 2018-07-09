@@ -21,7 +21,7 @@
     <string name="prompt_devEUI">Device EUI</string>
     <string name="prompt_appEUI">App EUI</string>
     <string name="prompt_outType">Type output</string>
-    <string name="prompt_isSync">synchronized</string>
+    <string name="prompt_isSync">Synchronized</string>
     <string name="prompt_gps_latitude">Latitude</string>
     <string name="prompt_gps_longitude">Longitude</string>
     <string name="prompt_appSKey">App session key</string>
@@ -30,13 +30,12 @@
     <string name="prompt_nwkID">Network ID</string>
     <string name="prompt_appKey">App code</string>
     <string name="prompt_date">Time of Change</string>
-    <string name="prompt_comment">a comment</string>
-    <string name="title_activity_add_edit">AddEdit</string>
+    <string name="prompt_comment">A comment</string>
+    <string name="title_activity_add_edit">Edit</string>
 
 
-    <!-- Strings related to Settings -->
+    <!-- Strings related to Settings
 
-    <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
     <string name="pref_title_social_recommendations">Enable social recommendations</string>
@@ -57,12 +56,12 @@
         <item>1</item>
         <item>0</item>
         <item>-1</item>
-    </string-array>
+    </string-array> -->
     <string-array name="serviceList">
         <item>net868.ru</item>
         <item>Вега</item>
     </string-array>
-    <!-- Example settings for Data & Sync -->
+    <!-- Example settings for Data & Sync
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
@@ -97,7 +96,7 @@
 
     <string-array name="multi_select_list_preference_default_value"/>
 
-    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <string name="pref_title_system_sync_settings">System sync settings</string> -->
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -144,14 +143,14 @@
     <string name="dont_leave_phone">Don\'t leave your phone from device </string>
     <string name="reads_data">Data is reading</string>
     <string name="TagDetected">Tag detected.</string>
-    <string name="TouchToDevice">apply to device!</string>
+    <string name="TouchToDevice">Apply to device!</string>
     <string name="ERRORFileTransfer">ERROR File Transfer!</string>
     <string name="TransferStop">ERROR File Transfer! Cancel.</string>
-    <string name="WriteSucessfull">successfully recorded</string>
+    <string name="WriteSucessfull">Successfully recorded</string>
     <string name="Incorrect">Invalid CRC or a new device</string>
-    <string name="DetectInternetConnection">is Connected</string>
-    <string name="ConnectivityChange">is Disconnected</string>
-    <string name="Invalid_login_or_password">invalid login or password</string>
+    <string name="DetectInternetConnection">Is connected</string>
+    <string name="ConnectivityChange">Is disconnected</string>
+    <string name="Invalid_login_or_password">Invalid login or password</string>
     <string name="incorrectlyToken">Incorrectly token!</string>
     <string name="AddService">Check connection data!</string>
 
@@ -160,17 +159,17 @@
     <string name="skip">SKIP</string>
     <string name="start">GOT IT</string>
 
-    <string name="slide_1_title">Hello, User!</string>
+    <string name="slide_1_title">Hello</string>
     <string name="slide_1_desc">Please read short guide about this application</string>
 
     <string name="slide_2_title">Step 1</string>
-    <string name="slide_2_desc">Tap on red application button or apply to device(LC50x)!</string>
+    <string name="slide_2_desc">Tap on application button or apply to NFC device</string>
 
     <string name="slide_3_title">Step 2</string>
     <string name="slide_3_desc">Input some data.</string>
 
     <string name="slide_4_title">Step 3</string>
-    <string name="slide_4_desc">Write data by tap on red application button</string>
+    <string name="slide_4_desc">Write data by tap on application button</string>
 
     <string name="slide_5_title">Step 4</string>
     <string name="slide_5_desc">Wait until the data is recorded!</string>
@@ -199,6 +198,10 @@
     <string name="LocalAddress_error">Must be 8 HEX numbers!</string>
     <string name="NetSessionKey_error">Must be 32 HEX numbers!</string>
     <string name="AppSessionKey_error">Must be 32 HEX numbers!</string>
+    <string name="no_device">No devices for view</string>
+    <string name="promt_token">Token</string>
+    <string name="promt_login">login</string>
+    <string name="promt_pass">pass</string>
 
 
 </resources>

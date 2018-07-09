@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 switch (type[position]) {
                     case "net868.ru":
-                        mLoginView.setHint((CharSequence) "token");
+                        mLoginView.setHint((CharSequence) getString(R.string.promt_token));
                         mLoginView.setText(currentService.getToken(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.GONE);
                         mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
@@ -85,8 +85,8 @@ public class LoginActivity extends AppCompatActivity {
 //                        mLoginView.setText("");
                         break;
                     case "Вега":
-                        mLoginView.setHint((CharSequence) "login");
-                        mPasswordView.setHint((CharSequence) "pass");
+                        mLoginView.setHint((CharSequence) getString(R.string.promt_login));
+                        mPasswordView.setHint((CharSequence) getString(R.string.promt_pass));
                         mLoginView.setText(currentService.getLogin(), TextView.BufferType.EDITABLE);
                         mPasswordView.setText(currentService.getPassword(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.VISIBLE);

@@ -1,10 +1,13 @@
 package ru.yugsys.vvvresearch.lconfig.views;
 
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -80,16 +83,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15f));
             mMap.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
         } else {
-            MarkerOptions[] markers = new MarkerOptions[devices.size()];
-            for (int i = 0; i < devices.size(); i++) {
-                markers[i] = new MarkerOptions()
-                        .position(new LatLng(devices.get(i).getLatitude(), devices.get(i).getLongitude()));
-                mMap.addMarker(markers[i].title(devices.get(i).getComment()));
+            try {
+                MarkerOptions[] markers = new MarkerOptions[devices.size()];
+                for (int i = 0; i < devices.size(); i++) {
+                    markers[i] = new MarkerOptions()
+                            .position(new LatLng(devices.get(i).getLatitude(), devices.get(i).getLongitude()));
+                    mMap.addMarker(markers[i].title(devices.get(i).getComment()));
+                }
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(devices.get(devices.size() - 1).getLatitude(),
+                                devices.get(devices.size() - 1).getLongitude()), 15f));
+                mMap.moveCamera(CameraUpdateFactory.zoomTo(15.0f));
             }
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(devices.get(devices.size() - 1).getLatitude(),
-                            devices.get(devices.size() - 1).getLongitude()), 15f));
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(15.0f));
+            catch (ArrayIndexOutOfBoundsException ex){
+                Snackbar snackbar = Snackbar
+                        .make(findViewById(R.id.map), R.string.no_device, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
         }
     }
 

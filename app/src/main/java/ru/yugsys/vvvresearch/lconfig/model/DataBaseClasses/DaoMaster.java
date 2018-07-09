@@ -21,16 +21,16 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        DeviceEntryDao.createTable(db, ifNotExists);
-        GeoDataDao.createTable(db, ifNotExists);
         NetDataDao.createTable(db, ifNotExists);
+        GeoDataDao.createTable(db, ifNotExists);
+        DeviceEntryDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        DeviceEntryDao.dropTable(db, ifExists);
-        GeoDataDao.dropTable(db, ifExists);
         NetDataDao.dropTable(db, ifExists);
+        GeoDataDao.dropTable(db, ifExists);
+        DeviceEntryDao.dropTable(db, ifExists);
     }
 
     /**
@@ -49,9 +49,9 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(DeviceEntryDao.class);
-        registerDaoClass(GeoDataDao.class);
         registerDaoClass(NetDataDao.class);
+        registerDaoClass(GeoDataDao.class);
+        registerDaoClass(DeviceEntryDao.class);
     }
 
     public DaoSession newSession() {

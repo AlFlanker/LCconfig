@@ -9,110 +9,41 @@
 
     <!-- Strings related to login -->
     <string name="prompt_login">Логин</string>
-    <string name="prompt_server">сервер URL</string>
+    <string name="prompt_server">URL сервера</string>
     <string name="prompt_password">Пароль</string>
-    <string name="action_sign_in">Sign in</string>
-    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_sign_in">Регистрация</string>
+    <string name="action_sign_in_short">Регистрация</string>
     <string name="error_invalid_login">Неверное имя пользователя</string>
     <string name="error_invalid_password">Короткий пароль</string>
     <string name="error_incorrect_password">Пароль некорректный</string>
     <string name="error_field_required">Поле обязательно к заполнению</string>
     <string name="prompt_type">Тип устройства</string>
     <string name="prompt_devEUI">EUI устройства</string>
-    <string name="prompt_appEUI">App EUI</string>
+    <string name="prompt_appEUI">AppEUI</string>
     <string name="prompt_outType">Тип выхода</string>
     <string name="prompt_isSync">Синхронизированно</string>
     <string name="prompt_gps_latitude">Широта</string>
     <string name="prompt_gps_longitude">Долгота</string>
-    <string name="prompt_appSKey">App session key</string>
-    <string name="prompt_nwkSKey">Net session key</string>
-    <string name="prompt_devAdr">Local address</string>
-    <string name="prompt_nwkID">Network ID</string>
-    <string name="prompt_appKey">App code</string>
+    <string name="prompt_appSKey">AppSKey</string>
+    <string name="prompt_nwkSKey">NetSKey</string>
+    <string name="prompt_devAdr">Локальный адрес</string>
+    <string name="prompt_nwkID">ID сети</string>
+    <string name="prompt_appKey">AppKey</string>
     <string name="prompt_date">Время изменения</string>
-    <string name="prompt_comment">комментарий</string>
-    <string name="title_activity_add_edit">AddEdit</string>
+    <string name="prompt_comment">Комментарий</string>
+    <string name="title_activity_add_edit">Редактирование</string>
 
-
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact based on your message
-        history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
     <string-array name="serviceList">
         <item>net868.ru</item>
         <item>Вега</item>
     </string-array>
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
 
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="multi_select_list_preference_default_value"/>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
     <string name="Synchronized">Синхронизированно:</string>
     <string name="action_addedit">Добавить</string>
-    <string name="prompt_isotaa">Over the Air Activation</string>
+    <string name="prompt_isotaa">Аткивация OTAA</string>
     <string name="label_isotaa">OTAA</string>
-    <string name="prompt_typeServer">Type of server</string>
+    <string name="prompt_typeServer">Тип сервера</string>
     <string name="more">Больше информации</string>
     <string name="type_device_is">Тип</string>
     <string name="out_type_device_is">Тип выхода</string>
@@ -122,9 +53,9 @@
     <string name="nootaa">OTAA выключенна</string>
     <string name="yesotta">OTAA включенна</string>
     <string name="identification">Идентификация</string>
-    <string name="network_label">Network</string>
-    <string name="security_label">Security</string>
-    <string name="additionalInformation">Additional Information</string>
+    <string name="network_label">Сеть</string>
+    <string name="security_label">Безопасность</string>
+    <string name="additionalInformation">Дополнительная инфорамация</string>
 
 
     <string-array name="controller_type_list">
@@ -142,20 +73,20 @@
     <string name="pref_JUG_SYSTEMA">74E14A4F</string>
     <string name="action_gps">GPS</string>
     <string name="dont_leave_phone">Не убирайте телефон от устройства</string>
-    <string name="reads_data">Данные читаются</string>
-    <string name="TagDetected">Обнаружен Тэг.</string>
-    <string name="TouchToDevice">приложите к устройству!</string>
-    <string name="ERRORFileTransfer">Ошибка передачи!</string>
-    <string name="TransferStop">Ошибка передачи! отмена.</string>
-    <string name="WriteSucessfull">успешно записанно!</string>
+    <string name="reads_data">Данные считываются</string>
+    <string name="TagDetected">Обнаружен тэг</string>
+    <string name="TouchToDevice">Поднесите к NFC устройству</string>
+    <string name="ERRORFileTransfer">Ошибка передачи</string>
+    <string name="TransferStop">Ошибка передачи. Отмена.</string>
+    <string name="WriteSucessfull">Успешно записанно</string>
     <string name="Incorrect">Ошибка CRC или "пустое" устройство</string>
     <string name="DetectInternetConnection">Подключен</string>
     <string name="ConnectivityChange">Разъединен</string>
     <string name="Invalid_login_or_password">Неверный логин или пароль</string>
-    <string name="incorrectlyToken">Неверный token!</string>
-    <string name="AddService">Проверьте параметры подключения!</string>
+    <string name="incorrectlyToken">Неверный токен</string>
+    <string name="AddService">Проверьте параметры подключения</string>
 
-    <string name="title_activity_welcome">Home Screen</string>
+
     <string name="next">Дальше</string>
     <string name="skip">Назад</string>
     <string name="start">Завершить</string>
@@ -164,19 +95,19 @@
     <string name="slide_1_desc">Прочитай короткое руководство по использованию приложением</string>
 
     <string name="slide_2_title">Шаг 1</string>
-    <string name="slide_2_desc">Нажми на красную кнопки или прислони к устройству(LC50x)!</string>
+    <string name="slide_2_desc">Нажми на кнопку или прислони к NFC-устройству</string>
 
     <string name="slide_3_title">Шаг 2</string>
     <string name="slide_3_desc">Введи данные, если необходимо.</string>
 
     <string name="slide_4_title">Шаг 3</string>
-    <string name="slide_4_desc">Чтобы записать данные нажми на красную кнопку</string>
+    <string name="slide_4_desc">Чтобы записать данные нажми на кнопку</string>
 
     <string name="slide_5_title">Шаг 4</string>
-    <string name="slide_5_desc">Подожди пока данные запишутся!</string>
+    <string name="slide_5_desc">Подожди пока данные запишутся</string>
 
     <string name="slide_6_title">Шаг 5</string>
-    <string name="slide_6_desc">Чтобы выбрать тип сервиса перейди в меню на вкладку Настройки</string>
+    <string name="slide_6_desc">Чтобы выбрать тип сервиса для удаленной синхронизации перейди в меню настройки</string>
 
 
     <string name="slide_7_title">Шаг 6</string>
@@ -185,22 +116,20 @@
     </string>
 
     <string name="slide_8_title">Шаг 7</string>
-    <string name="slide_8_desc">Если необходимо отредактировать существующее устройство, то прислони к нему телефон и
+    <string name="slide_8_desc">Если необходимо отредактировать существующее устройство, то прислони к нему Андроид-устройство и
         считай данные.
     </string>
 
-
-    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear
-        data
-    </string>
-    <string name="play_again">Play Again</string>
-    <!-- Error message for check AddEditActivity -->
     <string name="AppEUI_error">Должно быть 16 HEX символов!</string>
     <string name="AppCode_error">Должно быть 32 HEX символов!</string>
     <string name="NetworkID_error">Должно быть 8 HEX символов!</string>
     <string name="LocalAddress_error">Должно быть 8 HEX символов!</string>
     <string name="NetSessionKey_error">Должно быть 32 HEX символов!</string>
     <string name="AppSessionKey_error">Должно быть 32 HEX символов!</string>
+    <string name="no_device">Нет устройств для отображения на карте</string>
+    <string name="promt_token">Токен</string>
+    <string name="promt_login">Логин</string>
+    <string name="promt_pass">Пароль</string>
 
 
 </resources>
