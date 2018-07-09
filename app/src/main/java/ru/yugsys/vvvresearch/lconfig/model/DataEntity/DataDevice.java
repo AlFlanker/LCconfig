@@ -428,7 +428,7 @@ public class DataDevice
 			}
 
 			return ma;
-		} else if (ma.getTechno().equals("ISO 15693")) {
+        } else if ("ISO 15693".equals(ma.getTechno())) {
 			ma.setProductName("Unknown product");
 			ma.setBasedOnTwoBytesAddress(false);
 			ma.setMultipleReadSupported(false);

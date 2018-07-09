@@ -191,7 +191,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (createNewDevice) {
             String jperf = getString(R.string.pref_JUG_SYSTEMA);
             if(mLocation!=null ) {
-                if(mLocation.getProvider().equals("")) {
+                if (mLocation.getProvider().isEmpty()) {
                     mLocation = new Location("");
                     mLocation.setLongitude(38.997585);
                     mLocation.setLatitude(45.071137);

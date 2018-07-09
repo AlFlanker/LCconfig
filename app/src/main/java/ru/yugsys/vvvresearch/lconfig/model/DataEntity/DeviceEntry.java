@@ -251,13 +251,13 @@ public class DeviceEntry {
 
         for (Field field : fields) {
             //name = field.getName();
-            if (field.getName().equals("type")) {
+            if ("type".equals(field.getName())) {
                 buf = new byte[5];
                 System.arraycopy(raw, 0, buf, 0, 5);
                 device.setType(new String(buf, StandardCharsets.UTF_8).toUpperCase().trim());
 //				field.set(device, new String(buf, StandardCharsets.UTF_8));
             }
-            if (field.getName().equals("isOTTA")) {
+            if ("isOTTA".equals(field.getName())) {
                 buf = new byte[1];
                 boolean isotta;
                 System.arraycopy(raw, 5, buf, 0, 1);
@@ -268,7 +268,7 @@ public class DeviceEntry {
                 //field.set(device, isotta);
 
             }
-            if (field.getName().equals("eui")) {
+            if ("eui".equals(field.getName())) {
                 buf = new byte[8];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 6, buf, 0, 8);
@@ -278,7 +278,7 @@ public class DeviceEntry {
                 device.setEui(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("appeui")) {
+            if ("appeui".equals(field.getName())) {
                 buf = new byte[8];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 14, buf, 0, 8);
@@ -288,7 +288,7 @@ public class DeviceEntry {
                 device.setAppeui(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("appkey")) {
+            if ("appkey".equals(field.getName())) {
                 buf = new byte[16];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 22, buf, 0, 16);
@@ -298,7 +298,7 @@ public class DeviceEntry {
                 device.setAppkey(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("nwkid")) {
+            if ("nwkid".equals(field.getName())) {
                 buf = new byte[4];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 38, buf, 0, 4);
@@ -308,7 +308,7 @@ public class DeviceEntry {
                 device.setNwkid(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("devadr")) {
+            if ("devadr".equals(field.getName())) {
                 buf = new byte[4];
                 System.arraycopy(raw, 42, buf, 0, 4);
                 stringBuilder = new StringBuilder();
@@ -318,7 +318,7 @@ public class DeviceEntry {
                 device.setDevadr(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("nwkskey")) {
+            if ("nwkskey".equals(field.getName())) {
                 buf = new byte[16];
                 System.arraycopy(raw, 46, buf, 0, 16);
                 stringBuilder = new StringBuilder();
@@ -328,7 +328,7 @@ public class DeviceEntry {
                 device.setNwkskey(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("appskey")) {
+            if ("appskey".equals(field.getName())) {
                 buf = new byte[16];
                 System.arraycopy(raw, 62, buf, 0, 16);
                 stringBuilder = new StringBuilder();
@@ -338,20 +338,20 @@ public class DeviceEntry {
                 device.setAppskey(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("Latitude")) {
+            if ("Latitude".equals(field.getName())) {
                 buf = new byte[4];
                 System.arraycopy(raw, 78, buf, 0, 4);
 //				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
                 device.setLatitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
                 //order(ByteOrder.LITTLE_ENDIAN)
             }
-            if (field.getName().equals("Longitude")) {
+            if ("Longitude".equals(field.getName())) {
                 buf = new byte[4];
                 System.arraycopy(raw, 82, buf, 0, 4);
                 device.setLongitude(ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 //				field.set(device, ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getFloat());
             }
-            if (field.getName().equals("outType")) {    //refactor!
+            if ("outType".equals(field.getName())) {    //refactor!
                 buf = new byte[5];
                 System.arraycopy(raw, 86, buf, 0, 5);
                 stringBuilder = new StringBuilder();
@@ -363,7 +363,7 @@ public class DeviceEntry {
                 device.setOutType(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("kV")) {
+            if ("kV".equals(field.getName())) {
                 buf = new byte[28];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 91, buf, 0, 28);
@@ -374,7 +374,7 @@ public class DeviceEntry {
                 device.setKV(stringBuilder.toString().toUpperCase());
 //				field.set(device, stringBuilder.toString());
             }
-            if (field.getName().equals("kI")) {
+            if ("kI".equals(field.getName())) {
                 buf = new byte[2];
                 stringBuilder = new StringBuilder();
                 System.arraycopy(raw, 119, buf, 0, 2);

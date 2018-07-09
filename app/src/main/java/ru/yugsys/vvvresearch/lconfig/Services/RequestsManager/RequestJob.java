@@ -44,8 +44,8 @@ public class RequestJob extends JobService {
         data.setAction(RequestManager.SEND_REST_REQUEST);
         int i = 0;
         if (currentService != null) {
-            if (currentService.getServiceName().equals("net868.ru") && !currentService.getToken().equals("")
-                    && !currentService.getAddress().equals("")) {
+            if ("net868.ru".equals(currentService.getServiceName()) && !currentService.getToken().isEmpty()
+                    && !currentService.getAddress().isEmpty()) {
                 Log.d("Sync", "selected service: " + currentService.getServiceName());
                 if (devsList != null) {
                     Log.d("Sync", "quantity of devices: " + devsList.size());
@@ -59,10 +59,10 @@ public class RequestJob extends JobService {
                     Log.d("Sync", " counter: " + String.valueOf(i));
 
                 }
-            } else if (currentService.getServiceName().equals("Вега") &&
-                    !currentService.getAddress().equals("") &&
-                    !currentService.getLogin().equals("") &&
-                    !currentService.getPassword().equals("")) {
+            } else if ("Вега".equals(currentService.getServiceName()) &&
+                    !currentService.getAddress().isEmpty() &&
+                    !currentService.getLogin().isEmpty() &&
+                    !currentService.getPassword().isEmpty()) {
                 Log.d("Sync", "selected service: " + currentService.getServiceName());
 
                 final JSONObject dataForVega = getDataForVega(devsList);
@@ -285,16 +285,16 @@ public class RequestJob extends JobService {
         List<DeviceEntry> existingDev = new ArrayList<>();
         for (JSONObject obj : list) {
             try {
-                if (obj.getString("status").equals("added") ||
-                        obj.getString("status").equals("updated") ||
-                        obj.getString("status").equals("nothingToUpdate") ||
-                        obj.getString("status").equals("updateViaMacBuffer")
+                if ("added".equals(obj.getString("status")) ||
+                        "updated".equals(obj.getString("status")) ||
+                        "nothingToUpdate".equals(obj.getString("status")) ||
+                        "updateViaMacBuffer".equals(obj.getString("status"))
                         )
                     checkOK("true", obj.getString("devEui"));
-                else if (obj.getString("status").
-                        equals("abpReginfoAlreadyExist") ||
-                        obj.getString("status").
-                                equals("otaaReginfoAlreadyExist"))
+                else if ("abpReginfoAlreadyExist".equals(obj.getString("status"))
+                        ||
+                        "otaaReginfoAlreadyExist".equals(obj.getString("status")
+                        ))
 
                 {
                     existingDev.add(getExistingDevice(obj.getString("devEui")));
@@ -322,12 +322,12 @@ public class RequestJob extends JobService {
     }
 
     private void sendToMain(String result, String message) {
-        if (result.equals("true")) {
+        if ("true".equals(result)) {
             Intent si = new Intent().setAction(MainActivity.responseFromIS).
                     putExtra("alias", "device").
                     putExtra("message", message);
             sendBroadcast(si);
-        } else if (result.equals("false")) {
+        } else if ("false".equals(result)) {
             Intent si = new Intent().setAction(MainActivity.responseFromIS).
                     putExtra("alias", "false").
                     putExtra("message", message);

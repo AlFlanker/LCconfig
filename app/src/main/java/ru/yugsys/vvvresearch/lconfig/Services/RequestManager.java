@@ -85,7 +85,7 @@ public class RequestManager {
             model.put("version","1.0");
 
             device.put("activationType","ABP");
-            device.put("alias", "".equals(dev.getComment())?"LC5xx":dev.getComment());
+            device.put("alias", (dev.getComment().isEmpty()) ? "LC5xx" : dev.getComment());
             device.put("eui",dev.getEui().toLowerCase());
             device.put("applicationEui",dev.getAppeui().toLowerCase());
 //            device.put("devAddr":"64-3f-c4-97");

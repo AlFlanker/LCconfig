@@ -57,7 +57,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.appKey.setText(devices.get(finalPosition).getAppkey());
             holder.nwkID.setText(devices.get(finalPosition).getNwkid());
             holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-            holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.devAdr.setText(!((devices.get(finalPosition).getComment().isEmpty())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
             holder.nwkSKey.setText(devices.get(finalPosition).getNwkskey());
             holder.appSKey.setText(devices.get(finalPosition).getAppskey());
             holder.gps.setText(String.format(Locale.ENGLISH, "%.6f°, %.6f°",
@@ -70,7 +70,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
                 holder.isSync.setTextColor(Color.RED);
             }
             holder.outputType.setText(devices.get(finalPosition).getOutType());
-            holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
+            holder.comment.setText((devices.get(finalPosition).getComment().isEmpty()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
         else{
@@ -82,7 +82,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             holder.appKey.setText(devices.get(finalPosition).getAppkey());
             holder.nwkID.setText(devices.get(finalPosition).getNwkid());
             holder.devAdrExp.setText(devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
-            holder.devAdr.setText(!("".equals(devices.get(finalPosition).getComment())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
+            holder.devAdr.setText(!((devices.get(finalPosition).getComment().isEmpty())) ? devices.get(finalPosition).getComment() : devices.get(finalPosition).getDevadrMSBtoLSB().toUpperCase());
             holder.appSKeyLabel.setVisibility(View.GONE);
             holder.appSKey.setVisibility(View.GONE);
             holder.nwkSKeyLabel.setVisibility(View.GONE);
@@ -98,7 +98,7 @@ public class MainContentAdapter extends RecyclerView.Adapter<MainContentAdapter.
             } else {
                 holder.isSync.setTextColor(Color.RED);
             }
-            holder.comment.setText("".equals(devices.get(finalPosition).getComment()) ? "" : devices.get(finalPosition).getComment());
+            holder.comment.setText((devices.get(finalPosition).getComment().isEmpty()) ? "" : devices.get(finalPosition).getComment());
             holder.date.setText(devices.get(finalPosition).getDateOfLastChange().toString());
         }
         holder.expandableLayout.setInRecyclerView(true);

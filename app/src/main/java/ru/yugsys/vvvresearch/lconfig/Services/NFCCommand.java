@@ -693,14 +693,14 @@ public class NFCCommand {
 			 
 			 if(ma.isBasedOnTwoBytesAddress())
 			 {
-				 if (ma.getManufacturer().equals("Texas Instruments"))
+				 if ("Texas Instruments".equals(ma.getManufacturer()))
 					 WriteSingleBlockFrame = new byte[]{(byte) 0x4A, (byte) 0x21, StartAddress[1], StartAddress[0], DataToWrite[0], DataToWrite[1], DataToWrite[2], DataToWrite[3]};
 				 else
 					 WriteSingleBlockFrame = new byte[]{(byte) 0x0A, (byte) 0x21, StartAddress[1], StartAddress[0], DataToWrite[0], DataToWrite[1], DataToWrite[2], DataToWrite[3]};
 			 } 				
 			 else
 			 {
-				 if (ma.getManufacturer().equals("Texas Instruments"))
+				 if ("Texas Instruments".equals(ma.getManufacturer()))
 					 WriteSingleBlockFrame = new byte[]{(byte) 0x42, (byte) 0x21, StartAddress[1], DataToWrite[0], DataToWrite[1], DataToWrite[2], DataToWrite[3]};
 				 else
 					 WriteSingleBlockFrame = new byte[]{(byte) 0x02, (byte) 0x21, StartAddress[1], DataToWrite[0], DataToWrite[1], DataToWrite[2], DataToWrite[3]};

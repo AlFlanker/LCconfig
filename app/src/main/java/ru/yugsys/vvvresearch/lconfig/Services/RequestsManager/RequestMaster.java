@@ -201,7 +201,7 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "ABP");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("alias", (dev.getComment().isEmpty()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
                 device.put("eui", correctField(dev.getEui().toLowerCase()));
                 device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("devAddr", correctField(dev.getDevadrMSBtoLSB()));
@@ -220,7 +220,7 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "OTAA");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("alias", dev.getComment().isEmpty() ? "LC5xx" : dev.getComment().replace(" ", "_"));
                 device.put("eui", correctField(dev.getEui().toLowerCase()));
                 device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("appKey", dev.getAppkey());
@@ -257,7 +257,7 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "ABP");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("alias", (dev.getComment().isEmpty()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
                 device.put("eui", correctField(dev.getEui().toLowerCase()));
                 device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("devAddr", correctField(dev.getDevadrMSBtoLSB().toLowerCase()));
@@ -276,7 +276,7 @@ public class RequestMaster {
                 model.put("version", "1.0");
 
                 device.put("activationType", "OTAA");
-                device.put("alias", "".equals(dev.getComment()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
+                device.put("alias", (dev.getComment().isEmpty()) ? "LC5xx" : dev.getComment().replace(" ", "_"));
                 device.put("eui", correctField(dev.getEui().toLowerCase()));
                 device.put("applicationEui", correctField(dev.getAppeui().toLowerCase()));
                 device.put("appKey", dev.getAppkey().toLowerCase());
