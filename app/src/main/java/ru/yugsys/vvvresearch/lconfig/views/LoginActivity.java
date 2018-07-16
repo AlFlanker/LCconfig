@@ -25,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Text;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
@@ -36,6 +37,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mLoginView;
     private EditText mServerView;
     private EditText mPasswordView;
+    private TextView mLoginCaption;
+    private TextView mPasswordCaption;
     private View mProgressView;
     private View mLoginFormView;
     private Spinner typeOfServerSpinner;
@@ -54,8 +57,10 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mLoginView = (EditText) findViewById(R.id.login);
         mPasswordView = (EditText) findViewById(R.id.password);
-        typeOfServerSpinner = (Spinner) findViewById(R.id.typeServer);
+        typeOfServerSpinner = (Spinner) findViewById(R.id.typeOfService);
         netList = getAllService();
+        mLoginCaption = findViewById(R.id.loginCaption);
+        mPasswordCaption = findViewById(R.id.passwordCaption);
         String service = "";
         for (NetData netData : netList) {
             if (netData.getCheckMain() == true) {
@@ -81,7 +86,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 switch (type[position]) {
                     case "net868.ru":
-                        mLoginView.setHint((CharSequence) getString(R.string.promt_token));
+                        mLoginView.setHint(R.string.promt_token);
+                        mPasswordCaption.setVisibility(View.GONE);
+                        mLoginCaption.setText(R.string.promt_token);
                         mLoginView.setText(currentService.getToken(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.GONE);
                         mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
@@ -90,11 +97,12 @@ public class LoginActivity extends AppCompatActivity {
 //                        mLoginView.setText("");
                         break;
                     case "Вега":
-                        mLoginView.setHint((CharSequence) getString(R.string.promt_login));
-                        mPasswordView.setHint((CharSequence) getString(R.string.promt_pass));
+                        mLoginView.setHint(R.string.promt_login);
+                        mPasswordView.setHint(getString(R.string.promt_pass));
                         mLoginView.setText(currentService.getLogin(), TextView.BufferType.EDITABLE);
                         mPasswordView.setText(currentService.getPassword(), TextView.BufferType.EDITABLE);
                         mPasswordView.setVisibility(View.VISIBLE);
+                        mPasswordCaption.setVisibility(View.VISIBLE);
                         mServerView.setText(currentService.getAddress(), TextView.BufferType.EDITABLE);
 //                        chosenService(currentService);
                         break;

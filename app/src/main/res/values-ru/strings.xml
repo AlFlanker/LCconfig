@@ -43,7 +43,7 @@
     <string name="action_addedit">Добавить</string>
     <string name="prompt_isotaa">Аткивация OTAA</string>
     <string name="label_isotaa">OTAA</string>
-    <string name="prompt_typeServer">Тип сервера</string>
+    <string name="prompt_typeService">Тип сервиса</string>
     <string name="more">Больше информации</string>
     <string name="type_device_is">Тип</string>
     <string name="out_type_device_is">Тип выхода</string>

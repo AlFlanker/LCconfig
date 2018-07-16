@@ -30,6 +30,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+            <TextView
+                    android:id="@+id/loginCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_login"
+                    android:maxLines="2"
+                    style="@style/BaseTextView.Caption"
+            />
             <EditText
                     android:id="@+id/login"
                     android:layout_width="match_parent"
@@ -37,6 +45,15 @@
                     android:hint="@string/prompt_login"
                     android:inputType="text"
                     android:maxLines="1"
+                    style="@style/BaseEditable.Body"
+            />
+            <TextView
+                    android:id="@+id/passwordCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_password"
+                    android:maxLines="2"
+                    style="@style/BaseTextView.Caption"
             />
             <EditText
                     android:id="@+id/password"
@@ -45,7 +62,14 @@
                     android:hint="@string/prompt_password"
                     android:inputType="textPassword"
                     android:maxLines="1"
-
+                    style="@style/BaseEditable.Body"
+            />
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_server"
+                    android:maxLines="2"
+                    style="@style/BaseTextView.Caption"
             />
             <EditText
                     android:id="@+id/connectServer"
@@ -54,15 +78,25 @@
                     android:hint="@string/prompt_server"
                     android:inputType="textUri"
                     android:maxLines="1"
-                    android:imeActionId="@+id/sign_in_button"
                     android:imeActionLabel="@string/action_sign_in_short"
+                    style="@style/BaseEditable.Body"
+            />
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_typeService"
+                    android:maxLines="2"
+                    style="@style/BaseTextView.Caption"
             />
             <Spinner
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_typeServer"
+                    android:hint="@string/prompt_typeService"
                     android:entries="@array/serviceList"
-                    android:id="@+id/typeServer"/>
+                    android:id="@+id/typeOfService"
+                    style="@style/BaseEditable.Body"
+
+            />
             <Button
                     android:id="@+id/sign_in_button"
                     style="?android:textAppearanceSmall"
