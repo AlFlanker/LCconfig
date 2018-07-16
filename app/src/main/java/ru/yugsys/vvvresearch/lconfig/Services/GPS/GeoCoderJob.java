@@ -4,6 +4,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Build;
 import android.util.Log;
 import ru.yugsys.vvvresearch.lconfig.App;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
@@ -11,6 +12,7 @@ import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 import ru.yugsys.vvvresearch.lconfig.model.DataModel;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class GeoCoderJob extends JobService {
@@ -37,7 +39,12 @@ public class GeoCoderJob extends JobService {
                 intent.putExtra(Constant.LOCATION_DATA_DEVICE_EUI, dev.getEui());
                 intent.putExtra(Constant.LOCATION_DATA_EXTRA, location);
             Log.d("geoService", "send device with eui: " + dev.getEui());
+            if (Build.VERSION.SDK_INT >= 26) {
+                getApplicationContext().startForegroundService(intent);
+
+            } else {
                 startService(intent);
+            }
 
         }
 

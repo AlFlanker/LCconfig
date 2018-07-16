@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
     private BroadcastReceiver listener;
     private int numberOfUnregistered = 0;
     public static String responseFromIS = "ru.yugsys.vvvresearch.lconfig.MainActivity";
+    private GPSTracker gpsTracker;
 
 
     @Override
@@ -96,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             externalRequestsReceiver.jobScheduler.cancelAll();
         }
         unregisterReceiver(listener);
+        if (gpsTracker != null)
+            gpsTracker.stop();
+        Log.d("GPS", "MainAct gpsTracker.stop()");
     }
 
     @Override
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
                 Log.d("NFC", String.valueOf(tagFromIntent.describeContents()));
                 readTask.subscribe(this);
                 readTask.execute(currentDataDevice);
+
 
             }
         }
@@ -154,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
             mFilters = new IntentFilter[]{ndef,};
             mTechLists = new String[][]{new String[]{android.nfc.tech.NfcV.class.getName()}};
         }
+
+
     }
 
     @Override
@@ -210,17 +217,23 @@ public class MainActivity extends AppCompatActivity implements MainViewable,
 
         ((App) getApplication()).getModel().loadAllDeviceDataByProperties(Model.Properties.DateOfChange, Model.Direction.Reverse);
         recyclerView.getRootView().startAnimation(AnimationUtils.loadAnimation(recyclerView.getContext(),R.anim.push_elem));
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            GPSTracker gpsTracker = GPSTracker.instance();
-            gpsTracker.setContext(this);
-            gpsTracker.OnStartGPS();
-        }
+        gpsTracker = GPSTracker.instance();
+        gpsTracker.setContext(this);
+        gpsTracker.OnResumeGPS();
+        Log.d("GPS", "MainAct gpsTracker.OnResumeGPS()");
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            gpsTracker = GPSTracker.instance();
+            gpsTracker.setContext(this);
+            gpsTracker.OnStartGPS();
+            Log.d("GPS", "MainAct gpsTracker.OnStartGPS()");
+        }
+
 
 
     }

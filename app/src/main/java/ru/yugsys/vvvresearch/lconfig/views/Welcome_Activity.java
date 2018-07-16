@@ -46,6 +46,7 @@ public class Welcome_Activity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
         btnSkip = (Button) findViewById(R.id.btn_skip);
+        btnSkip.setVisibility(View.GONE);
         btnNext = (Button) findViewById(R.id.btn_next);
 
 
@@ -138,7 +139,7 @@ public class Welcome_Activity extends AppCompatActivity {
             } else {
                 // still pages are left
                 btnNext.setText(getString(R.string.next));
-                btnSkip.setVisibility(View.VISIBLE);
+//                btnSkip.setVisibility(View.VISIBLE);
             }
         }
 

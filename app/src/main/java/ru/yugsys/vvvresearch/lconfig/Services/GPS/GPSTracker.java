@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import com.google.android.gms.location.*;
 import ru.yugsys.vvvresearch.lconfig.Logger;
 
@@ -20,7 +21,7 @@ import static android.content.Context.LOCATION_SERVICE;
  */
 public class GPSTracker {
 
-    private final Logger log = Logger.getInstance();
+//    private final Logger log = Logger.getInstance();
     /**
      * Перед
      *
@@ -28,7 +29,7 @@ public class GPSTracker {
 
     private  Context mContext;
     private static final GPSTracker instance = new GPSTracker();
-    private static final String TAG = "GPS";
+    private static final String TAG = "GPS_debug";
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -40,29 +41,29 @@ public class GPSTracker {
 
 
     private GPSTracker() {
-        log.d(TAG, "GPSt constructor");
+        Log.d(TAG, "GPSt constructor");
         this.locationRequest = new LocationRequest();
         this.locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         this.locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
         this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 //        this.locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         // точность +-100 метров
-        log.d(TAG, "GPSt request compl");
+        Log.d(TAG, "GPSt request compl");
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
         builder.addLocationRequest(this.locationRequest);
         this.locationSettingsRequest = builder.build();
-        log.d(TAG, "GPSt callBack");
+        Log.d(TAG, "GPSt callBack");
         this.locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 Location currentLocation = locationResult.getLastLocation();
-                log.d(TAG, "Tracker: " + currentLocation.toString());
+                Log.d(TAG, "Tracker: " + currentLocation.toString());
                 if (GPScb!=null)
                     GPScb.OnGPSdata(currentLocation);//в мой класс обратка
             }
         };
-        log.d(TAG, "client");
+        Log.d(TAG, "client");
 
     }
 
@@ -76,10 +77,10 @@ public class GPSTracker {
         // проверка доступа и разрешений ОБЯЗАТЕЛЬНО!!!для андройд выше 6.0
         this.mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            log.d(TAG, "perm fall");
+            Log.d(TAG, "perm fall");
         }
         mRequestingLocationUpdates = true;
-        log.d(TAG, "permission compl");
+        Log.d(TAG, "permission compl");
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
     }
 
@@ -100,7 +101,7 @@ public class GPSTracker {
     }
 
     public void stop() {
-        log.d(TAG, "stop() Stopping location tracking");
+        Log.d(TAG, "stop() Stopping location tracking");
         mRequestingLocationUpdates = false;
         this.mFusedLocationClient.removeLocationUpdates(this.locationCallback);
     }
@@ -112,7 +113,7 @@ public class GPSTracker {
         }
         this.mFusedLocationClient.requestLocationUpdates(this.locationRequest, this.locationCallback, Looper.myLooper());
         mRequestingLocationUpdates = true;
-        log.d("GPS", "OnResume");
+        Log.d("GPS", "OnResume");
     }
 
     public static Location getLastKnownLocation(Context context) {

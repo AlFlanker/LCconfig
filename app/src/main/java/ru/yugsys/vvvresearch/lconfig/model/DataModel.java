@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.util.Log;
 import org.greenrobot.greendao.query.Query;
 import ru.yugsys.vvvresearch.lconfig.Logger;
-import ru.yugsys.vvvresearch.lconfig.R;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.AddressResultReceiver;
 import ru.yugsys.vvvresearch.lconfig.Services.GPS.GPScallback;
 
@@ -14,11 +13,9 @@ import ru.yugsys.vvvresearch.lconfig.Services.RequestsManager.CheckRequest;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DaoSession;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.DeviceEntryDao;
 
-import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.GeoDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataBaseClasses.NetDataDao;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.DeviceEntry;
 
-import ru.yugsys.vvvresearch.lconfig.model.DataEntity.GeoData;
 import ru.yugsys.vvvresearch.lconfig.model.DataEntity.NetData;
 import ru.yugsys.vvvresearch.lconfig.model.Interfaces.Model;
 import ru.yugsys.vvvresearch.lconfig.model.Manager.EventManager;
@@ -59,7 +56,7 @@ public class DataModel implements Model,
     private Location mCurrentLocation;
     private DeviceEntry currentDevice;
     private Queue<DeviceEntry> devQueue = new ArrayDeque<DeviceEntry>();
-    private Logger log = Logger.getInstance();
+    //    private Logger Log = Logger.getInstance();
     public final AddressResultReceiver receiver;
 
 
@@ -299,7 +296,7 @@ public class DataModel implements Model,
     @Override
     public void OnGPSdata(Location location) {
         this.mCurrentLocation = location;
-        log.d("GPS", "In Model: " + mCurrentLocation.toString());
+        Log.d("GPS", "In Model: " + mCurrentLocation.toString());
 
         eventManager.notifyOnGPS(mCurrentLocation);
     }

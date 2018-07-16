@@ -3,6 +3,7 @@ package ru.yugsys.vvvresearch.lconfig.Services.RequestsManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 import okhttp3.OkHttpClient;
@@ -54,7 +55,13 @@ public class RequestJob extends JobService {
                         data.putExtra("hostAPI", currentService.getAddress() + RequestMaster.net868API.get(RequestMaster.REST_FUNCTION.CreateDevice));
                         data.putExtra("token", currentService.getToken());
                         data.putExtra("JSONobject", RequestMaster.convert2StringJSON(dev, currentService.getToken()));
-                        getApplicationContext().startService(data);
+                        if (Build.VERSION.SDK_INT >= 26) {
+
+                            getApplicationContext().startForegroundService(data);
+                        } else {
+                            startService(data);
+                        }
+
                     }
                     Log.d("Sync", " counter: " + String.valueOf(i));
 

@@ -4,12 +4,17 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -129,20 +134,21 @@ public class LoginActivity extends AppCompatActivity {
                 switch ((String) typeOfServerSpinner.getAdapter().getItem(typeOfServerSpinner.getSelectedItemPosition())) {
                     case "net868.ru":
 
-                        if (checkToken(mLoginView.getText().toString()) &&
-                                checkUrl(mServerView.getText().toString())) {
+                        if (CheckData(mLoginView.getText().toString(), mServerView.getText().toString())) {
                             net = new NetData();
                             net.setAddress(mServerView.getText().toString());
                             net.setToken(mLoginView.getText().toString());
                             net.setPassword("pass");
                             net.setLogin("login");
                             net.setServiceName("net868.ru");
-                            Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT);
+//                            Toast.makeText(getApplicationContext(), getString(R.string.WriteSucessfull), Toast.LENGTH_SHORT);
+                            showDiffrentSnackBar(getString(R.string.WriteSucessfull), 1);
 
                             ((App) getApplication()).getModel().addNetData(net);
                             chosenService(net);
                         } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.incorrectlyToken) + " or URL", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), getString(R.string.incorrectlyToken) + " or URL", Toast.LENGTH_SHORT).show();
+                            showDiffrentSnackBar(getString(R.string.incorrectlyToken), 0);
                         }
 
 
@@ -216,7 +222,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getApplicationContext(), body, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), body, Toast.LENGTH_SHORT).show();
             super.onPostExecute(aVoid);
         }
 
@@ -244,15 +250,43 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkToken(String token) {
+    private boolean CheckData(String token, String url) {
+        int errorColor;
+        int successColor;
+        boolean check = true;
+        if (Build.VERSION.SDK_INT >= 23) {
+            errorColor = ContextCompat.getColor(getApplicationContext(), R.color.errorColor);
+            successColor = ContextCompat.getColor(getApplicationContext(), R.color.successColor);
+        } else {
+            errorColor = getResources().getColor(R.color.errorColor);
+            successColor = getResources().getColor(R.color.successColor);
+        }
+        ForegroundColorSpan errorColorSpan = new ForegroundColorSpan(errorColor);
+        ForegroundColorSpan successColorSpan = new ForegroundColorSpan(successColor);
+        SpannableStringBuilder successSB;
+        SpannableStringBuilder spannableStringBuilder;
+
         Pattern pattern = Pattern.compile("[\\d|\\w]{32}");
-        return pattern.matcher(token).matches();
+
+        if (!pattern.matcher(token).matches()) {
+            spannableStringBuilder = new SpannableStringBuilder("Error");
+            spannableStringBuilder.setSpan(errorColorSpan, 0, "Error".length(), 0);
+            mLoginView.setError(spannableStringBuilder);
+            return false;
+
+        }
+
+        pattern = Pattern.compile("^((https://)|(http://))\\S+");
+        if (!pattern.matcher(url).matches()) {
+            spannableStringBuilder = new SpannableStringBuilder("Error");
+            spannableStringBuilder.setSpan(errorColorSpan, 0, "Error".length(), 0);
+            mServerView.setError(spannableStringBuilder);
+            return false;
+
+        }
+        return true;
     }
 
-    private boolean checkUrl(String url) {
-        Pattern pattern = Pattern.compile("^((https://)|(http://))\\S+");
-        return pattern.matcher(url).matches();
-    }
 
     private static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context
@@ -280,9 +314,34 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         }
-        Toast.makeText(getApplicationContext(), netData.getServiceName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), netData.getServiceName(), Toast.LENGTH_SHORT).show();
+        showDiffrentSnackBar(netData.getServiceName(), 1);
         Log.d("Service:", "chosen Service: " + netData.getServiceName());
     }
+
+    private void showDiffrentSnackBar(String msg, int me) {
+
+        int color;
+        if (me == 1) {
+
+            color = Color.WHITE;
+        } else {
+
+            color = Color.RED;
+        }
+
+        Snackbar snackbar = Snackbar
+                .make(mLoginFormView, msg, Snackbar.LENGTH_LONG);
+
+        View sbView = snackbar.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snackbar.show();
+    }
+
+
+
+
 
 
 }

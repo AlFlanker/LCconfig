@@ -58,7 +58,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         ModelListener.OnGPSdata,
         ModelListener.OnNFCConnected {
 
-
+    private GPSTracker gpsTracker;
     private Vibrator vibrator;
     private ProgressBar progressBar;
     private ScrollView scrollView;
@@ -181,9 +181,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
                     100);
         } else {
 
-            GPSTracker gpsTracker = GPSTracker.instance();
+            gpsTracker = GPSTracker.instance();
             gpsTracker.setContext(this);
             gpsTracker.OnStartGPS();
+            Log.d("GPS", "AddEditAct gpsTracker.OnStartGPS()");
             mLocation = GPSTracker.getLastKnownLocation(this);
             App.getInstance().getModel().getEventManager().subscribeOnGPS(this);
         }
@@ -216,6 +217,19 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         progressBar.setVisibility(View.GONE);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (gpsTracker == null) {
+                gpsTracker = GPSTracker.instance();
+                gpsTracker.setContext(this);
+                gpsTracker.OnStartGPS();
+                Log.d("GPS", "AddEditAct gpsTracker.OnStartGPS()");
+
+            }
+        }
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -276,6 +290,10 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         mAdapter.enableForegroundDispatch(this, mPendingIntent, mFilters, mTechLists);
         if (this.getIntent().getBooleanExtra(MainActivity.ADD_NEW_DEVICE_MODE, true)) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                gpsTracker = GPSTracker.instance();
+                gpsTracker.setContext(this);
+                gpsTracker.OnResumeGPS();
+                Log.d("GPS", "AddEditAct gpsTracker.OnResumeGPS()");
 
                 ((App) getApplication()).getModel().getGPSLocation();
             }
@@ -289,6 +307,8 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
         if (NfcAdapter.getDefaultAdapter(this) != null) {
             NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
         }
+        if (gpsTracker != null) gpsTracker.stop();
+        Log.d("GPS", "AddEditAct gpsTracker.stop()");
     }
 
 
@@ -383,6 +403,7 @@ public class AddEditActivity extends AppCompatActivity implements AddEditViewabl
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
     @Override
